@@ -7,11 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
-<<<<<<< HEAD
  * \version $Id: SuperCluster.h,v 1.25 2012/10/22 20:23:27 argiro Exp $
-=======
- * \version $Id: SuperCluster.h,v 1.27 2013/06/14 14:27:52 lgray Exp $
->>>>>>> 4e5607a... start of PS-EE match tracking
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
