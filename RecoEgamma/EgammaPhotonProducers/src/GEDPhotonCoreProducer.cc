@@ -85,7 +85,7 @@ void GEDPhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup&
     // Retrieve stuff from the pfPhoton
     reco::PFCandidateEGammaExtraRef pfPhoRef =  candRef->egammaExtraRef();
     reco::SuperClusterRef  refinedSC= pfPhoRef->superClusterRef();
-    reco::SuperClusterRef  boxSC= pfPhoRef->superClusterBoxRef();
+    reco::SuperClusterRef  parentSC= pfPhoRef->parentSuperClusterRef();
     const reco::ConversionRefVector & doubleLegConv = pfPhoRef->conversionRef();
     reco::CaloClusterPtr refinedSCPtr= edm::refToPtr(refinedSC);
 
@@ -97,7 +97,7 @@ void GEDPhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup&
     newCandidate.setPFlowPhoton(true);
     newCandidate.setStandardPhoton(false);
     newCandidate.setSuperCluster(refinedSC);
-    newCandidate.setPflowSuperCluster(boxSC);
+    newCandidate.setPflowSuperCluster(parentSC);
     // fill conversion infos
     
 

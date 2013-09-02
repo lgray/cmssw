@@ -67,16 +67,16 @@ void GEDGsfElectronCoreProducer::produceElectronCore( const reco::PFCandidate & 
   GsfElectronCoreBaseProducer::fillElectronCore(eleCore) ;
 
   SuperClusterRef scRef = extraRef->superClusterRef();
-  SuperClusterRef scBoxRef = extraRef->superClusterBoxRef();  
+  SuperClusterRef parentScRef = extraRef->parentSuperClusterRef();  
 
-  if (!scRef.isNull() || !scBoxRef.isNull())
+  if (!scRef.isNull() || !parentScRef.isNull())
   {
        eleCore->setSuperCluster(scRef) ;
-       eleCore->setPflowSuperCluster(scBoxRef) ;
+       eleCore->setPflowSuperCluster(parentScRef) ;
        electrons->push_back(*eleCore) ;
    }
    else
-   { edm::LogWarning("GEDGsfElectronCoreProducer")<<"Both superClusterRef and superClusterBoxRef of pfCandidate.egammaExtraRef() are Null" ; }
+   { edm::LogWarning("GEDGsfElectronCoreProducer")<<"Both superClusterRef and parentSuperClusterRef of pfCandidate.egammaExtraRef() are Null" ; }
   
   delete eleCore ;
  }

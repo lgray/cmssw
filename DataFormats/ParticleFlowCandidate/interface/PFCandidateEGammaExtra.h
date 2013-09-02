@@ -72,13 +72,13 @@ namespace reco {
     reco::SuperClusterRef superClusterRef() const {return scRef_ ; }
 
     /// return a reference to the corresponding box supercluster
-    reco::SuperClusterRef superClusterBoxRef() const {return scBoxRef_ ; }    
+    reco::SuperClusterRef parentSuperClusterRef() const {return parentScRef_ ; }    
     
     /// set reference to the corresponding supercluster
     void setSuperClusterRef(reco::SuperClusterRef sc) { scRef_ = sc; }
 
     /// set reference to the corresponding supercluster
-    void setSuperClusterBoxRef(reco::SuperClusterRef sc) { scBoxRef_ = sc; }   
+    void setParentSuperClusterRef(reco::SuperClusterRef sc) { parentScRef_ = sc; }   
     
     /// add Single Leg Conversion TrackRef 
     void addSingleLegConvTrackRef(const reco::TrackRef& trackref);
@@ -156,8 +156,8 @@ namespace reco {
     /// Ref to (refined) supercluster
     reco::SuperClusterRef scRef_;
 
-    /// Ref to box supercluster
-    reco::SuperClusterRef scBoxRef_;    
+    /// Ref to the parent supercluster (could be PF (box or mustache) or EG!)
+    reco::SuperClusterRef parentScRef_;    
     
     ///  vector of TrackRef from Single Leg conversions
     std::vector<reco::TrackRef> assoSingleLegRefTrack_;
