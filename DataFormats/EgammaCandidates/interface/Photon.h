@@ -56,8 +56,8 @@ namespace reco {
     bool isStandardPhoton() const {return this->photonCore()->isStandardPhoton();}
     /// Ref to SuperCluster
     reco::SuperClusterRef superCluster() const;
-    /// Ref to PFlow SuperCluster
-    reco::SuperClusterRef pfSuperCluster() const {return this->photonCore()->pfSuperCluster();}
+    /// Ref to parent SuperCluster (could be PF or EG)
+    reco::SuperClusterRef parentSuperCluster() const {return this->photonCore()->parentSuperCluster();}
     /// vector of references to  Conversion's
     reco::ConversionRefVector conversions() const {return this->photonCore()->conversions() ;}  
     enum ConversionProvenance {egamma=0, 

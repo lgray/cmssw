@@ -171,7 +171,7 @@ class GsfElectron : public RecoCandidate
     float ctfGsfOverlap() const { return core()->ctfGsfOverlap() ; }
     bool ecalDrivenSeed() const { return core()->ecalDrivenSeed() ; }
     bool trackerDrivenSeed() const { return core()->trackerDrivenSeed() ; }
-    SuperClusterRef pflowSuperCluster() const { return core()->pflowSuperCluster() ; }
+    SuperClusterRef parentSuperCluster() const { return core()->parentSuperCluster() ; }
 
     // backward compatibility
     struct ClosestCtfTrack
@@ -552,13 +552,13 @@ class GsfElectron : public RecoCandidate
      } ;
 
     // accessors
-    const ShowerShape & pfShowerShape() const { return pfShowerShape_ ; }
+    const ShowerShape & parentShowerShape() const { return parentShowerShape_ ; }
     const PflowIsolationVariables & pfIsolationVariables() const { return pfIso_ ; }
     const MvaInput & mvaInput() const { return mvaInput_ ; }
     const MvaOutput & mvaOutput() const { return mvaOutput_ ; }
 
     // setters
-    void setPfShowerShape( const ShowerShape & shape ) { pfShowerShape_ = shape ; }
+    void setParentShowerShape( const ShowerShape & shape ) { parentShowerShape_ = shape ; }
     void setPfIsolationVariables( const PflowIsolationVariables & iso ) { pfIso_ = iso ; }
     void setMvaInput( const MvaInput & mi ) { mvaInput_ = mi ; }
     void setMvaOutput( const MvaOutput & mo ) { mvaOutput_ = mo ; }
@@ -568,7 +568,7 @@ class GsfElectron : public RecoCandidate
 
   private:
 
-    ShowerShape pfShowerShape_ ;
+    ShowerShape parentShowerShape_ ;
     PflowIsolationVariables pfIso_ ;
     MvaInput mvaInput_ ;
     MvaOutput mvaOutput_ ;
@@ -620,9 +620,9 @@ class GsfElectron : public RecoCandidate
       {
        float trackFbrem  ;       // the brem fraction from gsf fit: (track momentum in - track momentum out) / track momentum in
        float superClusterFbrem ; // the brem fraction from supercluster: (supercluster energy - electron cluster energy) / supercluster energy
-       float pfSuperClusterFbrem ; // the brem fraction from pflow supercluster
+       float parentSuperClusterFbrem ; // the brem fraction from pflow supercluster
        ClassificationVariables()
-        : trackFbrem(-1.e30), superClusterFbrem(-1.e30), pfSuperClusterFbrem(-1.e30)
+        : trackFbrem(-1.e30), superClusterFbrem(-1.e30), parentSuperClusterFbrem(-1.e30)
         {}
       } ;
     enum Classification { UNKNOWN=-1, GOLDEN=0, BIGBREM=1, BADTRACK=2, SHOWERING=3, GAP=4 } ;
@@ -630,7 +630,7 @@ class GsfElectron : public RecoCandidate
     // accessors
     float trackFbrem() const { return classVariables_.trackFbrem ; }
     float superClusterFbrem() const { return classVariables_.superClusterFbrem ; }
-    float pfSuperClusterFbrem() const { return classVariables_.pfSuperClusterFbrem ; }
+    float parentSuperClusterFbrem() const { return classVariables_.parentSuperClusterFbrem ; }
     const ClassificationVariables & classificationVariables() const { return classVariables_ ; }
     Classification classification() const { return class_ ; }
 
@@ -641,7 +641,7 @@ class GsfElectron : public RecoCandidate
     // setters
     void setTrackFbrem( float fbrem ) { classVariables_.trackFbrem = fbrem ; }
     void setSuperClusterFbrem( float fbrem ) { classVariables_.superClusterFbrem = fbrem ; }
-    void setPfSuperClusterFbrem( float fbrem ) { classVariables_.pfSuperClusterFbrem = fbrem ; }
+    void setParentSuperClusterFbrem( float fbrem ) { classVariables_.parentSuperClusterFbrem = fbrem ; }
     void setClassificationVariables( const ClassificationVariables & cv ) { classVariables_ = cv ; }
     void setClassification( Classification myclass ) { class_ = myclass ; }
 

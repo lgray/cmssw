@@ -76,8 +76,8 @@ namespace pat {
       reco::GsfTrackRef gsfTrack() const;
       /// override the reco::GsfElectron::superCluster method, to access the internal storage of the supercluster
       reco::SuperClusterRef superCluster() const;
-      /// override the reco::GsfElectron::pflowSuperCluster method, to access the internal storage of the pflowSuperCluster
-      reco::SuperClusterRef pflowSuperCluster() const;
+      /// override the reco::GsfElectron::parentSuperCluster method, to access the internal storage of the pflowSuperCluster
+      reco::SuperClusterRef parentSuperCluster() const;
       /// returns nothing. Use either gsfTrack or closestCtfTrack
       reco::TrackRef track() const;
       /// override the reco::GsfElectron::closestCtfTrackRef method, to access the internal storage of the track
@@ -89,10 +89,10 @@ namespace pat {
       const std::vector<reco::CaloCluster>& basicClusters() const { return basicClusters_ ; }
       //method to access the preshower clusters
       const std::vector<reco::CaloCluster>& preshowerClusters() const { return preshowerClusters_ ; }
-      //method to access the pflow basic clusters
-      const std::vector<reco::CaloCluster>& pflowBasicClusters() const { return pflowBasicClusters_ ; }
-      //method to access the pflow preshower clusters
-      const std::vector<reco::CaloCluster>& pflowPreshowerClusters() const { return pflowPreshowerClusters_ ; }
+      //method to access the parent basic clusters
+      const std::vector<reco::CaloCluster>& parentBasicClusters() const { return parentBasicClusters_ ; }
+      //method to access the parent preshower clusters
+      const std::vector<reco::CaloCluster>& parentPreshowerClusters() const { return parentPreshowerClusters_ ; }
 
       using reco::RecoCandidate::track; // avoid hiding the base implementation
       /// method to store the electron's core internally
@@ -101,18 +101,18 @@ namespace pat {
       void embedGsfTrack();
       /// method to store the electron's SuperCluster internally
       void embedSuperCluster();
-      /// method to store the electron's PflowSuperCluster internally
-      void embedPflowSuperCluster();
+      /// method to store the electron's Parent SC internally
+      void embedParentSuperCluster();
       /// method to store the electron's seedcluster internally
       void embedSeedCluster();
       /// method to store the electron's basic clusters
       void embedBasicClusters();
       /// method to store the electron's preshower clusters
       void embedPreshowerClusters();
-      /// method to store the electron's pflow basic clusters
-      void embedPflowBasicClusters();
-      /// method to store the electron's pflow preshower clusters
-      void embedPflowPreshowerClusters();
+      /// method to store the electron's parent basic clusters
+      void embedParentBasicClusters();
+      /// method to store the electron's parent preshower clusters
+      void embedParentPreshowerClusters();
       /// method to store the electron's Track internally
       void embedTrack();
       /// method to store the RecHits internally - can be called from the PATElectronProducer
@@ -251,7 +251,7 @@ namespace pat {
       /// True if electron's supercluster is stored internally
       bool embeddedSuperCluster_;
       /// True if electron's pflowsupercluster is stored internally
-      bool embeddedPflowSuperCluster_;
+      bool embeddedParentSuperCluster_;
       /// Place to store electron's supercluster internally
       std::vector<reco::SuperCluster> superCluster_;
       /// Place to store electron's basic clusters internally 
@@ -259,11 +259,11 @@ namespace pat {
       /// Place to store electron's preshower clusters internally      
       std::vector<reco::CaloCluster> preshowerClusters_;
       /// Place to store electron's pflow basic clusters internally
-      std::vector<reco::CaloCluster> pflowBasicClusters_;
+      std::vector<reco::CaloCluster> parentBasicClusters_;
       /// Place to store electron's pflow preshower clusters internally
-      std::vector<reco::CaloCluster> pflowPreshowerClusters_;
+      std::vector<reco::CaloCluster> parentPreshowerClusters_;
       /// Place to store electron's pflow supercluster internally
-      std::vector<reco::SuperCluster> pflowSuperCluster_;
+      std::vector<reco::SuperCluster> parentSuperCluster_;
       /// True if electron's track is stored internally
       bool embeddedTrack_;
       /// Place to store electron's track internally

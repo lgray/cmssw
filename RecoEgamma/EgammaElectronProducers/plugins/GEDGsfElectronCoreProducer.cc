@@ -72,7 +72,7 @@ void GEDGsfElectronCoreProducer::produceElectronCore( const reco::PFCandidate & 
   if (!scRef.isNull() || !parentScRef.isNull())
   {
        eleCore->setSuperCluster(scRef) ;
-       eleCore->setPflowSuperCluster(parentScRef) ;
+       eleCore->setParentSuperCluster(parentScRef) ;
        electrons->push_back(*eleCore) ;
    }
    else

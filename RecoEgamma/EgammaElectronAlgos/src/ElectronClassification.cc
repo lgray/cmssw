@@ -51,7 +51,7 @@ void ElectronClassification::refineWithPflow( GsfElectron & electron )
   if ( electron.isEBEEGap() || electron.isEBEtaGap() || electron.isEERingGap() )
    { return ; }
 
-  if ((electron.pfSuperClusterFbrem()-electron.trackFbrem())>=0.15)
+  if ((electron.parentSuperClusterFbrem()-electron.trackFbrem())>=0.15)
    { electron.setClassification(GsfElectron::BADTRACK) ; }
  }
 

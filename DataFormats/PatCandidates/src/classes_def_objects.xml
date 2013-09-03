@@ -16,7 +16,8 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="22">
+  <class name="pat::Electron"  ClassVersion="23">
+   <version ClassVersion="23" checksum="265921964"/>
    <version ClassVersion="22" checksum="4113394532"/>
    <version ClassVersion="21" checksum="366535823"/>
    <version ClassVersion="20" checksum="4220542719"/>

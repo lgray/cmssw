@@ -70,12 +70,12 @@ namespace pat {
       bool          embedGsfElectronCore_;
       bool          embedGsfTrack_;
       bool          embedSuperCluster_;
-      bool          embedPflowSuperCluster_;
+      bool          embedParentSuperCluster_;
       bool          embedSeedCluster_;
       bool          embedBasicClusters_;
       bool          embedPreshowerClusters_;
-      bool          embedPflowBasicClusters_;
-      bool          embedPflowPreshowerClusters_;
+      bool          embedParentBasicClusters_;
+      bool          embedParentPreshowerClusters_;
       bool          embedTrack_;
       bool          addGenMatch_;
       bool          embedGenMatch_;

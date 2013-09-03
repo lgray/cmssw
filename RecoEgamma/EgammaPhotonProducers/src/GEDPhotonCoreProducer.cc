@@ -97,7 +97,7 @@ void GEDPhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup&
     newCandidate.setPFlowPhoton(true);
     newCandidate.setStandardPhoton(false);
     newCandidate.setSuperCluster(refinedSC);
-    newCandidate.setPflowSuperCluster(parentSC);
+    newCandidate.setParentSuperCluster(parentSC);
     // fill conversion infos
     
 

@@ -955,27 +955,27 @@ void GsfElectronAlgo::addPflowInfo()
     setPflowPreselectionFlag(*el) ;
 
     // Shower Shape of pflow cluster
-    if (!((*el)->pflowSuperCluster().isNull()))
+    if (!((*el)->parentSuperCluster().isNull()))
      {
-      reco::GsfElectron::ShowerShape pflowShowerShape ;
-      calculateShowerShape((*el)->pflowSuperCluster(),true,pflowShowerShape) ;
-      (*el)->setPfShowerShape(pflowShowerShape) ;
+      reco::GsfElectron::ShowerShape parentShowerShape ;
+      calculateShowerShape((*el)->parentSuperCluster(),true,parentShowerShape) ;
+      (*el)->setParentShowerShape(parentShowerShape) ;
      }
     else if ((*el)->passingPflowPreselection())
      { edm::LogError("GsfElectronCoreProducer")<<"Preselected tracker driven GsfTrack with no associated pflow SuperCluster." ; }
 
     // PfBrem
-    SuperClusterRef sc = (*el)->pflowSuperCluster() ;
+    SuperClusterRef sc = (*el)->parentSuperCluster() ;
     if (!(sc.isNull()))
      {
 
       if (sc->clustersSize()>1)
        {
         CaloCluster_iterator first = sc->clustersBegin() ;
-        (*el)->setPfSuperClusterFbrem((sc->energy()-(*first)->energy())/sc->energy()) ;
+        (*el)->setParentSuperClusterFbrem((sc->energy()-(*first)->energy())/sc->energy()) ;
        }
       else
-       { (*el)->setPfSuperClusterFbrem(0.) ; }
+       { (*el)->setParentSuperClusterFbrem(0.) ; }
       ElectronClassification theClassifier ;
       theClassifier.refineWithPflow(**el) ;
      }
