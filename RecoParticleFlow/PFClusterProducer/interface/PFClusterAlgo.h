@@ -53,7 +53,6 @@ namespace edm {
 class PFClusterAlgo {
 
  public:
-
   typedef edm::StrictWeakOrdering<reco::PFRecHit> PFStrictWeakOrdering;
   typedef edm::SortedCollection<reco::PFRecHit> SortedPFRecHitCollection;
 
@@ -61,6 +60,8 @@ class PFClusterAlgo {
 			  EGPositionFormula,			  
 			  PFPositionCalc,
 			  kNotDefined };
+
+  typedef edm::Handle<std::vector<reco::PFCluster> > PFClusterHandle;
 
   /// constructor
   PFClusterAlgo();
@@ -83,7 +84,13 @@ class PFClusterAlgo {
 
   /// perform clustering in full framework
   void doClustering( const PFRecHitHandle& rechitsHandle );
-  void doClustering( const PFRecHitHandle& rechitsHandle, const std::vector<bool> & mask );
+  void doClustering( const PFRecHitHandle& rechitsHandle,
+		     const PFClusterHandle& psClustersHandle );
+  void doClustering( const PFRecHitHandle& rechitsHandle, 
+		     const std::vector<bool> & mask );
+  void doClustering( const PFRecHitHandle& rechitsHandle, 
+		     const PFClusterHandle& psClustersHandle,
+		     const std::vector<bool> & mask );
   
   /// setters -------------------------------------------------------
   
@@ -221,6 +228,10 @@ class PFClusterAlgo {
   std::auto_ptr< std::vector< reco::PFRecHit > >& rechitsCleaned()  
     {return pfRecHitsCleaned_;}
 
+  /// \return EE->PS association
+  std::auto_ptr<reco::PFCluster::EEtoPSAssociation>& eeToPSAssoc()
+    {return eeToPSAssoc_;}
+
   /// \return threshold, seed threshold, (gaussian width, p1 ??)
   /// for a given zone (endcap, barrel, VFCAL ??)
 
@@ -256,6 +267,8 @@ class PFClusterAlgo {
  private:
   /// perform clustering
   void doClusteringWorker( const reco::PFRecHitCollection& rechits );
+  void doClusteringWorker( const reco::PFRecHitCollection& rechits,
+			   const std::vector<reco::PFCluster>& psClusters );
 
   /// Clean HCAL readout box noise and HPD discharge
   void cleanRBXAndHPD( const reco::PFRecHitCollection& rechits );
@@ -293,6 +306,7 @@ class PFClusterAlgo {
   
 
   PFRecHitHandle           rechitsHandle_;   
+
   // for E\gamma Position calc
   std::auto_ptr<SortedPFRecHitCollection> sortedRecHits_; 
 
@@ -330,6 +344,9 @@ class PFClusterAlgo {
   /// particle flow rechits cleaned
   std::auto_ptr< std::vector<reco::PFRecHit> > pfRecHitsCleaned_;
   
+  // ee to ps association
+  std::auto_ptr<reco::PFCluster::EEtoPSAssociation> eeToPSAssoc_;
+
   ///  barrel threshold
   double threshBarrel_;
   double threshPtBarrel_;
