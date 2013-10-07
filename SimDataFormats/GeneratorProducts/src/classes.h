@@ -58,6 +58,8 @@ namespace {
 		// LHE products
 
 		edm::Wrapper<LHERunInfoProduct>	wcommon;
+	        gen::WeightsInfo wwgtinfo;
+	        std::vector<gen::WeightsInfo> wvwgtinfo;
 		edm::Wrapper<LHEEventProduct>	wevent;
 	};
 }
