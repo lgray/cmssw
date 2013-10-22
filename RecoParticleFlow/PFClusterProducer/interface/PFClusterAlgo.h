@@ -60,12 +60,7 @@ class PFClusterAlgo {
 			  EGPositionFormula,			  
 			  PFPositionCalc,
 			  kNotDefined };
-
-  typedef edm::Handle<std::vector<reco::PFCluster> > PFClusterHandle;
-
-
-  typedef edm::Handle<edm::View<reco::PFCluster> > PFClusterHandle;
-
+  
   /// constructor
   PFClusterAlgo();
 
