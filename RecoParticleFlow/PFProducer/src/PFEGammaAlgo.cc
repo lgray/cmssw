@@ -1339,6 +1339,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
      return false;
    }
    reco::SuperClusterRef scref = thesc->superClusterRef();
+   const double sc_energy  = scref->rawEnergy();
    // this check needs to be done in a different way
    const bool is_pf_sc = (bool)
      dynamic_cast<const reco::PFCluster*>((*scref->clustersBegin()).get());
@@ -1387,7 +1388,10 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
    for( auto ecalitr = ecalbegin; ecalitr != firstnotinsc; ++ecalitr ) {    
      const PFClusterElement* elemascluster = 
        docast(const PFClusterElement*,ecalitr->first);
-     if( ecalitr->second != false ) {
+     // need to protect against high energy clusters being attached
+     // to low-energy SCs
+     if( ecalitr->second != false && 
+	 ecalitr->first->clusterRef()->energy() < 1.2*sc_energy ) {
        ecalclusters.push_back(std::make_pair(elemascluster,true));
        ecalitr->second = false;
      } else {
@@ -1826,7 +1830,8 @@ linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
       PFClusterFlaggedElement temp(elemascluster,true);
       LOGDRESSED("PFEGammaAlgo::linkGSFTracktoECAL()") 
 	<< "Found a cluster already associated to GSF extrapolation"
-	<< " at ECAL surface!" << std::endl;
+	<< " at ECAL surface!" << std::endl
+	<< *elemascluster << std::endl;
       cdist = _currentblock->dist(primgsf.first->index(),ecal->first->index(),
 				  _currentlinks,reco::PFBlock::LINKTEST_ALL);
       if( cdist != -1 && cdist < min_dist ) {
@@ -1843,7 +1848,8 @@ linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
       PFClusterFlaggedElement temp(elemascluster,true);      
       LOGDRESSED("PFEGammaAlgo::linkGSFTracktoECAL()") 
 	<< "Found a cluster not already associated to GSF extrapolation"
-	<< " at ECAL surface!" << std::endl;
+	<< " at ECAL surface!" << std::endl
+	<< *elemascluster << std::endl;
       RO.ecalclusters.push_back(temp);
       cdist = _currentblock->dist(primgsf.first->index(),ecal->first->index(),
 				  _currentlinks,reco::PFBlock::LINKTEST_ALL);
@@ -1877,7 +1883,7 @@ linkRefinableObjectPrimaryGSFTrackToHCAL(ProtoEGObject& RO) {
       PFClusterFlaggedElement temp(elemascluster,true);    
       LOGDRESSED("PFEGammaAlgo::linkGSFTracktoECAL()") 
 	<< "Found an HCAL cluster associated to GSF extrapolation" 
-	<< std::endl;
+	<< std::endl << *elemascluster << std::endl;
       RO.hcalClusters.push_back(temp);
       RO.localMap.push_back( ElementMap::value_type(primgsf.first,temp.first) );
       RO.localMap.push_back( ElementMap::value_type(temp.first,primgsf.first) );
@@ -2003,7 +2009,7 @@ linkRefinableObjectBremTangentsToECAL(ProtoEGObject& RO) {
 	}
 	LOGDRESSED("PFEGammaAlgo::linkBremToECAL()") 
 	  << "Found a cluster already in SC linked to brem extrapolation"
-	  << " at ECAL surface!" << std::endl;
+	  << " at ECAL surface!" << std::endl << *(ecal->first) << std::endl;
 	RO.localMap.push_back( ElementMap::value_type(ecal->first,bremflagged.first) );
 	RO.localMap.push_back( ElementMap::value_type(bremflagged.first,ecal->first) );
       }
@@ -2042,7 +2048,7 @@ linkRefinableObjectBremTangentsToECAL(ProtoEGObject& RO) {
 	RO.localMap.push_back( ElementMap::value_type(bremflagged.first,ecal->first) );
 	LOGDRESSED("PFEGammaAlgo::linkBremToECAL()") 
 	  << "Found a cluster not already associated by brem extrapolation"
-	  << " at ECAL surface!" << std::endl;
+	  << " at ECAL surface!" << std::endl << *elemasclus  << std::endl;
 	
       }
     }
