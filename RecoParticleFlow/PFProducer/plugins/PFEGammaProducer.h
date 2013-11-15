@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 // useful?
@@ -39,16 +39,17 @@ class PFEnergyCalibrationHF;
 class GBRForest;
 
 /**\class PFEGammaProducer 
-\brief Producer for particle flow reconstructed particles (PFCandidates)
+\brief Producer of PF-EGamma Candidates
 
-This producer makes use of PFAlgo, the particle flow algorithm.
+Reconstruct candidate electrons and photons from ecal clusters, conversion,and
+non-conversion tracks.
 
-\author Colin Bernet
-\date   July 2006
+\author Lindsey Gray
+\date   June 2013
 */
 
 
-class PFEGammaProducer : public edm::EDProducer {
+class PFEGammaProducer : public edm::stream::EDProducer<> {
  public:
   explicit PFEGammaProducer(const edm::ParameterSet&);
   ~PFEGammaProducer();
