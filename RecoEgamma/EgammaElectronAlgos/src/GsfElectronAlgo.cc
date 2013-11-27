@@ -70,7 +70,8 @@ struct GsfElectronAlgo::GeneralData
      const EcalRecHitsConfiguration &,
      EcalClusterFunctionBaseClass * superClusterErrorFunction,
      EcalClusterFunctionBaseClass * crackCorrectionFunction,
-     const SoftElectronMVAEstimator::Configuration & mvaCfg ) ;
+     const SoftElectronMVAEstimator::Configuration & mvaCfg ,
+     const RegressionHelper::Configuration &) ;
   ~GeneralData() ;
 
   // configurables
@@ -86,6 +87,7 @@ struct GsfElectronAlgo::GeneralData
   EcalClusterFunctionBaseClass * superClusterErrorFunction ;
   EcalClusterFunctionBaseClass * crackCorrectionFunction ;
   SoftElectronMVAEstimator *sElectronMVAEstimator;
+  const RegressionHelper::Configuration regCfg;
  } ;
 
  GsfElectronAlgo::GeneralData::GeneralData
@@ -99,8 +101,9 @@ struct GsfElectronAlgo::GeneralData
    const EcalRecHitsConfiguration & recHitsConfig,
    EcalClusterFunctionBaseClass * superClusterErrorFunc,
    EcalClusterFunctionBaseClass * crackCorrectionFunc,
-   const SoftElectronMVAEstimator::Configuration & mvaConfig
- )
+   const SoftElectronMVAEstimator::Configuration & mvaConfig,
+   const RegressionHelper::Configuration & regConfig
+   )
  : inputCfg(inputConfig),
    strategyCfg(strategyConfig),
    cutsCfg(cutsConfig),
@@ -111,7 +114,8 @@ struct GsfElectronAlgo::GeneralData
    hcalHelperPflow(new ElectronHcalHelper(hcalConfigPflow)),
    superClusterErrorFunction(superClusterErrorFunc),
    crackCorrectionFunction(crackCorrectionFunc),
-   sElectronMVAEstimator(new SoftElectronMVAEstimator(mvaConfig))
+   sElectronMVAEstimator(new SoftElectronMVAEstimator(mvaConfig)),
+   regCfg(regConfig)
  {}
 
 GsfElectronAlgo::GeneralData::~GeneralData()
@@ -195,6 +199,7 @@ struct GsfElectronAlgo::EventData
   bool originalGsfTrackCollectionRetreived ;
   edm::Handle<reco::TrackCollection> originalCtfTracks ;
   edm::Handle<reco::GsfTrackCollection> originalGsfTracks ;
+  edm::Handle<reco::VertexCollection> vertices;
 
   // isolation helpers
   ElectronTkIsolation * tkIsolation03, * tkIsolation04 ;
@@ -591,9 +596,10 @@ GsfElectronAlgo::GsfElectronAlgo
    const EcalRecHitsConfiguration & recHitsCfg,
    EcalClusterFunctionBaseClass * superClusterErrorFunction,
    EcalClusterFunctionBaseClass * crackCorrectionFunction,
-   const SoftElectronMVAEstimator::Configuration & mvaCfg
+   const SoftElectronMVAEstimator::Configuration & mvaCfg,
+   const RegressionHelper::Configuration & regCfg
  )
- : generalData_(new GeneralData(inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,hcalCfg,hcalCfgPflow,isoCfg,recHitsCfg,superClusterErrorFunction,crackCorrectionFunction,mvaCfg)),
+   : generalData_(new GeneralData(inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,hcalCfg,hcalCfgPflow,isoCfg,recHitsCfg,superClusterErrorFunction,crackCorrectionFunction,mvaCfg,regCfg)),
    eventSetupData_(new EventSetupData),
    eventData_(0), electronData_(0)
  {}
@@ -687,6 +693,7 @@ void GsfElectronAlgo::beginEvent( edm::Event & event )
   event.getByToken(generalData_->inputCfg.hcalTowersTag,eventData_->towers) ;
   event.getByToken(generalData_->inputCfg.pfMVA,eventData_->pfMva) ;
   event.getByToken(generalData_->inputCfg.seedsTag,eventData_->seeds) ;
+  event.getByToken(generalData_->inputCfg.vtxCollectionTag,eventData_->vertices);
   if (generalData_->strategyCfg.useGsfPfRecTracks)
    { event.getByToken(generalData_->inputCfg.gsfPfRecTracksTag,eventData_->gsfPfRecTracks) ; }
 

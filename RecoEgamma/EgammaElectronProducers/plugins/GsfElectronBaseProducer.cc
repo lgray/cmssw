@@ -209,6 +209,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   strategyCfg_.ambClustersOverlapStrategy = cfg.getParameter<unsigned>("ambClustersOverlapStrategy") ;
   strategyCfg_.addPflowElectrons = cfg.getParameter<bool>("addPflowElectrons") ;
   strategyCfg_.ctfTracksCheck = cfg.getParameter<bool>("ctfTracksCheck");
+  strategyCfg_.useRegressions = cfg.getParameter<bool>("useRegressions");
 
   cutsCfg_.minSCEtBarrel = cfg.getParameter<double>("minSCEtBarrel") ;
   cutsCfg_.minSCEtEndcaps = cfg.getParameter<double>("minSCEtEndcaps") ;
@@ -323,6 +324,10 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   isoCfg.vetoClustered = cfg.getParameter<bool>("vetoClustered") ;
   isoCfg.useNumCrystals = cfg.getParameter<bool>("useNumCrystals") ;
 
+  RegressionHelper::Configuration regressionCfg ;
+  regressionCfg.ecalRegressionWeightFiles = cfg.getParameter<std::vector<std::string> >("ecalRefinedRegressionWeightFiles");
+  regressionCfg.combinationRegressionWeightFiles = cfg.getParameter<std::vector<std::string> >("combinationRegressionWeightFile");
+
   // functions for corrector
   EcalClusterFunctionBaseClass * superClusterErrorFunction = 0 ;
   std::string superClusterErrorFunctionName
@@ -356,8 +361,10 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
      isoCfg,recHitsCfg,
      superClusterErrorFunction,
      crackCorrectionFunction,
-     mvaCfg_ 
+     mvaCfg_,
+     regressionCfg
    ) ;
+
 
  }
 
