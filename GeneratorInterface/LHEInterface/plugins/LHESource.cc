@@ -57,7 +57,6 @@ void LHESource::nextEvent()
 	partonLevel = reader->next(&newFileOpened);
 
 	if(newFileOpened) incrementFileIndex();
-
 	if (!partonLevel)
 			return;
 
@@ -107,7 +106,6 @@ void LHESource::endRun(edm::Run &run)
 
 bool LHESource::produce(edm::Event &event)
 {
-	nextEvent();
 	if (!partonLevel)
 		return false;
 

@@ -469,7 +469,7 @@ void ExternalLHEProducer::nextEvent()
   if (partonLevel)
     return;
 
-  partonLevel = reader_->next();
+  partonLevel = reader_->next(NULL);
   if (!partonLevel)
     return;
 

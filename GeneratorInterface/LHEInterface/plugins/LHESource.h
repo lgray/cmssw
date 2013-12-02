@@ -27,6 +27,8 @@ class LHESource : public edm::ExternalInputSource {
 	                   const edm::InputSourceDescription &desc);
 	virtual ~LHESource();
 
+	void incrementFileIndex() const { return; }
+
     protected:
 	virtual void endJob();
 	virtual void beginRun(edm::Run &run);
