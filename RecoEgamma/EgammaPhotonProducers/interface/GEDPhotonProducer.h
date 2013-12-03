@@ -73,7 +73,7 @@ class GEDPhotonProducer : public edm::EDProducer {
 			   const edm::Handle<reco::PFCandidateCollection> pfEGCandidateHandle,
 			   edm::ValueMap<reco::PhotonRef>  pfEGCandToPhotonMap,
 			   edm::Handle< reco::VertexCollection >&  pvVertices,
-			   std::vector<std::vector<std::pair<const reco::PFCandidateRef, bool>>>& pfCandIsoPair,
+			   std::vector<std::vector<std::pair<reco::PFCandidateRef, bool> > >& pfCandIsoPair,
 			   reco::PhotonCollection & outputCollection,
 			   int& iSC);
 

@@ -50,9 +50,9 @@ PfBlockBasedIsolation::~PfBlockBasedIsolation()
 
 
 
- std::vector<std::pair<const reco::PFCandidateRef, bool>>   PfBlockBasedIsolation::calculate(math::XYZTLorentzVectorD p4, const reco::PFCandidateRef pfEGCand, const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle) {
+ std::vector<std::pair<reco::PFCandidateRef, bool> >   PfBlockBasedIsolation::calculate(math::XYZTLorentzVectorD p4, const reco::PFCandidateRef pfEGCand, const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle) {
 
-  std::vector<std::pair<const reco::PFCandidateRef, bool>> myPairVec;
+  std::vector<std::pair<reco::PFCandidateRef, bool> > myPairVec;
 
   math::XYZVector candidateMomentum(p4.px(),p4.py(),p4.py());
   math::XYZVector candidateDirection=candidateMomentum.Unit();
@@ -96,7 +96,7 @@ PfBlockBasedIsolation::~PfBlockBasedIsolation()
       }
     }
     myPairVec.push_back(aPair);    
-    for ( std::vector<std::pair<const reco::PFCandidateRef, bool>>::const_iterator iPair=myPairVec.begin(); iPair<myPairVec.end(); iPair++) {
+    for ( std::vector<std::pair<reco::PFCandidateRef, bool> >::const_iterator iPair=myPairVec.begin(); iPair<myPairVec.end(); iPair++) {
       std::cout << " Pair " << (iPair->first)->particleId() << " " <<  iPair->second << std::endl; 
     }
 
