@@ -88,6 +88,7 @@ struct GsfElectronAlgo::GeneralData
   EcalClusterFunctionBaseClass * crackCorrectionFunction ;
   SoftElectronMVAEstimator *sElectronMVAEstimator;
   const RegressionHelper::Configuration regCfg;
+  RegressionHelper * regHelper;
  } ;
 
  GsfElectronAlgo::GeneralData::GeneralData
@@ -115,14 +116,16 @@ struct GsfElectronAlgo::GeneralData
    superClusterErrorFunction(superClusterErrorFunc),
    crackCorrectionFunction(crackCorrectionFunc),
    sElectronMVAEstimator(new SoftElectronMVAEstimator(mvaConfig)),
-   regCfg(regConfig)
- {}
+   regCfg(regConfig),
+   regHelper(new RegressionHelper(regConfig))
+  {}
 
 GsfElectronAlgo::GeneralData::~GeneralData()
  {
   delete hcalHelper ;
   delete hcalHelperPflow ;
   delete sElectronMVAEstimator;
+  delete regHelper;
  }
 
 //===================================================================
@@ -648,6 +651,8 @@ void GsfElectronAlgo::checkSetup( const edm::EventSetup & es )
 
   generalData_->hcalHelper->checkSetup(es) ;
   generalData_->hcalHelperPflow->checkSetup(es) ;
+  generalData_->regHelper->checkSetup(es);
+
 
   if (generalData_->superClusterErrorFunction)
    { generalData_->superClusterErrorFunction->init(es) ; }
@@ -1368,19 +1373,26 @@ void GsfElectronAlgo::createElectron()
 
   // ecal energy
   ElectronEnergyCorrector theEnCorrector(generalData_->crackCorrectionFunction) ;
-  if (ele->core()->ecalDrivenSeed())
-   {
-    if (generalData_->strategyCfg.ecalDrivenEcalEnergyFromClassBasedParameterization)
-     { theEnCorrector.classBasedParameterizationEnergy(*ele,*eventData_->beamspot) ; }
-    if (generalData_->strategyCfg.ecalDrivenEcalErrorFromClassBasedParameterization)
-     { theEnCorrector.classBasedParameterizationUncertainty(*ele) ; }
-   }
-  else
-   {
-    if (generalData_->strategyCfg.pureTrackerDrivenEcalErrorFromSimpleParameterization)
-     { theEnCorrector.simpleParameterizationUncertainty(*ele) ; }
-   }
-
+  if (generalData_->strategyCfg.useRegressions) // new 
+    { 
+      //      double cor = 
+    }
+  else  // original implementation
+    {
+      if (ele->core()->ecalDrivenSeed())
+	{
+	  if (generalData_->strategyCfg.ecalDrivenEcalEnergyFromClassBasedParameterization)
+	    { theEnCorrector.classBasedParameterizationEnergy(*ele,*eventData_->beamspot) ; }
+	  if (generalData_->strategyCfg.ecalDrivenEcalErrorFromClassBasedParameterization)
+	    { theEnCorrector.classBasedParameterizationUncertainty(*ele) ; }
+	}
+      else
+	{
+	  if (generalData_->strategyCfg.pureTrackerDrivenEcalErrorFromSimpleParameterization)
+	    { theEnCorrector.simpleParameterizationUncertainty(*ele) ; }
+	}
+    }
+  
   // momentum
   if (ele->core()->ecalDrivenSeed())
    {
