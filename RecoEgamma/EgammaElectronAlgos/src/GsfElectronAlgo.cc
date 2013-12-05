@@ -1373,7 +1373,7 @@ void GsfElectronAlgo::createElectron()
 
   // ecal energy
   ElectronEnergyCorrector theEnCorrector(generalData_->crackCorrectionFunction) ;
-  if (generalData_->strategyCfg.useRegressions) // new 
+  if (generalData_->strategyCfg.useEcalRegression) // new 
     { 
       generalData_->regHelper->applyEcalRegression(*ele,
 						   eventData_->vertices,
@@ -1397,7 +1397,11 @@ void GsfElectronAlgo::createElectron()
     }
   
   // momentum
-  if (ele->core()->ecalDrivenSeed())
+  if(generalData_->strategyCfg.useCombinationRegression)  // new 
+    {
+      
+    }
+  else if (ele->core()->ecalDrivenSeed())       //original computation
    {
     ElectronMomentumCorrector theMomCorrector;
     theMomCorrector.correct(*ele,electronData_->vtxTSOS);

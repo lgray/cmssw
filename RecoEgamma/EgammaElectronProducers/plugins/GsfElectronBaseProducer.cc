@@ -210,7 +210,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   strategyCfg_.ambClustersOverlapStrategy = cfg.getParameter<unsigned>("ambClustersOverlapStrategy") ;
   strategyCfg_.addPflowElectrons = cfg.getParameter<bool>("addPflowElectrons") ;
   strategyCfg_.ctfTracksCheck = cfg.getParameter<bool>("ctfTracksCheck");
-  strategyCfg_.useRegressions = cfg.getParameter<bool>("useRegressions");
+  strategyCfg_.useEcalRegression = cfg.getParameter<bool>("useEcalRegression");
+  strategyCfg_.useCombinationRegression = cfg.getParameter<bool>("useCombinationRegression");
 
   cutsCfg_.minSCEtBarrel = cfg.getParameter<double>("minSCEtBarrel") ;
   cutsCfg_.minSCEtEndcaps = cfg.getParameter<double>("minSCEtEndcaps") ;

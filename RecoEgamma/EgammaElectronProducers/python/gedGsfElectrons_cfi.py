@@ -41,7 +41,8 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     ambSortingStrategy = cms.uint32(1),
     ambClustersOverlapStrategy = cms.uint32(1),
     addPflowElectrons = cms.bool(True), # this one should be transfered to the "core" level
-    useRegressions = cms.bool(True),
+    useEcalRegression = cms.bool(True),
+    useCombinationRegression = cms.bool(False),                                    
     
     # preselection parameters (ecal driven electrons)
     minSCEtBarrel = cms.double(4.0),

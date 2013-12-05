@@ -103,9 +103,9 @@ class GsfElectronAlgo {
       bool gedElectronMode;
       float PreSelectMVA;		
       // GED-Regression (ECAL and combination)
-      bool useRegressions;
-    } ;
-
+      bool useEcalRegression;
+      bool useCombinationRegression;  
+     } ;
 
     struct CutsConfiguration
      {
