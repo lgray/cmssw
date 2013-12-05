@@ -6,6 +6,7 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 #include "TVector2.h"
+#include "TFile.h"
 
 RegressionHelper::RegressionHelper( const Configuration & config):
   cfg_(config),ecalRegressionInitialized_(false),combinationRegressionInitialized_(false),
@@ -13,6 +14,16 @@ RegressionHelper::RegressionHelper( const Configuration & config):
 {;}
 
 RegressionHelper::~RegressionHelper(){;}
+
+void RegressionHelper::applyEcalRegression(reco::GsfElectron & ele,
+					   const edm::Handle<reco::VertexCollection>& vertices,
+					   const edm::Handle<EcalRecHitCollection>& rechitsEB,
+					   const edm::Handle<EcalRecHitCollection>& rechitsEE) const {
+  double cor, err;
+  getEcalRegression(*ele.superCluster(), vertices, rechitsEB, rechitsEE, cor, err);
+  ele.setCorrectedEcalEnergy(cor * ele.superCluster()->energy());
+  ele.setCorrectedEcalEnergyError( err * ele.superCluster()->energy());
+}
 
 void RegressionHelper::checkSetup(const edm::EventSetup & es) {
 
@@ -40,42 +51,89 @@ void RegressionHelper::checkSetup(const edm::EventSetup & es) {
 
   // Ecal regression 
   
-  unsigned long long newRegressionCacheId
-    = es.get<GBRWrapperRcd>().cacheIdentifier() ;
-  if ( !regressionCacheId_ || (newRegressionCacheId != regressionCacheId_ ) ) {
-    
-    const GBRWrapperRcd& gbrRcd = es.get<GBRWrapperRcd>();
+  // if at least one of the set of weights come from the DB
+  if(cfg_.ecalWeightsFromDB || cfg_.combinationWeightsFromDB) 
+    {
+      unsigned long long newRegressionCacheId
+	= es.get<GBRWrapperRcd>().cacheIdentifier() ;
+      if ( !regressionCacheId_ || (newRegressionCacheId != regressionCacheId_ ) ) {
+	
+	const GBRWrapperRcd& gbrRcd = es.get<GBRWrapperRcd>();
 
-    // ECAL barrel
-    gbrRcd.get(cfg_.ecalRegressionWeightFiles[0].c_str(),ecalRegBarrel_);
+	if (cfg_.ecalWeightsFromDB) 
+	  {
+	    // ECAL barrel
+	    edm::ESHandle<GBRForest> ecalRegBarrelH;
+	    gbrRcd.get(cfg_.ecalRegressionWeightLabels[0].c_str(),ecalRegBarrelH);
+	    ecalRegBarrel_ = &(*ecalRegBarrelH);
+	    
+	    // ECAL endcaps
+	    edm::ESHandle<GBRForest> ecalRegEndcapH;
+	    gbrRcd.get(cfg_.ecalRegressionWeightLabels[1].c_str(),ecalRegEndcapH);
+	    ecalRegEndcap_= &(*ecalRegEndcapH);
+	    
+	    // ECAL barrel error
+	    edm::ESHandle<GBRForest> ecalRegErrorBarrelH;
+	    gbrRcd.get(cfg_.ecalRegressionWeightLabels[2].c_str(),ecalRegErrorBarrelH);
+	    ecalRegErrorBarrel_ = &(*ecalRegErrorBarrelH);
+	    
+	    // ECAL endcap error
+	    edm::ESHandle<GBRForest> ecalRegErrorEndcapH;
+	    gbrRcd.get(cfg_.ecalRegressionWeightLabels[3].c_str(),ecalRegErrorEndcapH);
+	    ecalRegErrorEndcap_ = &(*ecalRegErrorEndcapH);
+	    
+	    ecalRegressionInitialized_ = true;
+	  }
+	
+	// Combination
+	if(cfg_.combinationWeightsFromDB) 
+	  {
+	    edm::ESHandle<GBRForest> combinationRegH;
+	    gbrRcd.get(cfg_.combinationRegressionWeightLabels[0].c_str(),combinationRegH);
+	    combinationReg_ = &(*combinationRegH);
+	    
+	    combinationRegressionInitialized_ = true;
+	  }
+      }
+    }
 
-    // ECAL endcaps
-    gbrRcd.get(cfg_.ecalRegressionWeightFiles[1].c_str(),ecalRegEndcap_);
-
-    // ECAL barrel error
-    gbrRcd.get(cfg_.ecalRegressionWeightFiles[2].c_str(),ecalRegErrorBarrel_);
-
-    // ECAL endcap error
-    gbrRcd.get(cfg_.ecalRegressionWeightFiles[3].c_str(),ecalRegErrorEndcap_);
-
+  // read weights from file - for debugging. Even if it is one single files, 4 files should b set in the vector
+  if(!cfg_.ecalWeightsFromDB && !ecalRegressionInitialized_) {
+    TFile file0 (edm::FileInPath(cfg_.ecalRegressionWeightFiles[0].c_str()).fullPath().c_str());
+    ecalRegBarrel_ = (const GBRForest*)file0.Get(cfg_.ecalRegressionWeightLabels[0].c_str());
+    file0.Close();
+    TFile file1 (edm::FileInPath(cfg_.ecalRegressionWeightFiles[1].c_str()).fullPath().c_str());
+    ecalRegEndcap_ = (const GBRForest*)file1.Get(cfg_.ecalRegressionWeightLabels[1].c_str());
+    file1.Close();
+    TFile file2 (edm::FileInPath(cfg_.ecalRegressionWeightFiles[2].c_str()).fullPath().c_str());
+    ecalRegErrorBarrel_ = (const GBRForest*)file2.Get(cfg_.ecalRegressionWeightLabels[2].c_str());
+    file2.Close();
+    TFile file3 (edm::FileInPath(cfg_.ecalRegressionWeightFiles[3].c_str()).fullPath().c_str());
+    ecalRegErrorEndcap_ = (const GBRForest*)file3.Get(cfg_.ecalRegressionWeightLabels[3].c_str());
     ecalRegressionInitialized_ = true;
-
-
-
-    // Combination
-    gbrRcd.get(cfg_.combinationRegressionWeightFiles[0].c_str(),combinationReg_);
-
-    combinationRegressionInitialized_ = true;
+    file3.Close();
   }
-
+  
+  if(!cfg_.combinationWeightsFromDB && !combinationRegressionInitialized_) 
+    {
+      TFile file0 (edm::FileInPath(cfg_.combinationRegressionWeightFiles[0].c_str()).fullPath().c_str());
+      combinationReg_ = (const GBRForest*)file0.Get(cfg_.combinationRegressionWeightLabels[0].c_str());
+      combinationRegressionInitialized_ = true;
+      file0.Close();
+    }
+  
 }
 
 void RegressionHelper::readEvent( const edm::Event &) {;}
 
-double RegressionHelper::getEcalRegression(const reco::SuperCluster & sc,
-			 const edm::Handle<reco::VertexCollection>& vertices,
-			 const edm::Handle<EcalRecHitCollection>& rechitsEB,
-			 const edm::Handle<EcalRecHitCollection>& rechitsEE) const {
+void RegressionHelper::getEcalRegression(const reco::SuperCluster & sc,
+					 const edm::Handle<reco::VertexCollection>& vertices,
+					 const edm::Handle<EcalRecHitCollection>& rechitsEB,
+					 const edm::Handle<EcalRecHitCollection>& rechitsEE,
+					 double & energyFactor, double & errorFactor) const {
+  
+  energyFactor = -999.;
+  errorFactor = -999.;
   std::vector<float> rInputs;
   rInputs.resize(33);
   
@@ -179,7 +237,8 @@ double RegressionHelper::getEcalRegression(const reco::SuperCluster & sc,
     rInputs[30] = ieta; //scSeedCryIeta
     rInputs[31] = iphi; //scSeedCryIphi
     rInputs[32] = calibEnergy; //scCalibratedEnergy
-    return ecalRegBarrel_->GetResponse(&rInputs[0]);
+    energyFactor = ecalRegBarrel_->GetResponse(&rInputs[0]);
+    errorFactor = ecalRegErrorBarrel_->GetResponse(&rInputs[0]);
   }
   else if(seed->seed().subdetId()==EcalEndcap)
     {
@@ -245,12 +304,12 @@ double RegressionHelper::getEcalRegression(const reco::SuperCluster & sc,
       rInputs[27] = subClusDEta[2]; //clusterDEtaToSeed[2]
       rInputs[28] = scPreshowerSum/rawEnergy; //scPreshowerEnergy/scRawEnergy
       rInputs[29] = calibEnergy; //scCalibratedEnergy
-      return ecalRegEndcap_->GetResponse(&rInputs[0]);
+      energyFactor = ecalRegEndcap_->GetResponse(&rInputs[0]);
+      errorFactor = ecalRegErrorEndcap_->GetResponse(&rInputs[0]);
     }
   else
     {
       throw cms::Exception("RegressionHelper::calculateRegressedEnergy")
 	<< "Supercluster seed is either EB nor EE!" << std::endl;
     }
-  return -1.;
 }

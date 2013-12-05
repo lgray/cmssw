@@ -18,6 +18,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 #include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
 
@@ -30,22 +31,32 @@ class RegressionHelper {
   struct Configuration
   {
       // weight files for the regression
+    std::vector<std::string> ecalRegressionWeightLabels;
+    bool ecalWeightsFromDB ;
     std::vector<std::string> ecalRegressionWeightFiles;
+    std::vector<std::string> combinationRegressionWeightLabels;
+    bool combinationWeightsFromDB;
     std::vector<std::string> combinationRegressionWeightFiles;
-    
   };
   
   RegressionHelper( const Configuration & ) ;
   void checkSetup( const edm::EventSetup & ) ;
   void readEvent( const edm::Event & ) ;
+  void applyEcalRegression(reco::GsfElectron & electron,
+			   const edm::Handle<reco::VertexCollection>& vertices,
+			   const edm::Handle<EcalRecHitCollection>& rechitsEB,
+			   const edm::Handle<EcalRecHitCollection>& rechitsEE) const;
+
   ~RegressionHelper() ;
 
  private:
-  double getEcalRegression(const reco::SuperCluster & sc,
-			   const edm::Handle<reco::VertexCollection>& vertices,
-			   const edm::Handle<EcalRecHitCollection>& rechitsEB,
-			   const edm::Handle<EcalRecHitCollection>& rechitsEE) const ;
-    
+  void getEcalRegression(const reco::SuperCluster & sc,
+			 const edm::Handle<reco::VertexCollection>& vertices,
+			 const edm::Handle<EcalRecHitCollection>& rechitsEB,
+			 const edm::Handle<EcalRecHitCollection>& rechitsEE,
+			 double & energyFactor,
+			 double & errorFactor) const ;
+  
  private:
   
   const Configuration cfg_ ;
@@ -58,12 +69,13 @@ class RegressionHelper {
   unsigned long long caloGeometryCacheId_;
   unsigned long long regressionCacheId_;
 
-  edm::ESHandle<GBRForest> ecalRegBarrel_ ;
-  edm::ESHandle<GBRForest> ecalRegEndcap_ ;
-  edm::ESHandle<GBRForest> ecalRegErrorBarrel_ ;  
-  edm::ESHandle<GBRForest> ecalRegErrorEndcap_ ;  
-  edm::ESHandle<GBRForest> combinationReg_ ;
-  
+  //  edm::ESHandle<GBRForest> ecalRegBarrel_ ;
+  const GBRForest * ecalRegBarrel_ ;
+  const GBRForest * ecalRegEndcap_ ;
+  const GBRForest * ecalRegErrorBarrel_ ;  
+  const GBRForest * ecalRegErrorEndcap_ ;  
+  const GBRForest * combinationReg_ ;
+   
   EcalClusterLocal ecl_;
 };
 

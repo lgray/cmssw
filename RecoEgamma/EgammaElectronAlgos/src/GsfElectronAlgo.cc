@@ -1375,7 +1375,10 @@ void GsfElectronAlgo::createElectron()
   ElectronEnergyCorrector theEnCorrector(generalData_->crackCorrectionFunction) ;
   if (generalData_->strategyCfg.useRegressions) // new 
     { 
-      //      double cor = 
+      generalData_->regHelper->applyEcalRegression(*ele,
+						   eventData_->vertices,
+						   eventData_->barrelRecHits,
+						   eventData_->endcapRecHits);
     }
   else  // original implementation
     {
