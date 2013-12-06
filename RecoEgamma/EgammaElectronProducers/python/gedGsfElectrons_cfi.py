@@ -41,7 +41,7 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     ambSortingStrategy = cms.uint32(1),
     ambClustersOverlapStrategy = cms.uint32(1),
     addPflowElectrons = cms.bool(True), # this one should be transfered to the "core" level
-    useEcalRegression = cms.bool(True),
+    useEcalRegression = cms.bool(False),
     useCombinationRegression = cms.bool(False),                                    
     
     # preselection parameters (ecal driven electrons)
@@ -151,7 +151,7 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
    ecalWeightsFromDB = cms.bool(True),
    # if not from DB. Otherwise, keep empty
    ecalRefinedRegressionWeightFiles = cms.vstring(),
-   combinationWeightsFromDB = cms.booll(True),
+   combinationWeightsFromDB = cms.bool(True),
    # if not from DB. Otherwise, keep empty
    combinationRegressionWeightFile = cms.vstring(),                              
  

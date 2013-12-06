@@ -149,7 +149,7 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
    ecalWeightsFromDB = cms.bool(True),
    # if not from DB. Otherwise, keep empty
    ecalRefinedRegressionWeightFiles = cms.vstring(),
-   combinationWeightsFromDB = cms.booll(True),
+   combinationWeightsFromDB = cms.bool(True),
    # if not from DB. Otherwise, keep empty
    combinationRegressionWeightFile = cms.vstring(),                              
 
@@ -180,6 +180,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     seedsTag = cms.InputTag("ecalDrivenElectronSeeds"),
     beamSpotTag = cms.InputTag("offlineBeamSpot"),
     gsfPfRecTracksTag = cms.InputTag("pfTrackElec"),
+    vtxTag = cms.InputTag('offlinePrimaryVertices'),
     
     # backward compatibility mechanism for ctf tracks
     ctfTracksCheck = cms.bool(True),
@@ -198,6 +199,8 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     ambSortingStrategy = cms.uint32(1),
     ambClustersOverlapStrategy = cms.uint32(1),
     addPflowElectrons = cms.bool(True),
+    useEcalRegression = cms.bool(False),                                        
+    useCombinationRegression = cms.bool(False),    
     
     # preselection parameters (ecal driven electrons)
     minSCEtBarrel = cms.double(4.0),
@@ -298,6 +301,19 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     # Corrections
     superClusterErrorFunction = cms.string("EcalClusterEnergyUncertaintyObjectSpecific"),
     crackCorrectionFunction = cms.string("EcalClusterCrackCorrection"),
+
+   # Regression. The labels are needed in all cases
+   ecalRefinedRegressionWeightLabels = cms.vstring(),
+   combinationRegressionWeightLabels = cms.vstring(),
+   
+   ecalWeightsFromDB = cms.bool(True),
+   # if not from DB. Otherwise, keep empty
+   ecalRefinedRegressionWeightFiles = cms.vstring(),
+   combinationWeightsFromDB = cms.bool(True),
+   # if not from DB. Otherwise, keep empty
+   combinationRegressionWeightFile = cms.vstring(),                              
+
+
 
    # Iso Values (PF and EcalDriven)
    useIsolationValues = cms.bool(True), 

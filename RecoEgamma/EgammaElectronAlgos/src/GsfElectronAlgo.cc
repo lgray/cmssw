@@ -651,7 +651,8 @@ void GsfElectronAlgo::checkSetup( const edm::EventSetup & es )
 
   generalData_->hcalHelper->checkSetup(es) ;
   generalData_->hcalHelperPflow->checkSetup(es) ;
-  generalData_->regHelper->checkSetup(es);
+  if(generalData_->strategyCfg.useEcalRegression || generalData_->strategyCfg.useCombinationRegression)
+    generalData_->regHelper->checkSetup(es);
 
 
   if (generalData_->superClusterErrorFunction)
