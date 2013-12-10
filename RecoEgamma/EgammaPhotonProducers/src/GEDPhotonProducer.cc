@@ -532,7 +532,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 
     /// get ecal photon specific corrected energy 
     /// plus values from regressions     and store them in the Photon
-    // Photon candidate takes by default (set in photons_cfi.py)  a 4-momentum derived from the ecal photon-specific corrections. 
+    // Photon candidate takes by default (set in photons_cfi.py) 
+    // a 4-momentum derived from the ecal photon-specific corrections. 
     thePhotonEnergyCorrector_->calculate(evt, newCandidate, subdet, vertexCollection, es);
     if ( candidateP4type_ == "fromEcalEnergy") {
       newCandidate.setP4( newCandidate.p4(reco::Photon::ecal_photons) );
@@ -543,6 +544,9 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     } else if ( candidateP4type_ == "fromRegression2") {
       newCandidate.setP4( newCandidate.p4(reco::Photon::regression2) );
       newCandidate.setCandidateP4type(reco::Photon::regression2);
+    } else if ( candidateP4type_ == "fromRefinedSCRegression" ) {
+      newCandidate.setP4( newCandidate.p4(reco::Photon::regression1) );
+      newCandidate.setCandidateP4type(reco::Photon::regression1);
     }
 
     //       std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
