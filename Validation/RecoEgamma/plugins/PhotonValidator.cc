@@ -1031,23 +1031,57 @@ void PhotonValidator::bookHistograms(void) {
     h_pfMva_[1]= dbe_->book1D(histname+"Barrel",   "PF MVA output:  Barrel",50,-1.,2.);
     h_pfMva_[2]= dbe_->book1D(histname+"Endcap",   "PF MVA output:  Endcap",50,-1,2.);
     ////////// particle based isolation from value map
-    histname = "SumPtOverPhoPt_Cleaned";
-    h_SumPtOverPhoPt_Cleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt :  All Ecal",etBin,etMin,10.);
-    h_SumPtOverPhoPt_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt :  Barrel",etBin,etMin,10.);
-    h_SumPtOverPhoPt_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt :  Endcap",etBin,etMin,10.);
-    histname = "dRPhoPFcand_Cleaned";
-    h_dRPhoPFcand_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) : All Ecal",etBin,etMin,0.5);
-    h_dRPhoPFcand_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) :  Barrel",etBin,etMin,0.5);
-    h_dRPhoPFcand_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) :  Endcap",etBin,etMin,0.5);
-    //
-    histname = "SumPtOverPhoPt_unCleaned";
-    h_SumPtOverPhoPt_unCleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt :  All Ecal",etBin,etMin,10.);
-    h_SumPtOverPhoPt_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt :  Barrel",etBin,etMin,10.);
-    h_SumPtOverPhoPt_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt :  Endcap",etBin,etMin,10.);
-    histname = "dRPhoPFcand_unCleaned";
-    h_dRPhoPFcand_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) :  All Ecal",etBin,etMin,0.5);
-    h_dRPhoPFcand_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) :  Barrel",etBin,etMin,0.5);
-    h_dRPhoPFcand_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) :  Endcap",etBin,etMin,0.5);
+    histname = "SumPtOverPhoPt_ChHad_Cleaned";
+    h_SumPtOverPhoPt_ChHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Charged Hadrons:  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_ChHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Charged Hadrons:  Barrel",etBin,etMin,2.);
+    h_SumPtOverPhoPt_ChHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Charged Hadrons:  Endcap",etBin,etMin,2.);
+    histname = "SumPtOverPhoPt_NeuHad_Cleaned";
+    h_SumPtOverPhoPt_NeuHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Neutral Hadrons:  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_NeuHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Barrel",etBin,etMin,2.);
+    h_SumPtOverPhoPt_NeuHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Endcap",etBin,etMin,2.);
+    histname = "SumPtOverPhoPt_Pho_Cleaned";
+    h_SumPtOverPhoPt_Pho_Cleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Photons Hadrons:  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_Pho_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Photons Hadrons:  Barrel",etBin,etMin,2.);
+    h_SumPtOverPhoPt_Pho_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Photons Hadrons:  Endcap",etBin,etMin,2.);
+
+    histname = "dRPhoPFcand_ChHad_Cleaned";
+    h_dRPhoPFcand_ChHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Charged Hadrons : All Ecal",etBin,etMin,0.5);
+    h_dRPhoPFcand_ChHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Charged Hadrons :  Barrel",etBin,etMin,0.5);
+    h_dRPhoPFcand_ChHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Charged Hadrons :  Endcap",etBin,etMin,0.5);
+    histname = "dRPhoPFcand_NeuHad_Cleaned";
+    h_dRPhoPFcand_NeuHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Neutral Hadrons : All Ecal",etBin,etMin,0.5);
+    h_dRPhoPFcand_NeuHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Neutral Hadrons :  Barrel",etBin,etMin,0.5);
+    h_dRPhoPFcand_NeuHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Neutral Hadrons :  Endcap",etBin,etMin,0.5);
+    histname = "dRPhoPFcand_Pho_Cleaned";
+    h_dRPhoPFcand_Pho_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Photons : All Ecal",etBin,etMin,0.5);
+    h_dRPhoPFcand_Pho_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Photons :  Barrel",etBin,etMin,0.5);
+    h_dRPhoPFcand_Pho_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Photons :  Endcap",etBin,etMin,0.5);
+ 
+   //
+    histname = "SumPtOverPhoPt_ChHad_unCleaned";
+    h_SumPtOverPhoPt_ChHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Charged Hadrons :  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_ChHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Charged Hadrons:  Barrel",etBin,etMin,2.);
+    h_SumPtOverPhoPt_ChHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Charged Hadrons:  Endcap",etBin,etMin,2.);
+    histname = "SumPtOverPhoPt_NeuHad_unCleaned";
+    h_SumPtOverPhoPt_NeuHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Neutral Hadrons :  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_NeuHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Barrel",etBin,etMin,2.);
+    h_SumPtOverPhoPt_NeuHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Endcap",etBin,etMin,2.);
+    histname = "SumPtOverPhoPt_Pho_unCleaned";
+    h_SumPtOverPhoPt_Pho_unCleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Photons:  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_Pho_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Photons:  Barrel",etBin,etMin,2.);
+    h_SumPtOverPhoPt_Pho_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Photons:  Endcap",etBin,etMin,2.);
+    histname = "dRPhoPFcand_ChHad_unCleaned";
+    h_dRPhoPFcand_ChHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Charged Hadrons :  All Ecal",etBin,etMin,0.5);
+    h_dRPhoPFcand_ChHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Charged Hadrons :  Barrel",etBin,etMin,0.5);
+    h_dRPhoPFcand_ChHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Charged Hadrons :  Endcap",etBin,etMin,0.5);
+    histname = "dRPhoPFcand_NeuHad_unCleaned";
+    h_dRPhoPFcand_NeuHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Neutral Hadrons :  All Ecal",etBin,etMin,0.5);
+    h_dRPhoPFcand_NeuHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Neutral Hadrons :  Barrel",etBin,etMin,0.5);
+    h_dRPhoPFcand_NeuHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Neutral Hadrons :  Endcap",etBin,etMin,0.5);
+    histname = "dRPhoPFcand_Pho_unCleaned";
+    h_dRPhoPFcand_Pho_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Photons:  All Ecal",etBin,etMin,0.5);
+    h_dRPhoPFcand_Pho_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Photons:  Barrel",etBin,etMin,0.5);
+    h_dRPhoPFcand_Pho_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Photons:  Endcap",etBin,etMin,0.5);
 
 
 
@@ -1584,12 +1618,12 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     for(unsigned int lCand=0; lCand < nObj; lCand++) { 
       //std::cout << "  I am in the loop " << std::endl;
       reco::PhotonRef photonRef (reco::PhotonRef( photonHandle,lCand));
-      //std::cout << "  photons " << photonRef->pt() << " " <<  phoToParticleBasedIsoMap[photonRef].size() <<  std::endl;
+      //std::cout << "  photon SC energy " << photonRef->superCluster()->energy() << " " <<  phoToParticleBasedIsoMap[photonRef].size() <<  std::endl;
       for( std::vector<std::pair<reco::PFCandidateRef,bool> >::const_iterator i = phoToParticleBasedIsoMap[photonRef].begin(); i != phoToParticleBasedIsoMap[photonRef].end(); ++i ) {
 	if ( (i->first).isNonnull() ) {
-	  //	   float dR= deltaR((i->first)->eta(),  (i->first)->phi(), photonRef->eta(),  photonRef->phi());
-	   //   std::cout << " Debugging  Candidate dR " << dR << " bool " << (i->second) << " " << (i->first)->particleId() << std::endl;
-		}
+	  //  float dR= deltaR(photonRef->eta(),  photonRef->phi(), (i->first)->eta(),  (i->first)->phi() );
+	  //std::cout << " Debugging  Candidate dR " << dR << " bool " << (i->second) << " type " << (i->first)->particleId() << " pt " << (i->first)->pt() <<  std::endl;
+	}
        }
     }
   }
@@ -2550,33 +2584,90 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       ///////////////////////   Particle based isolation
       if ( fName_ == "pfPhotonValidator") {
 	
-	float isoEBclean=0.;
-	float isoEEclean=0.;
-	float isoEBunclean=0.;
-	float isoEEunclean=0.;
+	float SumPtIsoValCh = 0.;	
+	float SumPtIsoValNh = 0.;
+	float SumPtIsoValPh = 0.;
+	
+	float SumPtIsoValCleanCh = 0.;	
+	float SumPtIsoValCleanNh = 0.;
+	float SumPtIsoValCleanPh = 0.;
+
 	float dR=0; 
 	for( std::vector<std::pair<reco::PFCandidateRef,bool> >::const_iterator i = phoToParticleBasedIsoMap[matchingPho].begin(); i != phoToParticleBasedIsoMap[matchingPho].end(); ++i ) {
 	  if ( (i->first).isNonnull() ) {
-	    dR= deltaR((i->first)->eta(),  (i->first)->phi(), matchingPho->eta(),  matchingPho->phi());
-	    if( phoIsInBarrel) {
-	      if ( !i->second ) isoEBclean+=(i->first)->pt(); 
-	      isoEBunclean+=(i->first)->pt(); 
-	      if ( !i->second )  h_dRPhoPFcand_Cleaned_[1]->Fill(dR);
-	      h_dRPhoPFcand_unCleaned_[1]->Fill(dR);
-	    } else {
-	      if ( !i->second ) isoEEclean+=(i->first)->pt(); 
-	      isoEEunclean+=(i->first)->pt(); 
-	      if ( !i->second) h_dRPhoPFcand_Cleaned_[2]->Fill(dR);
-	      h_dRPhoPFcand_unCleaned_[2]->Fill(dR);
+	    dR= deltaR(matchingPho->eta(),  matchingPho->phi(),(i->first)->eta(),  (i->first)->phi()); 
+
+            if ( dR<0.4) {
+	      /// uncleaned    
+	      reco::PFCandidate::ParticleType type = (i->first)->particleId();
+	      if ( type == reco::PFCandidate::e ) continue; 
+	      if ( type == reco::PFCandidate::gamma && (i->first)->mva_nothing_gamma() > 0.) continue;
+	      
+	      if( type == reco::PFCandidate::h ) {
+		SumPtIsoValCh += (i->first)->pt();
+		if( phoIsInBarrel)
+		   h_dRPhoPFcand_ChHad_unCleaned_[1]->Fill(dR);
+		else 
+		   h_dRPhoPFcand_ChHad_unCleaned_[2]->Fill(dR);
+	      }
+	      if( type == reco::PFCandidate::h0 ) {
+		SumPtIsoValNh += (i->first)->pt();
+		if( phoIsInBarrel)
+		  h_dRPhoPFcand_NeuHad_unCleaned_[1]->Fill(dR);
+		else 
+		  h_dRPhoPFcand_NeuHad_unCleaned_[2]->Fill(dR);
+	      }
+	      if( type == reco::PFCandidate::gamma ) {
+		SumPtIsoValPh += (i->first)->pt();
+		if( phoIsInBarrel)
+		  h_dRPhoPFcand_Pho_unCleaned_[1]->Fill(dR);
+		else 
+		  h_dRPhoPFcand_Pho_unCleaned_[2]->Fill(dR);
+	      }
+	      /////////////// celaned
+              if (!i->second ) {
+		if( type == reco::PFCandidate::h ) {
+		  SumPtIsoValCleanCh += (i->first)->pt();
+		  if( phoIsInBarrel)
+		    h_dRPhoPFcand_ChHad_Cleaned_[1]->Fill(dR);
+		  else 
+		    h_dRPhoPFcand_ChHad_Cleaned_[2]->Fill(dR);
+		}
+		if( type == reco::PFCandidate::h0 ) {
+		  SumPtIsoValCleanNh += (i->first)->pt();
+		  if( phoIsInBarrel)
+		    h_dRPhoPFcand_NeuHad_Cleaned_[1]->Fill(dR);
+		  else 
+		    h_dRPhoPFcand_NeuHad_Cleaned_[2]->Fill(dR);
+		}
+		if( type == reco::PFCandidate::gamma ) {
+		  SumPtIsoValCleanPh += (i->first)->pt();
+		  if( phoIsInBarrel)
+		    h_dRPhoPFcand_Pho_Cleaned_[1]->Fill(dR);
+		  else 
+		    h_dRPhoPFcand_Pho_Cleaned_[2]->Fill(dR);
+		}
+	      }
 	    }
 	  }
 	}
+	
+
 	if( phoIsInBarrel) {
-	  h_SumPtOverPhoPt_Cleaned_[1]->Fill(isoEBclean/matchingPho->pt());
-	  h_SumPtOverPhoPt_unCleaned_[1]->Fill(isoEBunclean/matchingPho->pt());
+	  h_SumPtOverPhoPt_ChHad_Cleaned_[1]->Fill(SumPtIsoValCleanCh/matchingPho->pt());
+	  h_SumPtOverPhoPt_NeuHad_Cleaned_[1]->Fill(SumPtIsoValCleanNh/matchingPho->pt());
+	  h_SumPtOverPhoPt_Pho_Cleaned_[1]->Fill(SumPtIsoValCleanPh/matchingPho->pt());
+	  h_SumPtOverPhoPt_ChHad_unCleaned_[1]->Fill(SumPtIsoValCh/matchingPho->pt());
+	  h_SumPtOverPhoPt_NeuHad_unCleaned_[1]->Fill(SumPtIsoValNh/matchingPho->pt());
+	  h_SumPtOverPhoPt_Pho_unCleaned_[1]->Fill(SumPtIsoValPh/matchingPho->pt());
 	} else {
-	  h_SumPtOverPhoPt_Cleaned_[2]->Fill(isoEEclean/matchingPho->pt());
-	  h_SumPtOverPhoPt_unCleaned_[2]->Fill(isoEEunclean/matchingPho->pt());
+	  h_SumPtOverPhoPt_ChHad_Cleaned_[2]->Fill(SumPtIsoValCleanCh/matchingPho->pt());
+	  h_SumPtOverPhoPt_NeuHad_Cleaned_[2]->Fill(SumPtIsoValCleanNh/matchingPho->pt());
+	  h_SumPtOverPhoPt_Pho_Cleaned_[2]->Fill(SumPtIsoValCleanPh/matchingPho->pt());
+	  h_SumPtOverPhoPt_ChHad_unCleaned_[2]->Fill(SumPtIsoValCh/matchingPho->pt());
+	  h_SumPtOverPhoPt_NeuHad_unCleaned_[2]->Fill(SumPtIsoValNh/matchingPho->pt());
+	  h_SumPtOverPhoPt_Pho_unCleaned_[2]->Fill(SumPtIsoValPh/matchingPho->pt());
+
 	}
 	
       }
