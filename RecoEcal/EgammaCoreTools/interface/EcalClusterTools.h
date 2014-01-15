@@ -162,7 +162,7 @@ static std::vector<float> scLocalCovariances(const reco::SuperCluster &cluster, 
                 static Cluster2ndMoments cluster2ndMoments( const reco::BasicCluster &basicCluster, const EcalRecHitCollection &recHits, double phiCorrectionFactor=0.8, double w0=4.7, bool useLogWeights=true);
 
                 static Cluster2ndMoments cluster2ndMoments( const reco::SuperCluster &superCluster, const EcalRecHitCollection &recHits, double phiCorrectionFactor=0.8, double w0=4.7, bool useLogWeights=true);
-                static Cluster2ndMoments cluster2ndMoments( const std::vector<const EcalRecHit*>& RH_ptrs, double  phiCorrectionFactor=0.8, double  w0=4.7, bool useLogWeights=true);
+                static Cluster2ndMoments cluster2ndMoments( const std::vector<std::pair<const EcalRecHit*, float> >& RH_ptrs_fracs, double  phiCorrectionFactor=0.8, double  w0=4.7, bool useLogWeights=true);
 
                 static double zernike20( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, double R0 = 6.6, bool logW = true, float w0 = 4.7 );
                 static double zernike42( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloGeometry *geometry, double R0 = 6.6, bool logW = true, float w0 = 4.7 );
@@ -249,7 +249,7 @@ static std::pair<float,float> mean5x5PositionInXY(const reco::BasicCluster &clus
 				static int deltaIEta(int seed_ieta, int rh_ieta);
 				static int deltaIPhi(int seed_iphi, int rh_iphi);
 				static std::vector<int> getSeedPosition(const std::vector<const EcalRecHit*>&RH_ptrs);
-				static float getSumEnergy(const std::vector<const EcalRecHit*>&RH_ptrs);
+				static float getSumEnergy(const std::vector<std::pair<const EcalRecHit*,float> >&RH_ptrs_fracs);
 				static float computeWeight(float eRH, float energyTotal, int weightedPositionMethod);
 
 };
