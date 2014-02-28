@@ -72,6 +72,11 @@ namespace reco {
     
     /// cluster energy
     double        energy() const {return energy_;}
+
+    /// cluster time
+    double        time() const {return time_;}
+
+    void         setTime(double time) {time_ = time;}
     
     /// cluster position: rho, eta, phi
     const REPPoint&       positionREP() const {return posrep_;}
@@ -143,7 +148,9 @@ namespace reco {
     
     /// cluster position: rho, eta, phi (transient)
     REPPoint            posrep_;
-    
+
+    ///Michalis :Add timing information
+    double time_;
     
     /// \todo move to PFClusterTools
     static int    depthCorMode_;
