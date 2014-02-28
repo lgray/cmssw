@@ -46,7 +46,7 @@ namespace reco {
     typedef std::vector<std::pair<CaloClusterPtr::key_type,edm::Ptr<PFCluster> > > EEtoPSAssociation;
     typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
   
-    PFCluster() : CaloCluster(CaloCluster::particleFlow), color_(1) {}
+    PFCluster() : CaloCluster(CaloCluster::particleFlow), layer_(PFLayer::NONE), color_(1) {}
 
     /// constructor
     PFCluster(PFLayer::Layer layer, double energy,
@@ -68,7 +68,7 @@ namespace reco {
     void setLayer( PFLayer::Layer layer);
     
     /// cluster layer, see PFLayer.h in this directory
-    PFLayer::Layer  layer() const;     
+    PFLayer::Layer  layer() const;
     
     /// cluster energy
     double        energy() const {return energy_;}
@@ -152,6 +152,9 @@ namespace reco {
     ///Michalis :Add timing information
     double time_;
 
+    /// transient layer
+    PFLayer::Layer layer_; 
+
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
      /// \todo move to PFClusterTools
     static std::atomic<int>    depthCorMode_;
@@ -168,7 +171,22 @@ namespace reco {
     /// \todo move to PFClusterTools
     static std::atomic<double> depthCorBp_;
 #else
-
+    /// \todo move to PFClusterTools
+    static int    depthCorMode_;
+    
+    /// \todo move to PFClusterTools
+    static double depthCorA_;
+    
+    /// \todo move to PFClusterTools
+    static double depthCorB_ ;
+    
+    /// \todo move to PFClusterTools
+    static double depthCorAp_;
+    
+    /// \todo move to PFClusterTools
+    static double depthCorBp_;
+#endif
+    
     static const math::XYZPoint dummyVtx_;
 
     /// color (transient)
