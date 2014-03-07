@@ -155,22 +155,6 @@ namespace reco {
     /// transient layer
     PFLayer::Layer layer_; 
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-     /// \todo move to PFClusterTools
-    static std::atomic<int>    depthCorMode_;
-
-    /// \todo move to PFClusterTools
-    static std::atomic<double> depthCorA_;
-
-    /// \todo move to PFClusterTools
-    static std::atomic<double> depthCorB_ ;
-
-    /// \todo move to PFClusterTools
-    static std::atomic<double> depthCorAp_;
-
-    /// \todo move to PFClusterTools
-    static std::atomic<double> depthCorBp_;
-#else
     /// \todo move to PFClusterTools
     static int    depthCorMode_;
     
@@ -185,7 +169,6 @@ namespace reco {
     
     /// \todo move to PFClusterTools
     static double depthCorBp_;
-#endif
     
     static const math::XYZPoint dummyVtx_;
 
