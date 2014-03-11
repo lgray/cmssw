@@ -68,14 +68,12 @@ void
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
- PFRecHitProducer::beginJob()
+void PFRecHitProducer::beginStream(edm::StreamID)
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
- PFRecHitProducer::endJob() {
+void PFRecHitProducer::endStream() {
 }
 
 
