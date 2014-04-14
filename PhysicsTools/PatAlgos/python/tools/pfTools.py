@@ -52,6 +52,20 @@ def adaptPFIsoMuons(process,module, postfix = "PFIso", dR = "04"):
         pfPhotons = cms.InputTag("muPFIsoValueGamma" + dR + postfix)
         )
 
+def usePFIso(process, postfix = "PFIso"):
+    print "Building particle-based isolation "
+    print "***************** "
+    process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons', postfix)
+    process.muIsoSequence = setupPFMuonIso(process, 'muons', postfix)
+    adaptPFIsoMuons( process, applyPostfix(process,"patMuons",""), postfix)
+    adaptPFIsoElectrons( process, applyPostfix(process,"patElectrons",""), postfix)
+    getattr(process,'patDefaultSequence').replace( getattr(process,"patCandidates"),
+                                                   process.pfParticleSelectionSequence +
+                                                   process.pfDeltaBetaWeightingSequence+
+                                                   process.eleIsoSequence +
+                                                   process.muIsoSequence +
+                                                   getattr(process,"patCandidates") )
+
 def adaptPFMuons(process,module,postfix="" ):
     print "Adapting PF Muons "
     print "***************** "
