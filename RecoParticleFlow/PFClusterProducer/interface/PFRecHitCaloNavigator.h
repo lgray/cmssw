@@ -28,7 +28,7 @@ class PFRecHitCaloNavigator : public PFRecHitNavigatorBase {
   void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
       DetId detid( hit.detId() );
       
-      CaloNavigator<DET> navigator(detid, topology_);
+      CaloNavigator<DET,TOPO> navigator(detid, topology_);
       
       DetId N(0);
       DetId E(0);
