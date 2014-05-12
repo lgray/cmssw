@@ -16,7 +16,7 @@ class HcalCondObjectContainerBase {
 public:
   const HcalTopology* topo() const { return topo_; }
   int getCreatorPackedIndexVersion() const { return packedIndexVersion_; }
-  void setTopo(const HcalTopology* topo) const;
+  //void setTopo(const HcalTopology* topo) const; // why would you do this?
   void setTopo(const HcalTopology* topo);
 protected:
   HcalCondObjectContainerBase(const HcalTopology*);
@@ -26,7 +26,7 @@ protected:
   inline HcalOtherSubdetector extractOther(const DetId& id) const { return HcalOtherSubdetector((id.rawId()>>20)&0x1F); }
   std::string textForId(const DetId& id) const;
 private:
-  mutable const HcalTopology* topo_;
+  const HcalTopology* topo_;
 };
 
 template<class Item>
