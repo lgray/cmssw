@@ -1,6 +1,7 @@
-#include "RecoParticleFlow/PFClusterProducer/plugins/ArborTool.hh"
+#include "RecoParticleFlow/PFClusterProducer/interface/ArborTool.hh"
 #include <TMath.h>
 
+namespace arbor {
 using namespace std;
 
 const double pi = acos(-1.0); 
@@ -355,3 +356,4 @@ branchcoll ArborBranchMerge(branchcoll inputbranches, TMatrixF ConnectorMatrix)	
 	return outputbranches; 
 }
 
+}

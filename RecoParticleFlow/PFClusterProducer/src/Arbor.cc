@@ -1,12 +1,13 @@
-#include <RecoParticleFlow/PFClusterProducer/plugins/Arbor.hh>
+#include <RecoParticleFlow/PFClusterProducer/interface/Arbor.hh>
 #include <TTree.h>
 #include <algorithm>
 #include <TMath.h>
 
-using namespace std; 
+namespace arbor {
+using namespace std;
 
 std::vector<TVector3> cleanedHits;
-
+  
 std::vector<int> LeafHitsIndex; 
 std::vector<int> JointHitsIndex; 
 std::vector<int> StarJointHitsIndex; 
@@ -647,4 +648,5 @@ std::vector< std::vector<int> > Arbor( std::vector<TVector3> inputHits, float Ce
 
 	return LengthSortBranchCollection;
 
+}
 }
