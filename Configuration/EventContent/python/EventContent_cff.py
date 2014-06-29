@@ -447,7 +447,7 @@ RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 REPACKRAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 REPACKRAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 
-STRIPPEDRECOEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
+STRIPPEDRECOEventContent.outputCommands.extend(RecoLocalTrackerSTRIPPEDRECO.outputCommands)
 STRIPPEDRECOEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
 STRIPPEDRECOEventContent.outputCommands.extend(RecoLocalCaloSTRIPPEDRECO.outputCommands)
 STRIPPEDRECOEventContent.outputCommands.extend(RecoEcalSTRIPPEDRECO.outputCommands)

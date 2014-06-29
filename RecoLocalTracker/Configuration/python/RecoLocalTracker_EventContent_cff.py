@@ -9,6 +9,17 @@ RecoLocalTrackerFEVT = cms.PSet(
     'keep *_siStripClusters_*_*',
     'keep *_clusterSummaryProducer_*_*')
 )
+
+#STRIPPEDRECO content
+RecoLocalTrackerSTRIPPEDRECO = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+    'keep DetIdedmEDCollection_siStripDigis_*_*',
+    'keep DetIdedmEDCollection_siPixelDigis_*_*',
+    'keep *_siPixelClusters_*_*', 
+    'keep *_siStripClusters_*_*',
+    'keep *_clusterSummaryProducer_*_*')
+)
+
 #RECO content
 RecoLocalTrackerRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(

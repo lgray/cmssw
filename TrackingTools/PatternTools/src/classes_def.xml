@@ -1,8 +1,10 @@
 <lcgdict>
-  <class name="Trajectory"/>
+  <class name="Trajectory">
+    <field name="theSeed" transient="true"/>
+  </class>
   <!-- persistent="false" qualifier for non-wrappers is deprecated. Will be removed when no longer needed.-->
   <class name="std::vector<Trajectory>" />
-  <class name="edm::Wrapper<std::vector<Trajectory> >" persistent="false"/>
+  <class name="edm::Wrapper<std::vector<Trajectory> >"/>
   <class name="edm::RefProd<std::vector<Trajectory> >"/>
   <class name="edm::Ref<std::vector<Trajectory>, Trajectory, edm::refhelper::FindUsingAdvance<std::vector<Trajectory>, Trajectory> >"/>
 

@@ -35,6 +35,7 @@ RecoTrackerSTRIPPEDRECO = cms.PSet(
         'keep *_newCombinedSeeds_*_*',
         'keep recoTracks_generalTracks_*_*', 
         'keep recoTrackExtras_generalTracks_*_*',
+        'keep *Traj*_generalTracks_*_*',
         'keep TrackingRecHitsOwned_extraFromSeeds_*_*',
         'keep uints_extraFromSeeds_*_*',                                   
         'keep TrackingRecHitsOwned_generalTracks_*_*', 

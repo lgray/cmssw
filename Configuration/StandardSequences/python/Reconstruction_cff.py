@@ -38,6 +38,7 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 
 localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
+localreco_noTK = cms.Sequence(siPixelRecHits+siStripMatchedRecHits+clusterSummaryProducer+calolocalreco+castorreco)
 localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
 
 #
@@ -67,6 +68,21 @@ globalreco = cms.Sequence(offlineBeamSpot*
 
 globalreco_plusPL= cms.Sequence(globalreco*ctfTracksPixelLess)
 
+globalreco_noTK = cms.Sequence(offlineBeamSpot*
+                               MeasurementTrackerEvent*
+                               siPixelClusterShapeCache*
+                               recopixelvertexing*
+                               vertexreco*
+                               hcalGlobalRecoSequence*
+                               particleFlowCluster*
+                               ecalClusters*
+                               caloTowersRec*                          
+                               egammaGlobalReco*
+                               jetGlobalReco*
+                               muonGlobalReco*
+                               pfTrackingGlobalReco*
+                               muoncosmicreco*
+                               CastorFullReco)
 
 reducedRecHits = cms.Sequence ( reducedEcalRecHitsSequence * reducedHcalRecHitsSequence )
 
@@ -90,6 +106,8 @@ from FWCore.Modules.logErrorHarvester_cfi import *
 
 # "Export" Section
 reconstruction         = cms.Sequence(localreco*globalreco*highlevelreco*logErrorHarvester)
+
+reconstruction_fromRECO_noGeneralTracking = cms.Sequence(localreco_noTK*globalreco_noTK*highlevelreco*logErrorHarvester)
 
 #no iterative tracking / seeding / only electron tracking and ECAL-seeded convs
 
@@ -124,7 +142,7 @@ noTrackingAndDependent.append(siPixelRecHits)
 noTrackingAndDependent.append(siStripMatchedRecHits)
 noTrackingAndDependent.append(pixelTracks)
 noTrackingAndDependent.append(ckftracks)
-reconstruction_fromRECO_noTrackingTest = reconstruction.copyAndExclude(modulesToRemove+noTrackingAndDependent)
+
 ##requires generalTracks trajectories
 noTrackingAndDependent.append(trackerDrivenElectronSeeds)
 noTrackingAndDependent.append(ecalDrivenElectronSeeds)

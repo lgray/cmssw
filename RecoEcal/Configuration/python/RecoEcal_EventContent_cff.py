@@ -31,7 +31,8 @@ RecoEcalFEVT = cms.PSet(
 RecoEcalSTRIPPEDRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
         #keep all digis
-        'keep *_ecalDigis_*_*'
+        'keep *_ecalDigis_*_*',
+        'keep *_ecalPreshowerDigis_*_*'
     )
 )
 

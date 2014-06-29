@@ -23,7 +23,8 @@ RecoLocalCaloFEVT = cms.PSet(
 )
 # STRIPPEDRECO Content
 RecoLocalCaloSTRIPPEDRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_hcalDigis_*_*')
+    outputCommands = cms.untracked.vstring('keep *_hcalDigis_*_*',
+                                           'keep *_castorDigis_*_*')
 )
 
 #RECO content
