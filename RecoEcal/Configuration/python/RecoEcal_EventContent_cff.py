@@ -27,6 +27,14 @@ RecoEcalFEVT = cms.PSet(
 	'drop recoBasicClusters_multi5x5BasicClusters_multi5x5BarrelBasicClusters_*',
         'drop recoSuperClusters_multi5x5SuperClusters_multi5x5BarrelSuperClusters_*')
 )
+# STRIPPEDRECO content
+RecoEcalSTRIPPEDRECO = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+        #keep all digis
+        'keep *_ecalDigis_*_*'
+    )
+)
+
 # RECO content
 RecoEcalRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(

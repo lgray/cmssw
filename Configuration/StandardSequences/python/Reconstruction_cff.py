@@ -91,6 +91,9 @@ from FWCore.Modules.logErrorHarvester_cfi import *
 # "Export" Section
 reconstruction         = cms.Sequence(localreco*globalreco*highlevelreco*logErrorHarvester)
 
+#no iterative tracking / seeding / only electron tracking and ECAL-seeded convs
+
+
 #need a fully expanded sequence copy
 modulesToRemove = list() # copy does not work well
 noTrackingAndDependent = list()

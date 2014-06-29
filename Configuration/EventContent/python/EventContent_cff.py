@@ -14,6 +14,9 @@ import FWCore.ParameterSet.Config as cms
 #  RAWSIM, RECOSIM, AODSIM:
 #    include reconstruction and simulation
 #
+#  STRIPPEDRECO, STRIPPEDRECOSIM:
+#    include only reconstruction information needed for fast reRECO not redoing tracking
+#
 #  GENRAW
 #    slimmed-down version of RAWSIM for small transient disk size during MC production, contains Gen+Rawdata
 #
@@ -140,6 +143,16 @@ RECOEventContent = cms.PSet(
 )
 #
 #
+# STRIPPEDRECO Data Tier definition
+#
+#
+STRIPPEDRECOEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
+)
+#
+#
 # RAWRECO Data Tiere definition
 #
 #
@@ -205,6 +218,16 @@ RAWRECODEBUGHLTEventContent = cms.PSet(
 #
 #
 RECOSIMEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
+)
+#
+#
+# STRIPPEDRECOSIM Data Tier definition
+#
+#
+STRIPPEDRECOSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
@@ -424,6 +447,12 @@ RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 REPACKRAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 REPACKRAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 
+STRIPPEDRECOEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
+STRIPPEDRECOEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
+STRIPPEDRECOEventContent.outputCommands.extend(RecoLocalCaloSTRIPPEDRECO.outputCommands)
+STRIPPEDRECOEventContent.outputCommands.extend(RecoEcalSTRIPPEDRECO.outputCommands)
+STRIPPEDRECOEventContent.outputCommands.extend(TrackingToolsRECO.outputCommands)
+STRIPPEDRECOEventContent.outputCommands.extend(RecoTrackerSTRIPPEDRECO.outputCommands)
 
 RECOEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
@@ -532,6 +561,17 @@ REPACKRAWSIMEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
 REPACKRAWSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
 REPACKRAWSIMEventContent.outputCommands.extend(IOMCRAW.outputCommands)
 REPACKRAWSIMEventContent.outputCommands.extend(CommonEventContent.outputCommands)
+
+STRIPPEDRECOSIMEventContent.outputCommands.extend(STRIPPEDRECOEventContent.outputCommands)
+STRIPPEDRECOSIMEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
+STRIPPEDRECOSIMEventContent.outputCommands.extend(RecoGenMETRECO.outputCommands)
+STRIPPEDRECOSIMEventContent.outputCommands.extend(RecoGenJetsRECO.outputCommands)
+STRIPPEDRECOSIMEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
+STRIPPEDRECOSIMEventContent.outputCommands.extend(SimTrackerRECO.outputCommands)
+STRIPPEDRECOSIMEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
+STRIPPEDRECOSIMEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
+STRIPPEDRECOSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
+STRIPPEDRECOSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 
 RECOSIMEventContent.outputCommands.extend(RECOEventContent.outputCommands)
 RECOSIMEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)

@@ -21,6 +21,11 @@ RecoLocalCaloFEVT = cms.PSet(
                                            'keep HcalUnpackerReport_*_*_*'
         )
 )
+# STRIPPEDRECO Content
+RecoLocalCaloSTRIPPEDRECO = cms.PSet(
+    outputCommands = cms.untracked.vstring('keep *_hcalDigis_*_*')
+)
+
 #RECO content
 RecoLocalCaloRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_hbhereco_*_*',
