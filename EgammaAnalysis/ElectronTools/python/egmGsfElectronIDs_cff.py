@@ -16,5 +16,15 @@ egmGsfElectronIDs.electronIDs.append(
     cms.PSet( idDefinition = cutBasedElectronID_CSA14_50ns_V0_standalone_tight,
               idMD5 = cms.string(csa14_50ns_tight_md5) )
     )
+
+
+from EgammaAnalysis.ElectronTools.heepElectronID_HEEPV50_CSA14_25ns_cff import heepElectronID_HEEPV50_CSA14_25ns
+heepElectronID_HEEPV50_CSA14_25ns_md5 = central_id_registry.getMD5FromName( heepElectronID_HEEPV50_CSA14_25ns.idName )
+egmGsfElectronIDs.electronIDs.append( 
+    cms.PSet( idDefinition = heepElectronID_HEEPV50_CSA14_25ns,
+              idMD5 = cms.string(heepElectronID_HEEPV50_CSA14_25ns_md5) )
+    )
+
+
     
 egmGsfElectronIDSequence = cms.Sequence(egmGsfElectronIDs)
