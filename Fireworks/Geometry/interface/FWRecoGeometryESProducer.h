@@ -6,6 +6,7 @@
 # include "FWCore/Framework/interface/ESProducer.h"
 # include "FWCore/Framework/interface/ESHandle.h"
 # include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "Geometry/FCalGeometry/interface/HGCalGeometry.h"
 
 namespace edm
 {
@@ -49,6 +50,7 @@ private:
   
   edm::ESHandle<GlobalTrackingGeometry> m_geomRecord;
   edm::ESHandle<CaloGeometry>           m_caloGeom;
+  std::vector<edm::ESHandle<HGCalGeometry> >        m_hgcGeom;
   const TrackerGeometry*                m_trackerGeom;
   boost::shared_ptr<FWRecoGeometry>     m_fwGeometry;
   
