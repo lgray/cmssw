@@ -159,7 +159,7 @@
      <string>1004</string>
    </config>
    <config name="isVisible" version="0">
-     <string>t</string>
+     <string>f</string>
    </config>
    <config name="layer" version="0">
      <string>1</string>
@@ -193,7 +193,7 @@
      <string>1008</string>
    </config>
    <config name="isVisible" version="0">
-     <string>t</string>
+     <string>f</string>
    </config>
    <config name="layer" version="0">
      <string>5</string>
@@ -1011,22 +1011,22 @@
       <string>1</string>
     </config>
     <config name="cameraMatrix0Plain3D" version="0">
-      <string>-0.401173</string>
+      <string>0.810246</string>
     </config>
     <config name="cameraMatrix1Plain3D" version="0">
-      <string>-0.563483</string>
+      <string>-0.395153</string>
     </config>
     <config name="cameraMatrix2Plain3D" version="0">
-      <string>0.722185</string>
+      <string>0.432851</string>
     </config>
     <config name="cameraMatrix3Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix4Plain3D" version="0">
-      <string>0.814632</string>
+      <string>0.438344</string>
     </config>
     <config name="cameraMatrix5Plain3D" version="0">
-      <string>-0.579978</string>
+      <string>0.898807</string>
     </config>
     <config name="cameraMatrix6Plain3D" version="0">
       <string>0</string>
@@ -1035,25 +1035,25 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix8Plain3D" version="0">
-      <string>0.41885</string>
+      <string>-0.389049</string>
     </config>
     <config name="cameraMatrix9Plain3D" version="0">
-      <string>0.588315</string>
+      <string>0.189736</string>
     </config>
     <config name="cameraMatrix10Plain3D" version="0">
-      <string>0.691701</string>
+      <string>0.901466</string>
     </config>
     <config name="cameraMatrix11Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix12Plain3D" version="0">
-      <string>-1458.17</string>
+      <string>2706.08</string>
     </config>
     <config name="cameraMatrix13Plain3D" version="0">
-      <string>-2016.83</string>
+      <string>-1315.33</string>
     </config>
     <config name="cameraMatrix14Plain3D" version="0">
-      <string>2612.92</string>
+      <string>1436.09</string>
     </config>
     <config name="cameraMatrix15Plain3D" version="0">
       <string>1</string>
@@ -1095,19 +1095,19 @@
       <string>0</string>
     </config>
     <config name="cameraMatrixBase12Plain3D" version="0">
-      <string>-52.4547</string>
+      <string>0.704212</string>
     </config>
     <config name="cameraMatrixBase13Plain3D" version="0">
-      <string>-37.8377</string>
+      <string>2.99738</string>
     </config>
     <config name="cameraMatrixBase14Plain3D" version="0">
-      <string>317.74</string>
+      <string>-6.85859</string>
     </config>
     <config name="cameraMatrixBase15Plain3D" version="0">
       <string>1</string>
     </config>
     <config name="Plain3D FOV" version="0">
-      <string>3.09973</string>
+      <string>20.9409</string>
     </config>
    </config>
    <config name="Rho Phi" version="7">
@@ -1154,6 +1154,12 @@
       <string>0</string>
     </config>
     <config name="Show Tracker Endcap" version="0">
+      <string>0</string>
+    </config>
+    <config name="Show RPC Endcap" version="0">
+      <string>0</string>
+    </config>
+    <config name="Show GEM" version="0">
       <string>0</string>
     </config>
     <config name="Shift origin to beam-spot" version="0">
@@ -1312,6 +1318,12 @@
       <string>0</string>
     </config>
     <config name="Show Tracker Endcap" version="0">
+      <string>0</string>
+    </config>
+    <config name="Show RPC Endcap" version="0">
+      <string>0</string>
+    </config>
+    <config name="Show GEM" version="0">
       <string>0</string>
     </config>
     <config name="Shift origin to beam-spot" version="0">
