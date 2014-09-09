@@ -63,41 +63,32 @@ std::pair<int,int> HGCalDDDConstants::assignCell(float x, float y, float h,
 						 float bl,float tl,float alpha,
 						 float cellSize) const {
 
-  float a = (alpha==0) ? (2*h/(tl-bl))   : (h/(tl-bl));
-  float b = (alpha==0) ? -2*h*bl/(tl-bl) : -2*h*bl/(tl-bl);
-  
-  int phiSector = (x > 0) ? 1 : 0; 
+  float a     = (alpha==0) ? (2*h/(tl-bl)) : (h/(tl-bl));
+  float b     = 2*h*bl/(tl-bl);
+ 
+  float x0(x);
+  int phiSector = (x0 > 0) ? 1 : 0;
+  if      (alpha < 0) {x0 -= 0.5*(tl+bl); phiSector = 0;}
+  else if (alpha > 0) {x0 += 0.5*(tl+bl); phiSector = 1;}
 
-  //shift local coordinate to bottom left corner
-  if(alpha!=0)
-    {
-      x=fabs( x + (alpha<0 ? -0.5 : 0.5)*(tl-bl) );
-      y=y+h;
-    }
-  else
-    {
-      x=fabs(x);
-      y=y+h;
-    }
-  
   //determine the i-y
-  int ky    = floor(y/cellSize);
+  int ky    = floor((y+h)/cellSize);
   int max_ky_allowed=floor(2*h/cellSize);
-  if(ky>=max_ky_allowed) return std::pair<int,int>(phiSector,-2);
-  //  if(y> (max_ky_allowed*cellSize)) return std::pair<int,int>(phiSector,-2);
-  
+  if(ky>max_ky_allowed-1) return std::pair<int,int>(phiSector,-2);
+  //if((y+h)> (max_ky_allowed*cellSize)) return std::pair<int,int>(phiSector,-2);
+
   //determine the i-x
   //notice we substitute y by the bottom of the candidate cell
-  int kx = floor(x/cellSize);
-  int max_kx_allowed=floor((ky*cellSize-b)/(a*cellSize));
-  if(kx>=max_kx_allowed) return std::pair<int,int>(phiSector,-2);
-  //if(x>(max_kx_allowed*cellSize)) return std::pair<int,int>(phiSector,-2);
-  
+  int kx    = floor(fabs(x0)/cellSize);
+  int max_kx_allowed=floor( (ky*cellSize+b)/(a*cellSize) );
+  if(kx>max_kx_allowed-1) return std::pair<int,int>(phiSector,-2);
+  //if(fabs(x)>(max_kx_allowed*cellSize)) return std::pair<int,int>(phiSector,-2);
+
   //count cells summing in rows until required height
   //notice the bottom of the cell must be used
   int icell(0);
   for (int iky=0; iky<ky; ++iky) {
-    int cellsInRow( floor((iky*cellSize-b)/(a*cellSize)) );
+    int cellsInRow( floor( (iky*cellSize+b)/(a*cellSize) ) );
     icell += cellsInRow;
   }
   icell += kx;
@@ -361,11 +352,12 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay,
   float bl = modules_[i].bl;
   float tl = modules_[i].tl;
   float cellSize = cellFactor_[i]*index.second;
-  std::pair<int,int> kxy = findCell(cell, h, bl, tl, modules_[i].alpha,
-				    index.second);
+
+  std::pair<int,int> kxy = findCell(cell, h, bl, tl, modules_[i].alpha, index.second);
   int depth   = layerGroup_[i];
   int kx      = kxy.first/cellFactor_[i];
   int ky      = kxy.second/cellFactor_[i];
+
   float a     = (half) ? (h/(tl-bl)) : (2*h/(tl-bl));
   float b     = 2*h*bl/(tl-bl);
   for (int iky=0; iky<ky; ++iky)
@@ -374,7 +366,7 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay,
 #ifdef DebugLog
   std::cout << "simToReco: input " << cell << ":" << lay << ":" << half
 	    << " kxy " << kxy.first << ":" << kxy.second << " output "
-	    << kx << ":" << depth << std::endl;
+    	    << kx << ":" << depth << " cell factor=" << cellFactor_[i] << std::endl;
 #endif
   return std::pair<int,int>(kx,depth);
 }
