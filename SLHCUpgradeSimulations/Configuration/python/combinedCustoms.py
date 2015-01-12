@@ -26,6 +26,7 @@ from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customiseDefault
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customisePhase2 as fastCustomisePhase2
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_noPixelDataloss as cNoPixDataloss
 from SLHCUpgradeSimulations.Configuration.customise_ecalTime import cust_ecalTime
+from SLHCUpgradeSimulations.Configuration.customise_shashlikTime import cust_shashlikTime
 import SLHCUpgradeSimulations.Configuration.aging as aging
 import SLHCUpgradeSimulations.Configuration.jetCustoms as jetCustoms
 
@@ -400,6 +401,7 @@ def cust_2023HGCal_common(process):
         process.particleFlowCluster += process.particleFlowClusterHGC
         if hasattr(process,'particleFlowSuperClusterECAL'):
             process.particleFlowSuperClusterHGCEE = process.particleFlowSuperClusterECAL.clone()
+            process.particleFlowSuperClusterHGCEE.useHGCEmPreID = cms.bool(True)
             process.particleFlowSuperClusterHGCEE.PFClusters = cms.InputTag('particleFlowClusterHGCEE')
             process.particleFlowSuperClusterHGCEE.use_preshower = cms.bool(False)
             process.particleFlowSuperClusterHGCEE.PFSuperClusterCollectionEndcapWithPreshower = cms.string('')
@@ -419,10 +421,6 @@ def cust_2023HGCal_common(process):
         if hasattr(process,'particleFlowBlock'):
             process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('HGCECALClusterImporter'),
                                                                          source = cms.InputTag('particleFlowClusterHGCEE') ) )
-            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
-                                                                         source = cms.InputTag('particleFlowClusterHGCHEF') ) )
-            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
-                                                                         source = cms.InputTag('particleFlowClusterHGCHEB') ) )
             process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkerName = cms.string('TrackAndHGCEELinker'),
                                                                         linkType = cms.string('TRACK:HGC_ECAL'),
                                                                         useKDTree = cms.bool(True) ) )
@@ -510,6 +508,7 @@ def cust_2023HGCalV6Muon(process):
         process.particleFlowCluster += process.particleFlowClusterHGC
         if hasattr(process,'particleFlowSuperClusterECAL'):
             process.particleFlowSuperClusterHGCEE = process.particleFlowSuperClusterECAL.clone()
+            process.particleFlowSuperClusterHGCEE.useHGCEmPreID = cms.bool(True)
             process.particleFlowSuperClusterHGCEE.PFClusters = cms.InputTag('particleFlowClusterHGCEE')
             process.particleFlowSuperClusterHGCEE.use_preshower = cms.bool(False)
             process.particleFlowSuperClusterHGCEE.PFSuperClusterCollectionEndcapWithPreshower = cms.string('')
@@ -529,10 +528,6 @@ def cust_2023HGCalV6Muon(process):
         if hasattr(process,'particleFlowBlock'):
             process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('HGCECALClusterImporter'),
                                                                          source = cms.InputTag('particleFlowClusterHGCEE') ) )
-            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
-                                                                         source = cms.InputTag('particleFlowClusterHGCHEF') ) )
-            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
-                                                                         source = cms.InputTag('particleFlowClusterHGCHEB') ) )
             process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkerName = cms.string('TrackAndHGCEELinker'),
                                                                         linkType = cms.string('TRACK:HGC_ECAL'),
                                                                         useKDTree = cms.bool(True) ) )
@@ -555,6 +550,12 @@ def cust_2023HGCalV6Muon(process):
     if hasattr(process,'RECOSIMEventContent'):
         process.RECOSIMEventContent.outputCommands.extend(process.hgcalLocalRecoFEVT.outputCommands)
         process.RECOSIMEventContent.outputCommands.append('keep *_particleFlowSuperClusterHGCEE_*_*')
+    return process
+
+def cust_2023SHCalTime(process):
+    process=cust_2023SHCal(process)
+    process=cust_shashlikTime(process)
+    process=cust_ecalTime(process)    
     return process
 
 def cust_2023Pixel(process):
