@@ -63,8 +63,15 @@ namespace reco {
     /// copy
     PFRecHit(const PFRecHit& other);
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    /// move
+    PFRecHit(PFRecHit&&) = default;
+    PFRecHit& operator=(const PFRecHit&) = default;
+#endif
+
     /// destructor
-    virtual ~PFRecHit();
+    ~PFRecHit() {}
+
 
     void setEnergy( double energy) { energy_ = energy; }
 

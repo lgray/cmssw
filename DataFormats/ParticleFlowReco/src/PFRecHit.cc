@@ -81,12 +81,6 @@ PFRecHit::PFRecHit(const PFRecHit& other) :
   neighbours8_(other.neighbours8_)
 {}
 
-
-
-PFRecHit::~PFRecHit() 
-{}
-
-
 void PFRecHit::setNWCorner( double posx, double posy, double posz ) {
   setCorner(0, posx, posy, posz);
 }
