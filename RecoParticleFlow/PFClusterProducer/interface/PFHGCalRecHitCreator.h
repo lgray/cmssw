@@ -100,10 +100,10 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
 	  
 	if(keep) {
 	  rh.setTime(time);
-	  out->push_back(rh);
+	  out->push_back( std::move(rh) );
 	}
 	else if (rcleaned) 
-	  cleaned->push_back(rh);
+	  cleaned->push_back( std::move(rh) );
       }
       edm::LogInfo("HGCalRecHitCreator") 
 	<<  "Skipped " << skipped_rechits 
