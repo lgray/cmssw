@@ -40,6 +40,9 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
       iEvent.getByToken(recHitToken_,recHitHandle);
       const HGCRecHitCollection& rechits = *recHitHandle;
 
+      if( HGCEE == subdet ) out->reserve(200000);
+      else                  out->reserve(50000);
+
       edm::ESHandle<HGCalGeometry> geoHandle;
       iSetup.get<IdealGeometryRecord>().get(geometryInstance_,geoHandle);
       const HGCalGeometry& hgcGeo = *geoHandle;
@@ -105,6 +108,9 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
 	else if (rcleaned) 
 	  cleaned->push_back( std::move(rh) );
       }
+      
+      out->shrink_to_fit();
+
       edm::LogInfo("HGCalRecHitCreator") 
 	<<  "Skipped " << skipped_rechits 
 	<< " out of " << rechits.size() << " rechits!" << std::endl;
