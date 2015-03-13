@@ -66,7 +66,7 @@ process.source = cms.Source("PoolSource",
         #'file:/tmp/lgray/step3.root'
         #'file:simple_jets.root'
         #'file:/tmp/lgray/6EC19337-A7AE-E411-999E-0025905A613C.root'
-        '/store/cmst3/group/hgcal/CMSSW/Single130-FixE_CMSSW_6_2_0_SLHC23_patch2/Events_130_20_1.root'
+        'root://cmseos.cern.ch//store/cmst3/group/hgcal/CMSSW/Single130-FixE_CMSSW_6_2_0_SLHC23_patch2/Events_130_20_1.root'
     )
 )
 

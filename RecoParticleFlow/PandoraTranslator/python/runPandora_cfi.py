@@ -10,14 +10,14 @@ pandorapfanew = cms.EDProducer('PandoraCMSPFCandProducer',
     genParticles= cms.InputTag("genParticles"),
     # use slow algorithms until fast algoritms are available in the CMSSW external pandora library
 #    inputconfigfile = cms.FileInPath('RecoParticleFlow/PandoraTranslator/data/PandoraSettingsBasic_cms_slow.xml'),
-    inputconfigfile = cms.FileInPath('RecoParticleFlow/PandoraTranslator/data/PandoraSettingsBasic_cms.xml'),
+    inputconfigfile = cms.FileInPath('RecoParticleFlow/PandoraTranslator/data/PandoraSettingsBasic_cms_GC.xml'),
 
     energyCorrMethod = cms.string('ABSCORR'),
 #   absorber thickness correction
 #   energyCorrMethod = cms.string('WEIGHTING'),
     energyWeightFile = cms.FileInPath('RecoParticleFlow/PandoraTranslator/data/energyWeight.txt'),
 
-    calibrParFile = cms.FileInPath('RecoParticleFlow/PandoraTranslator/data/pandoraCalibrPars_pedro24022015.txt'),
+    calibrParFile = cms.FileInPath('RecoParticleFlow/PandoraTranslator/data/pandoraCalibrPars_pedro05032015.txt'),
     layerDepthFile = cms.FileInPath('RecoParticleFlow/PandoraTranslator/data/HGCmaterial_v5.root'),
     overburdenDepthFile = cms.FileInPath('RecoParticleFlow/PFClusterProducer/data/HGCMaterialOverburden.root'),
     useOverburdenCorrection = cms.bool(False), #disabled until the overburden values make sense
