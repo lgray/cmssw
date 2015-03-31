@@ -2021,11 +2021,17 @@ void PandoraCMSPFCandProducer::convertPandoraToCMSSW(const edm::Handle<reco::PFR
             } else if( !parent.noVertex() ) {
 	      std::cout << "SCZ TERADEBUG in !parent.noVertex() " << std::endl;
               auto gparent_track = m_simVertexToSimTrackParent.find(parent.vertIndex());
-              if( parent_track == m_simVertexToSimTrackParent.end() ) {
+              if( gparent_track == m_simVertexToSimTrackParent.end() ) {
                 throw cms::Exception("GenParticleNotFound")
                   << "couldn't find grandparent sim track from vertex " << parent.vertIndex() << " track id is: " << parent.trackId() << "!";
               }              
-              const SimTrack& gparent = simTk->at(m_barCodesToSimTrack.find(gparent_track->second)->second);
+              auto gparent_index = m_barCodesToSimTrack.find(gparent_track->second);
+              if( gparent_index == m_barCodesToSimTrack.end() ) {
+                std::cout << "LG TERADEBUG skipping grandparent that does not exist in sim track barcodes!" << std::endl;
+                continue;
+                
+              }   
+              const SimTrack& gparent = simTk->at(gparent_index->second);
               gpGrandParentPdgId[counter] = gparent.type();
             }
           }
