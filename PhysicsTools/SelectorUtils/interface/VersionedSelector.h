@@ -91,7 +91,7 @@ class VersionedSelector : public Selector<T> {
     }
     return this->operator()(ref, ret);
   }
-
+  
   using Selector<T>::operator();
   
   const unsigned char* md55Raw() const { return id_md5_; } 
