@@ -21,7 +21,8 @@ HGCalUncalibRecHit = cms.EDProducer(
         adcSaturation_fC = hgceeDigitizer.digiCfg.feCfg.adcSaturation_fC,
         #tdc information
         tdcNbits = hgceeDigitizer.digiCfg.feCfg.tdcNbits,
-        tdcSaturation_fC = hgceeDigitizer.digiCfg.feCfg.adcSaturation_fC
+        tdcSaturation_fC = hgceeDigitizer.digiCfg.feCfg.tdcSaturation_fC,
+        toaLSB_ns = hgceeDigitizer.digiCfg.feCfg.toaLSB_ns
         ),
     
     HGCHEFConfig = cms.PSet(
@@ -33,7 +34,8 @@ HGCalUncalibRecHit = cms.EDProducer(
         adcSaturation_fC = hgchefrontDigitizer.digiCfg.feCfg.adcSaturation_fC,
         #tdc information
         tdcNbits = hgchefrontDigitizer.digiCfg.feCfg.tdcNbits,
-        tdcSaturation_fC = hgchefrontDigitizer.digiCfg.feCfg.tdcSaturation_fC
+        tdcSaturation_fC = hgchefrontDigitizer.digiCfg.feCfg.tdcSaturation_fC,
+        toaLSB_ns = hgchefDigitizer.digiCfg.feCfg.toaLSB_ns
         ),
 
     HGCHEBConfig = cms.PSet(

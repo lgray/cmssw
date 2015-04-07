@@ -16,6 +16,7 @@ void configureIt(const edm::ParameterSet& conf,
   constexpr char tdcNbits[]         = "tdcNbits";
   constexpr char tdcSaturation_fC[] = "tdcSaturation_fC";
   constexpr char lsbInMIP[]         = "lsbInMIP";
+  constexpr char toaLSB_ns[]        = "toaLSB_ns";
   
   if( conf.exists(isSiFE) ) {
     maker.set_isSiFESim(conf.getParameter<bool>(isSiFE));
@@ -41,6 +42,10 @@ void configureIt(const edm::ParameterSet& conf,
     maker.set_TDCLSBInfC(-1.);
   } 
     
+  if( conf.exists(toaLSB_ns) ) {
+    maker.set_toaLSBToNS(conf.getParameter<double>(toaLSB_ns));
+  }
+
   if( conf.exists(mipInfC) ) {
     maker.set_fCToMIP(conf.getParameter<double>(mipInfC));
   } else {

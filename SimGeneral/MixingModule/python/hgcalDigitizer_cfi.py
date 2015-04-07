@@ -87,6 +87,7 @@ hgchefrontDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"
                                 )
 
 
+
 # HCAL back (CALICE-like version, no pulse shape)
 hgchebackDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"),
                                hitCollection = cms.string("HGCHitsHEback"),
@@ -101,20 +102,12 @@ hgchebackDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer")
                                digiCfg = cms.PSet( mipInKeV = cms.double(1498.4),
                                                    mip2noise = cms.double(5.0),                                                   
                                                    doTimeSamples = cms.bool(False),
-                                                   shaperN       = cms.double(1.),
-                                                   shaperTau     = cms.double(0.),
-                                                   caliceSpecific = cms.PSet( nPEperMIP = cms.double(11.0),
-                                                                              #1156 pixels => saturation ~600MIP
-                                                                              nTotalPE  = cms.double(11560),
-                                                                              xTalk     = cms.double(0.25),
-                                                                              sdPixels  = cms.double(3.0) ),
+                                                   nPEperMIP = cms.double(11.0),
+                                                   nTotalPE  = cms.double(1156),
+                                                   xTalk     = cms.double(0.25),
+                                                   sdPixels  = cms.double(3.0),
+                                                   adcThreshold  = cms.double(4),
+                                                   lsbInMIP = cms.double(0.25),
                                                    feCfg   = cms.PSet( fwVersion         = cms.uint32(0) )
-                                                   )                              
+                                                   )
                                )
-
-
-
-
-                           
-
-
