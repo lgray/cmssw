@@ -200,6 +200,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 	  float tdcOnsetLeakage(tdcOnset_fC_*exp(-deltaT2nextBx/tdcChargeDrainParameterisation_[7]));
 	  if(debug) std::cout << "\t Leaking remainder of TDC onset " << tdcOnset_fC_ 
 			      << " fC, to be dissipated in " << deltaT2nextBx 
+			      << " DeltaT/tau=" << deltaT2nextBx << " / " << tdcChargeDrainParameterisation_[11] 
 			      << " ns, adds "  << tdcOnsetLeakage << " fC @ " << it+busyBxs << " bx (first free bx)" << std::endl;
 	  newCharge[it+busyBxs] +=  tdcOnsetLeakage;
 	}
