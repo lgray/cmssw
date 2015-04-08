@@ -25,7 +25,7 @@ particleFlowRecHitHGCEE = cms.EDProducer("PFRecHitProducer",
              qualityTests = cms.VPSet( 
                 cms.PSet(
                   name = cms.string("PFRecHitQTestThresholdInMIPs"),
-                  thresholdInMIPs = cms.double(0.544),
+                  thresholdInMIPs = cms.double(0.55),
                   mipValueInkeV = cms.double(55.1),
                   recHitEnergyIs_keV = cms.bool(False),
                   recHitEnergyMultiplier = cms.double(1.0)
@@ -39,7 +39,7 @@ particleFlowRecHitHGCEE = cms.EDProducer("PFRecHitProducer",
              qualityTests = cms.VPSet( 
                 cms.PSet(
                   name = cms.string("PFRecHitQTestThresholdInMIPs"),
-                  thresholdInMIPs = cms.double(0.50),
+                  thresholdInMIPs = cms.double(0.55),
                   mipValueInkeV = cms.double(85.0),
                   recHitEnergyIs_keV = cms.bool(False),
                   recHitEnergyMultiplier = cms.double(1.0)
