@@ -29,13 +29,11 @@
 
 namespace vid {
   class CutFlowResult {    
-    template<class T> friend class VersionedSelector;
   public:    
-
     CutFlowResult() : bitmap_(0) {}
     CutFlowResult(const std::string& name,
                   const unsigned char hash[MD5_DIGEST_LENGTH],
-                  const std::map<std::string,unsigned>& n2idx,
+                  const std::map<std::string,unsigned char>& n2idx,
                   const std::vector<double>& values,
                   unsigned bitmap,
                   unsigned mask = 0);
@@ -77,26 +75,28 @@ namespace vid {
     CutFlowResult getCutFlowResultMasking(const std::vector<std::string>& names) const;
 
   private:
-    unsigned bitmap_, mask_;
-    unsigned char hash_[MD5_DIGEST_LENGTH];
-    std::string name_;    
+    unsigned char hash_[MD5_DIGEST_LENGTH];    
+    unsigned bitmap_, mask_;    
+    std::vector<unsigned char> indices_; // since we are indexing a bit map of 64 bits use unsigned char
     std::vector<double> values_;
+    std::string name_;    
     std::vector<std::string> names_;
-    std::vector<unsigned> indices_;
+    
 
     CutFlowResult(const std::string& name,
                   const unsigned char hash[MD5_DIGEST_LENGTH],
                   const std::vector<std::string>& names,
-                  const std::vector<unsigned>& indices,
+                  const std::vector<unsigned char>& indices,
                   const std::vector<double>& values,
                   unsigned bitmap,
-                  unsigned mask) :
-      bitmap_(bitmap),
-      mask_(mask),
-      name_(name),
+                  unsigned mask) :      
+      bitmap_(bitmap),      
+      mask_(mask),   
+      indices_(indices),
       values_(values),
-      names_(names),
-      indices_(indices) {
+      name_(name),      
+      names_(names)
+      {
         memcpy(hash_,hash,MD5_DIGEST_LENGTH*sizeof(unsigned char));
       }
       

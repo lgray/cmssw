@@ -237,9 +237,9 @@ initialize( const edm::ParameterSet& conf ) {
 #include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
 template<class T> 
 vid::CutFlowResult VersionedSelector<T>::cutFlowResult() const {
-  std::map<std::string,unsigned> names_to_index;
+  std::map<std::string,unsigned char> names_to_index;
   std::map<std::string,unsigned> cut_counter;
-  for( unsigned idx = 0; idx < cuts_.size(); ++idx ) {
+  for( unsigned char idx = 0; idx < cuts_.size(); ++idx ) {
     const std::string& name = cuts_[idx]->name();
     if( !cut_counter.count(name) ) cut_counter[name] = 0;  
     std::stringstream realname;

@@ -156,7 +156,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       passfailf.push_back(passfail.back());
       howfar.push_back(id->howFarInCutFlow());
       bitmap.push_back(id->bitMap());
-      cfrs.push_back(id->cutFlowResult());
+      cfrs.push_back(id->cutFlowResult());      
       out_usrd->push_back(pat::UserData::make(cfrs.back(),false));
     }
     

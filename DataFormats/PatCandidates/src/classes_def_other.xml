@@ -65,7 +65,7 @@
 
   <class name="vid::CutFlowResult" ClassVersion="3">
     <version ClassVersion="2" checksum="3732644629"/>
-    <version ClassVersion="3" checksum="2656563341"/>
+    <version ClassVersion="3" checksum="4032874750"/>
   </class>
   <class name="edm::ValueMap<vid::CutFlowResult>"/>
   <class name="edm::Wrapper<vid::CutFlowResult>"/>

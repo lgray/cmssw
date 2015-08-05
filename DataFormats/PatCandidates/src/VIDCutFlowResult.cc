@@ -10,14 +10,14 @@ namespace vid {
 
   CutFlowResult::CutFlowResult(const std::string& name,
                                const unsigned char hash[MD5_DIGEST_LENGTH],
-                               const std::map<std::string,unsigned>& n2idx,
+                               const std::map<std::string,unsigned char>& n2idx,
                                const std::vector<double>& values,
                                unsigned bitmap,
                                unsigned mask) : 
     bitmap_(bitmap), 
     mask_(mask),
-    name_(name),    
-    values_(values) {
+    values_(values),
+    name_(name) {
 
     memcpy(hash_,hash,MD5_DIGEST_LENGTH*sizeof(unsigned char));
 
