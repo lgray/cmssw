@@ -63,8 +63,9 @@
   <class name="pat::CandKinResolutionValueMap" />
   <class name="edm::Wrapper<pat::CandKinResolutionValueMap>" />
 
-  <class name="vid::CutFlowResult" ClassVersion="2">
+  <class name="vid::CutFlowResult" ClassVersion="3">
     <version ClassVersion="2" checksum="3732644629"/>
+    <version ClassVersion="3" checksum="2656563341"/>
   </class>
   <class name="edm::ValueMap<vid::CutFlowResult>"/>
   <class name="edm::Wrapper<vid::CutFlowResult>"/>

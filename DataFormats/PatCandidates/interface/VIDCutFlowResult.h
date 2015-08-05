@@ -5,6 +5,10 @@
 #include <vector>
 #include <string>
 
+#include <openssl/md5.h>
+
+#include <cstring>
+
 /*********
  *
  * Class: vid::CutFlowResult
@@ -30,8 +34,8 @@ namespace vid {
 
     CutFlowResult() : bitmap_(0) {}
     CutFlowResult(const std::string& name,
-                  const std::string& hash,
-                  const std::map<std::string,unsigned>& n2idx,                   
+                  const unsigned char hash[MD5_DIGEST_LENGTH],
+                  const std::map<std::string,unsigned>& n2idx,
                   const std::vector<double>& values,
                   unsigned bitmap,
                   unsigned mask = 0);
@@ -39,7 +43,7 @@ namespace vid {
     // get the original name of this cutflow
     const std::string& cutFlowName()   const { return name_; }
     // get the md5 hash for this cutflow
-    const std::string& cutFlowHash()   const { return hash_; }
+    const std::string cutFlowHash()    const;
     // did this cutflow (in its current state!) pass?
     bool               cutFlowPassed() const { 
       const unsigned all_pass = (1 << indices_.size()) - 1;
@@ -73,26 +77,28 @@ namespace vid {
     CutFlowResult getCutFlowResultMasking(const std::vector<std::string>& names) const;
 
   private:
-    std::string name_, hash_;
     unsigned bitmap_, mask_;
+    unsigned char hash_[MD5_DIGEST_LENGTH];
+    std::string name_;    
     std::vector<double> values_;
     std::vector<std::string> names_;
     std::vector<unsigned> indices_;
 
     CutFlowResult(const std::string& name,
-                  const std::string& hash,
+                  const unsigned char hash[MD5_DIGEST_LENGTH],
                   const std::vector<std::string>& names,
                   const std::vector<unsigned>& indices,
                   const std::vector<double>& values,
                   unsigned bitmap,
                   unsigned mask) :
-      name_(name),
-      hash_(hash),
       bitmap_(bitmap),
       mask_(mask),
+      name_(name),
       values_(values),
       names_(names),
-      indices_(indices) {}
+      indices_(indices) {
+        memcpy(hash_,hash,MD5_DIGEST_LENGTH*sizeof(unsigned char));
+      }
       
 
     bool getMaskBit(const unsigned idx) const {

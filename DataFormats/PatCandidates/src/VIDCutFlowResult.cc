@@ -3,25 +3,36 @@
 
 namespace {
   static const std::string empty_str("");
+  static const unsigned char empty_hash[MD5_DIGEST_LENGTH] = { 0 };
 }
 
 namespace vid {
 
   CutFlowResult::CutFlowResult(const std::string& name,
-                               const std::string& hash,
+                               const unsigned char hash[MD5_DIGEST_LENGTH],
                                const std::map<std::string,unsigned>& n2idx,
                                const std::vector<double>& values,
                                unsigned bitmap,
                                unsigned mask) : 
-    name_(name),
-    hash_(hash),
     bitmap_(bitmap), 
     mask_(mask),
+    name_(name),    
     values_(values) {
+
+    memcpy(hash_,hash,MD5_DIGEST_LENGTH*sizeof(unsigned char));
+
     for( const auto& val : n2idx ) {
       names_.push_back(val.first);
       indices_.push_back(val.second);
     }
+  }
+
+  const std::string CutFlowResult::cutFlowHash() const {
+    char buf[2*MD5_DIGEST_LENGTH+1]; // one byte = two hex numbers
+    for( unsigned i=0; i<MD5_DIGEST_LENGTH; ++i ){
+      sprintf(buf+2*i, "%02x", hash_[i]);   
+    }
+    return std::string(buf);
   }
 
   const std::string& CutFlowResult::getNameAtIndex(const unsigned idx) const {
@@ -101,7 +112,7 @@ namespace vid {
       mask = mask | 1 << idx;
     }
     bitmap = bitmap | mask;
-    return CutFlowResult(name_,empty_str,names_,indices_,values_,bitmap,mask);
+    return CutFlowResult(name_,empty_hash,names_,indices_,values_,bitmap,mask);
   }
 
   CutFlowResult CutFlowResult::
@@ -118,7 +129,7 @@ namespace vid {
       mask = mask | 1 << indices_[std::distance(names_.begin(),found_name)];
     }
     bitmap = bitmap | mask;
-    return CutFlowResult(name_,empty_str,names_,indices_,values_,bitmap,mask);
+    return CutFlowResult(name_,empty_hash,names_,indices_,values_,bitmap,mask);
   }
 
   CutFlowResult CutFlowResult::
@@ -131,7 +142,7 @@ namespace vid {
     }
     mask = mask | 1 << idx;
     bitmap = bitmap | mask;
-    return CutFlowResult(name_,empty_str,names_,indices_,values_,bitmap,mask);
+    return CutFlowResult(name_,empty_hash,names_,indices_,values_,bitmap,mask);
   }
   
   CutFlowResult CutFlowResult::
@@ -146,6 +157,6 @@ namespace vid {
     }
     mask = mask | 1 << indices_[std::distance(names_.begin(),found_name)];
     bitmap = bitmap | mask;
-    return CutFlowResult(name_,empty_str,names_,indices_,values_,bitmap,mask);
+    return CutFlowResult(name_,empty_hash,names_,indices_,values_,bitmap,mask);
   }
 }
