@@ -89,10 +89,11 @@ for iev,event in enumerate(events):
         print passfail, passfail_byvalue
         print cf_result.cutFlowPassed()
         print "{0:b}".format(selectElectron.bitMap())
-        masked_cf_ints = cf_result.getCutFlowResultMasking([2,3,4,9])
+        masked_cf_ints = cf_result.getCutFlowResultMasking([2,3,4,8,9])
         masked_cf_strs = cf_result.getCutFlowResultMasking(['GsfEleDEtaInCut_0',
                                                             'GsfEleDPhiInCut_0',
                                                             'GsfEleFull5x5SigmaIEtaIEtaCut_0',
+                                                            'GsfEleEInverseMinusPInverseCut_0',
                                                             'GsfEleEffAreaPFIsoCut_0'])
         print masked_cf_ints.cutFlowPassed(), masked_cf_strs.cutFlowPassed()
 
