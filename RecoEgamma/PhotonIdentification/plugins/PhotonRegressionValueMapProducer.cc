@@ -195,7 +195,22 @@ void PhotonRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::Ev
     //    
     // Compute full 5x5 quantities
     //
-    const auto& theseed = *(iPho->superCluster()->seed());
+
+    const auto& the_sc  = iPho->superCluster();
+    const auto& theseed = *(the_sc->seed());
+
+    const bool missing_clusters = !the_sc->clusters()[the_sc->clusters().size()-1].isAvailable();
+    
+    if( missing_clusters ) {
+      sigmaIPhiIPhi.push_back(0.);
+      sigmaIEtaIPhi.push_back(0.);
+      e2x5Max.push_back(0.);
+      e2x5Left.push_back(0.);
+      e2x5Right.push_back(0.);
+      e2x5Top.push_back(0.);
+      e2x5Bottom.push_back(0.);
+      continue;
+    }
     
     if( use_full5x5_ ) {
       calculateValues<noZS::EcalClusterLazyTools>(lazyTools.get(),

@@ -93,6 +93,7 @@ private:
   std::vector<const GBRForestD*> e_forestH_mean_;
   std::vector<const GBRForestD*> e_forestH_sigma_; 
   const GBRForest* ep_forestH_weight_;
+  mutable unsigned ele_idx,pho_idx; // hack here until we figure out why some slimmedPhotons don't have original object ptrs
 };
 
 DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
@@ -178,6 +179,8 @@ EGExtraInfoModifierFromDB::EGExtraInfoModifierFromDB(const edm::ParameterSet& co
     ph_conf.condnames_sigma_50ns = photons.getParameter<std::vector<std::string>>("uncertaintyKey_50ns");
     ph_conf.condnames_mean_25ns = photons.getParameter<std::vector<std::string>>("regressionKey_25ns");
     ph_conf.condnames_sigma_25ns = photons.getParameter<std::vector<std::string>>("uncertaintyKey_25ns");
+
+    ele_idx = pho_idx = 0;
   }
 }
 
@@ -196,13 +199,15 @@ void EGExtraInfoModifierFromDB::setEvent(const edm::Event& evt) {
   pho_vmaps.clear();
   pho_int_vmaps.clear();
   
+  ele_idx = pho_idx = 0;
+
   if( !e_conf.tok_electron_src.isUninitialized() ) {
     edm::Handle<edm::View<pat::Electron> > eles;
     evt.getByToken(e_conf.tok_electron_src, eles);
     
     for( unsigned i = 0; i < eles->size(); ++i ) {
       edm::Ptr<pat::Electron> ptr = eles->ptrAt(i);
-      eles_by_oop[ptr->originalObjectRef().key()] = ptr;
+      eles_by_oop[i] = ptr;
     }    
   }
 
@@ -224,7 +229,7 @@ void EGExtraInfoModifierFromDB::setEvent(const edm::Event& evt) {
   
     for( unsigned i = 0; i < phos->size(); ++i ) {
       edm::Ptr<pat::Photon> ptr = phos->ptrAt(i);
-      phos_by_oop[ptr->originalObjectRef().key()] = ptr;
+      phos_by_oop[i] = ptr;
     }
   }
    
@@ -370,9 +375,18 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
   // and the value maps are to the reducedEG object, can use original object ptr
   // or we are running MINIAOD->MINIAOD and we need to fetch the pat objects to reference
 
+  // first check to make sure that we have all the info to do the regr
+  const auto& the_sc  = ele.superCluster();
+  
+  const bool missing_clusters = !the_sc->clusters()[the_sc->clusters().size()-1].isAvailable();
+  if( missing_clusters ) {
+    return; // do nothing when we are missing SC info
+  }
+
+
   edm::Ptr<reco::Candidate> ptr(ele.originalObjectRef());
   if( !e_conf.tok_electron_src.isUninitialized() ) {
-    auto key = eles_by_oop.find(ele.originalObjectRef().key());
+    auto key = eles_by_oop.find(ele_idx);
     if( key != eles_by_oop.end() ) {
       ptr = key->second;
     } else {
@@ -547,16 +561,26 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
  
   //ele.correctEcalEnergy(combinedMomentum, combinedMomentumError);
   ele.correctMomentum(newMomentum, ele.trackMomentumError(), combinedMomentumError);
+  ++ele_idx;
 }
 
 void EGExtraInfoModifierFromDB::modifyObject(pat::Photon& pho) const {
   // we encounter two cases here, either we are running AOD -> MINIAOD
   // and the value maps are to the reducedEG object, can use original object ptr
   // or we are running MINIAOD->MINIAOD and we need to fetch the pat objects to reference
+
+  // first check to make sure that we have all the info to do the regr
+  const auto& the_sc  = pho.superCluster();
+  
+  const bool missing_clusters = !the_sc->clusters()[the_sc->clusters().size()-1].isAvailable();
+  if( missing_clusters ) {
+    return; // do nothing when we are missing SC info
+  }
+
   edm::Ptr<reco::Candidate> ptr(pho.originalObjectRef());
 
   if(!ph_conf.tok_photon_src.isUninitialized()) {
-    auto key = phos_by_oop.find(pho.originalObjectRef().key());
+    auto key = phos_by_oop.find(pho_idx);
     if( key != phos_by_oop.end() ) {
       ptr = key->second;
     } else {
@@ -656,4 +680,6 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Photon& pho) const {
 
   double sigmacor = sigma*ecor;
   pho.setCorrectedEnergy(reco::Photon::P4type::regression2, ecor, sigmacor, true);     
+
+  ++pho_idx;
 }

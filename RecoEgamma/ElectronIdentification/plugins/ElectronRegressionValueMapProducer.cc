@@ -173,6 +173,36 @@ inline void calculateValues(EcalClusterLazyToolsBase* tools_tocast,
   
   const auto& the_sc  = iEle->superCluster();
   const auto& theseed = the_sc->seed();
+
+  const bool missing_clusters = !the_sc->clusters()[the_sc->clusters().size()-1].isAvailable();
+
+  if( missing_clusters ) {
+    vsigmaIEtaIPhi.push_back(0.);
+    veMax.push_back(0.);
+    ve2nd.push_back(0.);
+    veTop.push_back(0.);
+    veBottom.push_back(0.);
+    veLeft.push_back(0.);
+    veRight.push_back(0.);
+    vclusterMaxDR.push_back(0.);
+    vclusterMaxDRDPhi.push_back(0.);
+    vclusterMaxDRDEta.push_back(0.);
+    vclusterMaxDRRawEnergy.push_back(0.);
+    vclusterRawEnergy0.push_back(0.); 
+    vclusterRawEnergy1.push_back(0.); 
+    vclusterRawEnergy2.push_back(0.); 
+    vclusterDPhiToSeed0.push_back(0.);
+    vclusterDPhiToSeed1.push_back(0.);
+    vclusterDPhiToSeed2.push_back(0.);
+    vclusterDEtaToSeed0.push_back(0.);
+    vclusterDEtaToSeed1.push_back(0.);
+    vclusterDEtaToSeed2.push_back(0.);
+    veleIPhi.push_back(0);
+    veleIEta.push_back(0);
+    veleCryPhi.push_back(0.);
+    veleCryEta.push_back(0.);
+    return;
+  } 
   
   std::vector<float> vCov = tools->localCovariances( *theseed );
   
@@ -234,7 +264,7 @@ inline void calculateValues(EcalClusterLazyToolsBase* tools_tocast,
   size_t iclus = 0;
   float maxDR = 0;
   edm::Ptr<reco::CaloCluster> pclus;
-  for( auto clus = the_sc->clustersBegin(); clus != clusend; ++clus ) {
+  for( auto clus = the_sc->clustersBegin(); clus != clusend; ++clus ) {    
     pclus = *clus;
     
     if(theseed == pclus ) 
