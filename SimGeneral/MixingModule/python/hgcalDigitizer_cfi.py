@@ -17,7 +17,7 @@ hgceeDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"),
                                                noise_fC         = cms.double(0.336),
                                                doTimeSamples    = cms.bool(False),                                         
                                                feCfg   = cms.PSet( # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
-                                                                   fwVersion         = cms.uint32(2),
+                                                                   fwVersion         = cms.uint32(0),
                                                                    # leakage to bunches -2, -1, in-time, +1, +2, +3 (from J. Kaplon)
                                                                    adcPulse          = cms.vdouble(0.00, 0.017,   0.817,   0.163,  0.003,  0.000), 
                                                                    pulseAvgT         = cms.vdouble(0.00, 23.42298,13.16733,6.41062,5.03946,4.5320), 
@@ -63,7 +63,7 @@ hgchefrontDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"
                                                     noise_fC         = cms.double(0.336),                                                    
                                                     doTimeSamples    = cms.bool(False),                                         
                                                     feCfg   = cms.PSet( # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
-                                                                        fwVersion         = cms.uint32(2),
+                                                                        fwVersion         = cms.uint32(0),
                                                                         # leakage to bunches -2, -1, in-time, +1, +2, +3 (from J. Kaplon)
                                                                         adcPulse          = cms.vdouble(0.00, 0.017,   0.817,   0.163,  0.003,  0.000), 
                                                                         pulseAvgT         = cms.vdouble(0.00, 23.42298,13.16733,6.41062,5.03946,4.5320), 
