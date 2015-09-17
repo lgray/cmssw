@@ -464,8 +464,6 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     reco::PhotonCoreRef coreRef(reco::PhotonCoreRef(photonCoreHandle, lSC));
     reco::SuperClusterRef parentSCRef = coreRef->parentSuperCluster();
     reco::SuperClusterRef scRef=coreRef->superCluster();
-
-  
   
     //    const reco::SuperCluster* pClus=&(*scRef);
     iSC++;
@@ -483,10 +481,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       severitiesexcl_ = severitiesexclEE_;
     } else {
       edm::LogWarning("")<<"GEDPhotonProducer: do not know if it is a barrel or endcap SuperCluster"; 
-    }
-
-    
-    
+    }    
 
     // SC energy preselection
     if (parentSCRef.isNonnull() &&
@@ -655,13 +650,9 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     }
 
     //       std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
-
-
     // std::cout << " GEDPhotonProducer from candidate HoE with towers in a cone " << newCandidate.hadronicOverEm()  << "  " <<  newCandidate.hadronicDepth1OverEm()  << " " <<  newCandidate.hadronicDepth2OverEm()  << std::endl;
     //    std::cout << " GEDPhotonProducer from candidate  of HoE with towers behind the BCs " <<  newCandidate.hadTowOverEm()  << "  " << newCandidate.hadTowDepth1OverEm() << " " << newCandidate.hadTowDepth2OverEm() << std::endl;
-
-
-  // fill MIP Vairables for Halo: Block for MIP are filled from PhotonMIPHaloTagger
+    // fill MIP Vairables for Halo: Block for MIP are filled from PhotonMIPHaloTagger
    reco::Photon::MIPVariables mipVar ;
    if(subdet==EcalBarrel && runMIPTagger_ )
     {
@@ -669,8 +660,6 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
      thePhotonMIPHaloTagger_-> MIPcalculate( &newCandidate,evt,es,mipVar);
     newCandidate.setMIPVariables(mipVar);
     }
-
-
 
     /// Pre-selection loose  isolation cuts
     bool isLooseEM=true; 
@@ -685,8 +674,6 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       if ( newCandidate.sigmaIetaIeta()                    > preselCutValues[10] )                                            isLooseEM=false;
     } 
     
-
-        
     if ( isLooseEM)  
       outputPhotonCollection.push_back(newCandidate);
       
@@ -723,17 +710,14 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     } else {
       edm::LogWarning("")<<"GEDPhotonProducer: do not know if it is a barrel or endcap SuperCluster"; 
     }
-
-
   
     // SC energy preselection
     if (parentSCRef.isNonnull() &&
 	ptFast(parentSCRef->energy(),parentSCRef->position(),math::XYZPoint(0,0,0)) <= preselCutValues[0] ) continue;
     reco::Photon newCandidate(*phoRef);
     iSC++;    
-  
-
-  // Calculate the PF isolation and ID - for the time being there is no calculation. Only the setting
+    
+    // Calculate the PF isolation and ID - for the time being there is no calculation. Only the setting
     reco::Photon::PflowIsolationVariables pfIso;
     reco::Photon::PflowIDVariables pfID;
     thePFBasedIsolationCalculator_->calculate (&newCandidate, pfCandidateHandle, vertexHandle, evt, es, pfIso );

@@ -15,12 +15,30 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
 
+#include "RecoEgamma/EgammaIsolationAlgos/interface/PFBlockBasedIsolation.h"
+
+#include <unordered_set>
+
+namespace {
+  // This template function finds whether theCandidate is in thefootprint 
+  // collection. It is templated to be able to handle both reco and pat
+  // photons (from AOD and miniAOD, respectively).
+  template <class T, class U>
+  bool isInFootprint(const T& thefootprint, const U& theCandidate) {
+    for ( auto itr = thefootprint.begin(); itr != thefootprint.end(); ++itr ) {
+      if( itr->key() == theCandidate.key() ) return true;
+    }
+    return false;
+  }
+}
 
 
 void PFPhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
  
-
- iParticleType_ = conf.getParameter<int>("particleType");
+  const edm::ParameterSet& pfBlockIsoSetup = conf.getParameterSet("pfBlockBasedIso")
+  pfBlockIso_ = new PFBlockBasedIsolation(pfBlockIsoSetup);
+  
+  iParticleType_ = conf.getParameter<int>("particleType");
   if (  iParticleType_ ==1 ) { 
 
     fConeSize_     = conf.getParameter<double>("coneDR");
@@ -87,18 +105,110 @@ PFPhotonIsolationCalculator::~PFPhotonIsolationCalculator()
 
 
 void PFPhotonIsolationCalculator::calculate(const reco::Photon* aPho, 
-					    const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle,
+                                            const reco::PhotonRef& tempPho;
+                                            const edm::Handle<reco::PFCandidateCollection>& pfEGCandidateHandle,
+					    const edm::Handle<reco::PFCandidateCollection>& pfCandidateHandle,
+                                            const edm::Handle<edm::ValueMap<reco::PhotonRef> >& pfEGCandToPhotonMapHandle,
 					    //					    reco::VertexRef vtx,
 					    edm::Handle< reco::VertexCollection >& vertices,
 					    const edm::Event& e , const edm::EventSetup& es,
 					    reco::Photon::PflowIsolationVariables& phoisol03) {
 
-  reco::VertexRef vtx(vertices, 0);
-  this->fGetIsolation(&*aPho,  pfCandidateHandle, vtx, vertices);
-  phoisol03.chargedHadronIso = this->getIsolationCharged() ;
-  phoisol03.neutralHadronIso = this->getIsolationNeutral();
-  phoisol03.photonIso        = this->getIsolationPhoton();
+  if (vertices->empty()) return; // skip the event if no PV found
+  const reco::Vertex &pv = vertices->front();
 
+  float chargedIsoSum = 0;
+  float chargedIsoWrongVertexSum = 0;
+  float neutralHadronIsoSum = 0;
+  float photonIsoSum = 0;
+  
+  // calculate the basic isolation sums
+  ///// Isolation for photons 
+  //  std::cout << " ParticleBasedIsoProducer  photonHandle size " << photonHandle->size() << std::endl;
+  // loop over the unbiased candidates to retrieve the ref to the unbiased candidate corresponding to this photon
+  const unsigned nEGUnbiased = pfEGCandidateHandle->size();
+  reco::PFCandidateRef pfEGCandRef;
+  
+  std::unordered_set<reco::PFCandidateRef> ;
+  for(unsigned int lCand=0; lCand < nEGUnbiased; lCand++) {
+    pfEGCandRef=reco::PFCandidateRef(pfEGCandidateHandle,lCand);
+    reco::PhotonRef myPho= (pfEGCandToPhotonMap)[pfEGCandRef];
+    
+    if ( myPho.isNonnull() ) {      
+      if (myPho != phoRef) continue;     
+      std::vector<PFCandidateRef> temp = thePFBlockBasedIsolation_->calculate (myPho->p4(),  pfEGCandRef, pfCandidateHandle);
+      
+    }
+  }
+  
+  // Loop over all PF candidates
+  for (unsigned idxcand = 0; idxcand < pfCandidatesHandle->size(); ++idxcand ){
+    
+    // Here, the type will be a simple reco::Candidate. We cast it
+    // for full PFCandidate or PackedCandidate below as necessary
+    const auto& iCand = pfCandidatesHandle->ptrAt(idxcand);
+    
+    // One would think that we should check that this iCand from 
+    // the generic PF collection is not identical to the iPho photon
+    // for which we are computing the isolations. However, it turns out
+    // to be unnecessary. Below, in the function isInFootprint(), we drop
+    // this iCand if it is in the footprint, and this always removes
+    // the iCand if it matches the iPho.
+    //     The explicit check at this point is not totally trivial because
+    // of non-triviality of implementation of this check for miniAOD (PackedCandidates
+    // of the PF collection do not contain the supercluser link, so can't use that).
+    // if( isAOD ){
+    //  	if( ((const recoCandPtr)iCand)->superClusterRef() == iPho->superCluster() ) continue;
+    // }
+
+
+    // Check if this candidate is within the isolation cone
+    float dR2 = reco::deltaR2(photon_directionWrtVtx.Eta(),photon_directionWrtVtx.Phi(), 
+                              iCand->eta(), iCand->phi());
+    if( dR2 > fConeSize_*fConeSize_ ) continue;
+    
+    // Check if this candidate is not in the footprint
+    bool inFootprint = false;
+    if(isAOD) {
+      inFootprint = isInFootprint( (*particleBasedIsolationMap)[iPho], iCand );
+    } else {	
+      edm::Ptr<pat::Photon> patPhotonPtr(src->ptrAt(idxpho));
+      inFootprint = isInFootprint(patPhotonPtr->associatedPackedPFCandidates(), iCand);
+    }
+    
+    if( inFootprint ) continue;
+    
+    // Find candidate type
+    reco::PFCandidate::ParticleType thisCandidateType = candidatePdgId(iCand, isAOD);
+    
+    // Increment the appropriate isolation sum
+    if( thisCandidateType == reco::PFCandidate::h ){
+      // for charged hadrons, additionally check consistency
+      // with the PV
+      const reco::Track *theTrack = getTrackPointer( iCand, isAOD );
+      
+      float dxy = theTrack->dxy(pv.position());
+      if(fabs(dxy) > dxyMax) continue;
+      
+      float dz  = theTrack->dz(pv.position());
+      if (fabs(dz) > dzMax) continue;
+      
+      // The candidate is eligible, increment the isolaiton
+      chargedIsoSum += iCand->pt();
+    }
+    
+    if( thisCandidateType == reco::PFCandidate::h0 )
+      neutralHadronIsoSum += iCand->pt();
+    
+    if( thisCandidateType == reco::PFCandidate::gamma )
+      photonIsoSum += iCand->pt();
+  }
+
+  phoisol03.chargedHadronIso = chargedIsoSum ;
+  phoisol03.neutralHadronIso = neutralHadronIsoSum;
+  phoisol03.photonIso        = photonIsoSum;
+
+  phoisol03.chargedHadronIsoWrongVtx = chargedIsoWrongVertexSum
 
   
  }
