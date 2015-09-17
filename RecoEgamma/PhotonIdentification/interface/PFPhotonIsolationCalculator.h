@@ -35,7 +35,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-
+#include "RecoEgamma/EgammaIsolationAlgos/interface/PFBlockBasedIsolation.h"
 
 class PFPhotonIsolationCalculator{
  public:
@@ -62,6 +62,8 @@ class PFPhotonIsolationCalculator{
  
  private:
 
+
+  PFBlockBasedIsolation* pfBlockIso_;
 
  enum VetoType {
     kElectron = -1, // MVA for non-triggering electrons
