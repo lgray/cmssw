@@ -44,14 +44,14 @@ egamma_modifications = cms.VPSet(
 setup_mva(egamma_modifications[0].electron_config,
           egamma_modifications[1].electron_config,
           ele_mva_prod_name,
-          ele_phys14_nt.mvaPhys14NonTrigClassName)
+          ele_spring15_nt.mvaSpring15NonTrigClassName)
 
 setup_mva(egamma_modifications[0].photon_config,
           egamma_modifications[1].photon_config,
           pho_mva_prod_name,
-          pho_phys14_nt.mvaPhys14NonTrigClassName)
+          pho_spring15_50_nt.mvaSpring15NonTrigClassName)
 
 setup_mva(egamma_modifications[0].photon_config,
           egamma_modifications[1].photon_config,
           pho_mva_prod_name,
-          pho_spring15_nt.mvaSpring15NonTrigClassName)
+          pho_spring15_25_nt.mvaSpring15NonTrigClassName)
