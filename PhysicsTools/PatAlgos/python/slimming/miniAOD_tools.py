@@ -284,6 +284,9 @@ def miniAOD_customizeCommon(process):
     ## Force a re-run of the tau id during MiniAOD production stage
     process.load('RecoTauTag.Configuration.RecoPFTauTag_cff')
 
+    #bunch spacing producer
+    process.load('RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi')
+
 def miniAOD_customizeMC(process):
     #slimmed pileup information
     process.load('PhysicsTools.PatAlgos.slimming.slimmedAddPileupInfo_cfi')
