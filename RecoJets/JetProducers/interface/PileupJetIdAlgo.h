@@ -15,10 +15,7 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "TMVA/Tools.h"
-#include "TMVA/Reader.h"
-#include "TMVA/Tools.h"
-#include "TMVA/Reader.h"
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
 
@@ -55,7 +52,8 @@ public:
 protected:
 
 	void setup(); 
-	void runMva(); 
+        std::vector<float> packVariables();
+	void runMva(const std::vector<float>&); 
 	void bookReader();	
 	void resetVariables();
 	void initVariables();
@@ -64,7 +62,7 @@ protected:
 	PileupJetIdentifier internalId_;
 	variables_list_t variables_;
 
-	std::unique_ptr<TMVA::Reader> reader_, reader_jteta_0_2_, reader_jteta_2_2p5_, reader_jteta_2p5_3_, reader_jteta_3_5_;
+	std::unique_ptr<GBRForest> gbr_, gbr_jteta_0_2_, gbr_jteta_2_2p5_, gbr_jteta_2p5_3_, gbr_jteta_3_5_;
 	std::string    tmvaWeights_, tmvaWeights_jteta_0_2_, tmvaWeights_jteta_2_2p5_, tmvaWeights_jteta_2p5_3_, tmvaWeights_jteta_3_5_, tmvaMethod_; 
 	std::vector<std::string>  tmvaVariables_, tmvaVariables_jteta_0_3_, tmvaVariables_jteta_3_5_;
 	std::vector<std::string>  tmvaSpectators_;
