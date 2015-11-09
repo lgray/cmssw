@@ -182,4 +182,7 @@
  <class name="edm::RefProd<std::vector<int> >"/>
  <class name="edm::RefToBaseProd<int>"/>
 
+ <class name="edm::KDBox<1>"/>
+ <class name="edm::KDTree<float,1>"/>
+ 
 </lcgdict>

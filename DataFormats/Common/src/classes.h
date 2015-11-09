@@ -28,6 +28,8 @@
 #include "DataFormats/Common/interface/IntValues.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Common/interface/SecondaryEventIDAndFileInfo.h"
+#include "DataFormats/Common/interface/KDBox.h"
+#include "DataFormats/Common/interface/KDTree.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 
@@ -78,5 +80,8 @@ namespace DataFormats_Common {
 
     edm::RefProd<std::vector<int> > rpvi;
     edm::RefToBaseProd<int> rtbpi;
+	
+	edm::KDBox<1> kdb1;
+	edm::KDTree<float,1> kdt1f;
   };
 }

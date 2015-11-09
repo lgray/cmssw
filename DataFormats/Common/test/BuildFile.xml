@@ -40,3 +40,5 @@
 </bin>
 <bin   name="testMultiAssociation" file="testRunner.cpp,testMultiAssociation.cc">
 </bin>
+<bin   name="test_kdtree" file="test_kdtree.cpp">
+</bin>
