@@ -191,13 +191,14 @@ std::pair<float,DetId> EcalBarrelClusterFastTimer::getTimeForECALPFCluster(const
     best_time_guess = timehits.find(best_hit)->time();
   }
   
-  //std::cout << "EcalBarrelFastTimer: " << best_time_guess << ' ' << best_energy << ' ' << best_hit << std::endl;
+  std::cout << "EcalBarrelFastTimer: " << best_time_guess << ' ' << best_energy << ' ' << best_hit << std::endl;
 
   return std::make_pair(best_time_guess,DetId(best_hit));
 }
 
 float EcalBarrelClusterFastTimer::correctTimeToVertex(const float intime, const DetId& timeDet, const reco::Vertex& vtx, 
                                                       const CaloSubdetectorGeometry* ecalGeom) const {
+  if( timeDet.rawId() == 0 ) return -999.;
   // correct the cluster time from 0,0,0 to the primary vertex given
   const CaloCellGeometry* cellGeometry ( ecalGeom->getGeometry( timeDet ) ) ;
   if( nullptr == cellGeometry ) {
