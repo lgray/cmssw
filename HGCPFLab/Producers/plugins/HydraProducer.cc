@@ -27,7 +27,8 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
-#include "Geometry/FCalGeometry/interface/HGCalGeometry.h"
+#include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 
 #include <unordered_map>
 #include <unordered_set>
@@ -128,10 +129,13 @@ void HydraProducer::produce( Event &iEvent, const EventSetup & )
     // setup the reco det id to sim-hit match
     unordered_multimap<uint32_t,tuple<unsigned,unsigned,float> > temp_recoDetIdToSimHit;
     unordered_set<unsigned> reco_detIds;
+    int layer, cell, sector, subsec, zp;
     for( unsigned i = 0; i < simHits.size(); ++i ) {
         for( unsigned j = 0; j < simHits[i]->size(); ++j ) {
             output->back().insertSimHit(i,simHits[i]->ptrAt(j));
             HGCalDetId simId(simHits[i]->ptrAt(j)->id());
+            uint32_t rawSimId = simId.rawId();
+            HGCalTestNumbering::unpackSquareIndex(rawSimId, zp, layer, sector, subsec, cell);
             ForwardSubdetector mysubdet = (ForwardSubdetector)(i+3);
             const HGCalGeometry* geom = nullptr;
             switch(mysubdet) {
@@ -148,18 +152,18 @@ void HydraProducer::produce( Event &iEvent, const EventSetup & )
                 throw cms::Exception("InvalidDetector")
                     << "Got invalid HGC subdet: " << mysubdet;
             }
-            const HGCalTopology& topo = geom->topology();
-            const HGCalDDDConstants& dddConst = topo.dddConstants();
-      
-            int layer(simId.layer()), cell(simId.cell());
-            pair<int,int> recoLayerCell = dddConst.simToReco(cell,layer,topo.detectorType());
-            cell  = recoLayerCell.first;
-            layer = recoLayerCell.second;
+            
+            //const HGCalTopology& topo = geom->topology();
+            //const HGCalDDDConstants& dddConst = topo.dddConstants();      
+            //int layer(simId.layer()), cell(simId.cell());
+            //pair<int,int> recoLayerCell = dddConst.simToReco(cell,layer,topo.detectorType());
+            //cell  = recoLayerCell.first;
+            //layer = recoLayerCell.second;
             if(layer < 0) continue;
       
             uint32_t recoDetId = ( ( geom == hgceeGeoHandle_.product() ) ?
-                                   (uint32_t)HGCEEDetId(ForwardSubdetector(mysubdet),simId.zside(),layer,simId.sector(),simId.subsector(),cell) :
-                                   (uint32_t)HGCHEDetId(ForwardSubdetector(mysubdet),simId.zside(),layer,simId.sector(),simId.subsector(),cell)
+                                   (uint32_t)HGCEEDetId(ForwardSubdetector(mysubdet),zp,layer,sector,subsec,cell) :
+                                   (uint32_t)HGCHEDetId(ForwardSubdetector(mysubdet),zp,layer,sector,subsec,cell)
                                    );
             reco_detIds.insert(recoDetId);
             temp_recoDetIdToSimHit.emplace(recoDetId,make_tuple(i,j,0.0f));
