@@ -1,5 +1,8 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
+
+#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+
 #include <TMath.h>
 #include <math.h>
 #include <vector>
@@ -9,8 +12,10 @@
 
 using namespace std;
 
-PFEnergyCalibration::PFEnergyCalibration() : pfCalibrations(0)
+PFEnergyCalibration::PFEnergyCalibration() : pfCalibrations(0), esEEInterCalib_(0)
 {
+  //  esEEInterCalib_ = 0;
+  std::cout << " PFEnergyCalibration::PFEnergyCalibration() "<< std::endl;
   initializeCalibrationFunctions();
 }
 
@@ -32,7 +37,7 @@ PFEnergyCalibration::~PFEnergyCalibration()
 
 void
 PFEnergyCalibration::initializeCalibrationFunctions() {
-
+  std::cout << " PFEnergyCalibration::initializeCalibrationFunctions() "<< std::endl;
   // NEW NEW with HCAL pre-calibration
 
   threshE = 3.5;
@@ -122,10 +127,10 @@ PFEnergyCalibration::initializeCalibrationFunctions() {
   fbEtaEndcap = new TF1("fbEtaEndcapEH","[0]+[1]*x*exp(x*[2])",1.,1000.);
   fbEtaEndcap->SetParameter(0,0.181798);
   fbEtaEndcap->SetParameter(1,-0.00087979);
-  fbEtaEndcap->SetParameter(2,-0.00231785);
- 
-  
+  fbEtaEndcap->SetParameter(2,-0.00231785);  
+
 }
+
 
 void 
 PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, double phi) const { 
@@ -415,6 +420,7 @@ double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
 				     bool crackCorrection) const {
   double ePS1(std::accumulate(EclustersPS1.begin(), EclustersPS1.end(), 0.0));
   double ePS2(std::accumulate(EclustersPS2.begin(), EclustersPS2.end(), 0.0));
+  std::cout << " >>> PFEnergyCalibration::energyEm 1 " << std::endl;
   return energyEm(clusterEcal, ePS1, ePS2, ps1, ps2, crackCorrection);
 }
 double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
@@ -427,7 +433,7 @@ double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
   myPFCluster.calculatePositionREP();
   double eta = myPFCluster.positionREP().eta();
   double phi = myPFCluster.positionREP().phi();
-
+  std::cout << " >>> PFEnergyCalibration::energyEm 2 " << std::endl;
   double calibrated = Ecorr(eEcal,ePS1,ePS2,eta,phi,ps1,ps2,crackCorrection);
   // if(eEcal!=0 && calibrated==0) std::cout<<"Eecal = "<<eEcal<<"  eta = "<<eta<<"  phi = "<<phi<<std::endl; 
   return calibrated; 
@@ -799,10 +805,40 @@ PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal
 double
 PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal,double & outputPS1, double & outputPS2) const {
 
+  // std::cout << " >> outputPS1 = " << outputPS1 << std::endl; 
+  // std::cout << " >> outputPS2 = " << outputPS2 << std::endl; 
+
   // gives the good weights to each subdetector
   double gammaprime=Gamma(etaEcal)/9e-5;
-  outputPS1=gammaprime*ePS1;
-  outputPS2=gammaprime*Alpha(etaEcal)*ePS2;
+  
+  //std::cout << " esEEInterCalib_ = " << esEEInterCalib_ << std::endl;
+  
+  if(outputPS1 == 0 && outputPS2 == 0 && esEEInterCalib_ != 0){
+    std::cout << " >>> both working " << std::endl;
+    //    scaling factor accounting for data-mc 
+    outputPS1=gammaprime*ePS1 * esEEInterCalib_->getGammaLow0();
+    outputPS2=gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3();
+  }
+  else if(outputPS1 == 0 && outputPS2 == -1 && esEEInterCalib_ != 0){
+    std::cout << " >>> P1 working " << std::endl;
+    outputPS1 = gammaprime*ePS1 * esEEInterCalib_->getGammaLow0() * esEEInterCalib_->getGammaLow1(); 
+    outputPS2 = gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3() * esEEInterCalib_->getGammaLow1(); 
+  }
+  else if(outputPS1 == -1 && outputPS2 == 0 && esEEInterCalib_ != 0){
+    std::cout << " >>> P2 working " << std::endl;
+    outputPS1 = gammaprime*ePS1 * esEEInterCalib_->getGammaLow0() * esEEInterCalib_->getGammaLow2(); 
+    outputPS2 = gammaprime*Alpha(etaEcal)*ePS2 * esEEInterCalib_->getGammaLow3() * esEEInterCalib_->getGammaLow2(); 
+  }
+  else{
+    std::cout << " >>> none working " << std::endl;
+    outputPS1 = gammaprime*ePS1;
+    outputPS2 = gammaprime*Alpha(etaEcal)*ePS2;
+  }
+  
+  
+  //  outputPS1 = gammaprime*ePS1;   
+  //  outputPS2 = gammaprime*Alpha(etaEcal)*ePS2; 
+
   double E = Beta(1.0155*eEcal+0.025*(ePS1+0.5976*ePS2)/9e-5,etaEcal)*eEcal+outputPS1+outputPS2;
 
   //Correction of the residual energy dependency
@@ -825,7 +861,7 @@ PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal
 // only when (ePS1=0)&&(ePS2=0)
 double 
 PFEnergyCalibration::EcorrPS_ePSNil(double eEcal,double eta) const {
-
+  std::cout << " none working EcorrPS_ePSNil " << std::endl;
   //Energy dependency
   constexpr double p0= 1.02;
   constexpr double p1= 0.165;
@@ -912,6 +948,7 @@ PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,
 double
 PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,double& ps1,double&ps2,bool crackCorrection)  const {
 
+  std::cout << " >>> PFEnergyCalibration::energyEm 3 " << std::endl;
   constexpr double endBarrel=1.48;
   constexpr double beginingPS=1.65;
   constexpr double endPS=2.6;
@@ -922,11 +959,11 @@ PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,double eta,doubl
   eta=TMath::Abs(eta);
 
   if(eEcal>0){
-    if(eta <= endBarrel)                         result = EcorrBarrel(eEcal,eta,phi,crackCorrection);
-    else if(eta <= beginingPS)                   result = EcorrZoneBeforePS(eEcal,eta);
-    else if((eta < endPS) && ePS1==0 && ePS2==0) result = EcorrPS_ePSNil(eEcal,eta);
-    else if(eta < endPS)                         result = EcorrPS(eEcal,ePS1,ePS2,eta,ps1,ps2);
-    else if(eta < endEndCap)                     result = EcorrZoneAfterPS(eEcal,eta); 
+    if(eta <= endBarrel)                         { std::cout << " EcorrBarrel " << std::endl; result = EcorrBarrel(eEcal,eta,phi,crackCorrection);}
+    else if(eta <= beginingPS)                   { std::cout << " EcorrZoneBeforePS" << std::endl; result = EcorrZoneBeforePS(eEcal,eta);}
+    else if((eta < endPS) && ePS1==0 && ePS2==0) { std::cout << " EcorrPS_ePSNil " << std::endl; result = EcorrPS_ePSNil(eEcal,eta);}
+    else if(eta < endPS)                         { std::cout << " EcorrPS " << std::endl; result = EcorrPS(eEcal,ePS1,ePS2,eta,ps1,ps2);}
+    else if(eta < endEndCap)                     { std::cout << " EcorrZoneAfterPS " << std::endl; result = EcorrZoneAfterPS(eEcal,eta);} 
     else result =eEcal;
   }
   else result = eEcal;// useful if eEcal=0 or eta>2.98

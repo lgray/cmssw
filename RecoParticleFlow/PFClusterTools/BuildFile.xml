@@ -1,4 +1,5 @@
 <use   name="CondFormats/PhysicsToolsObjects"/>
+<use   name="CondFormats/ESObjects"/>
 <use   name="DataFormats/ParticleFlowReco"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/EcalDetId"/>

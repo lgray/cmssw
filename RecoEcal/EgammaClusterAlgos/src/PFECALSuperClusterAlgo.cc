@@ -2,8 +2,16 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
+
+#include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
+#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+#include "CondFormats/ESObjects/interface/ESChannelStatus.h"
+
 #include "Math/GenVector/VectorUtil.h"
 #include "TFile.h"
 #include "TH2F.h"
@@ -166,15 +174,21 @@ namespace {
   };
 }
 
-PFECALSuperClusterAlgo::PFECALSuperClusterAlgo() : beamSpot_(0) { }
+PFECALSuperClusterAlgo::PFECALSuperClusterAlgo() : beamSpot_(0), channelStatus_(0) { 
+  std::cout << " >>>>> PFECALSuperClusterAlgo::PFECALSuperClusterAlgo.cc " << std::endl;
+}
 
-void PFECALSuperClusterAlgo::
-setPFClusterCalibration(const std::shared_ptr<PFEnergyCalibration>& calib) {
+void PFECALSuperClusterAlgo::setPFClusterCalibration(const std::shared_ptr<PFEnergyCalibration>& calib) {
   _pfEnergyCalibration = calib;
+
+  std::cout << " >>>>> PFECALSuperClusterAlgo::setPFClusterCalibration" << std::endl;
+
 }
 
 void PFECALSuperClusterAlgo::setTokens(const edm::ParameterSet &iConfig, edm::ConsumesCollector &&cc) {
   
+  std::cout << " >>>>> PFECALSuperClusterAlgo::setTokens " << std::endl;
+
   inputTagPFClusters_ = 
     cc.consumes<edm::View<reco::PFCluster> >(iConfig.getParameter<edm::InputTag>("PFClusters"));
   inputTagPFClustersES_ = 
@@ -189,14 +203,29 @@ void PFECALSuperClusterAlgo::setTokens(const edm::ParameterSet &iConfig, edm::Co
     regr_->varCalc()->setTokens(regconf,std::move(cc));  
   }
   
+  std::cout << " >>>>> PFECALSuperClusterAlgo::setTokens  useRegression_ = " << useRegression_ << std::endl;
+
 }
 
 void PFECALSuperClusterAlgo::update(const edm::EventSetup& setup) {
  
+  std::cout << " >>> void PFECALSuperClusterAlgo::update " << std::endl;
+
   if (useRegression_) {
     regr_->update(setup);
   }
-  
+
+  edm::ESHandle<ESEEIntercalibConstants> esEEInterCalibHandle_;
+  setup.get<ESEEIntercalibConstantsRcd>().get(esEEInterCalibHandle_);
+  // esEEInterCalib_ = esEEInterCalibHandle_.product();
+  // std::cout << "esEEInterCalib_->getGammaLow3() = " << esEEInterCalib_->getGammaLow3() << std::endl;
+  // _pfEnergyCalibration->initAlphaGamma_ESplanes_fromDB(esEEInterCalib_);  
+  _pfEnergyCalibration->initAlphaGamma_ESplanes_fromDB(esEEInterCalibHandle_.product());  
+
+  edm::ESHandle<ESChannelStatus> esChannelStatusHandle_;
+  setup.get<ESChannelStatusRcd>().get(esChannelStatusHandle_);
+  channelStatus_ = esChannelStatusHandle_.product();
+
 }
 
 
@@ -204,6 +233,8 @@ void PFECALSuperClusterAlgo::update(const edm::EventSetup& setup) {
 void PFECALSuperClusterAlgo::
 loadAndSortPFClusters(const edm::Event &iEvent) { 
   
+  std::cout << " >>> PFECALSuperClusterAlgo::loadAndSortPFClusters" << std::endl;
+
   //load input collections
   //Load the pfcluster collections
   edm::Handle<edm::View<reco::PFCluster> > pfclustersHandle;
@@ -264,6 +295,7 @@ loadAndSortPFClusters(const edm::Event &iEvent) {
 }
 
 void PFECALSuperClusterAlgo::run() {  
+  std::cout << " >>> PFECALSuperClusterAlgo::run()" << std::endl;
   // clusterize the EB
   buildAllSuperClusters(_clustersEB, threshPFClusterSeedBarrel_);
   // clusterize the EE
@@ -273,6 +305,8 @@ void PFECALSuperClusterAlgo::run() {
 void PFECALSuperClusterAlgo::
 buildAllSuperClusters(CalibClusterPtrVector& clusters,
 		      double seedthresh) {
+  std::cout << " >>> PFECALSuperClusterAlgo::buildAllSuperClusters" << std::endl;
+
   IsASeed seedable(seedthresh,threshIsET_);
   // make sure only seeds appear at the front of the list of clusters
   std::stable_partition(clusters.begin(),clusters.end(),seedable);
@@ -288,6 +322,9 @@ buildAllSuperClusters(CalibClusterPtrVector& clusters,
 void PFECALSuperClusterAlgo::
 buildSuperCluster(CalibClusterPtr& seed,
 		  CalibClusterPtrVector& clusters) {
+
+  std::cout << " >>> PFECALSuperClusterAlgo::buildSuperCluster" << std::endl;
+
   IsClustered IsClusteredWithSeed(seed,_clustype,_useDynamicDPhi);
   IsLinkedByRecHit MatchesSeedByRecHit(seed,satelliteThreshold_,
 				       fractionForMajority_,0.1,0.2);
@@ -346,6 +383,7 @@ buildSuperCluster(CalibClusterPtr& seed,
 	<< std::endl;
     }    
   }
+
   // move the clustered clusters out of available cluster list
   // and into a temporary vector for building the SC  
   CalibratedClusterPtrVector clustered(clusters.begin(),not_clustered);
@@ -357,12 +395,16 @@ buildSuperCluster(CalibClusterPtr& seed,
     corrSCEnergy(0), corrPS1Energy(0), corrPS2Energy(0), 
     ePS1(0), ePS2(0), energyweight(0), energyweighttot(0);
   std::vector<double> ps1_energies, ps2_energies;
+  int condP1, condP2;
   for( auto& clus : clustered ) {    
     ePS1 = ePS2 = 0;
     energyweight = clus->energy_nocalib();
     bare_ptrs.push_back(clus->the_ptr().get());
+    condP1 = condP2 = 1; 
     // update EE calibrated super cluster energies
     if( isEE ) {
+      std::cout << " update EE calibrated super cluster energies in PFECALSuperClusterAlgo.cc " << std::endl;
+
       ps1_energies.clear();
       ps2_energies.clear();
       auto ee_key_val = 
@@ -373,17 +415,48 @@ buildSuperCluster(CalibClusterPtr& seed,
 					     sortByKey);      
       for( auto i_ps = clustops.first; i_ps != clustops.second; ++i_ps) {
 	edm::Ptr<reco::PFCluster> psclus(i_ps->second);
+
+	///
+	const std::vector<reco::PFRecHitFraction> recH_Frac = psclus->recHitFractions();
+
 	switch( psclus->layer() ) {
 	case PFLayer::PS1:
 	  ps1_energies.push_back(psclus->energy());
+
+	  for(unsigned int iVec=0; iVec<recH_Frac.size(); ++iVec){
+	    ESDetId strip1 = recH_Frac.at(iVec).recHitRef()->detId();
+	    if(strip1 != ESDetId(0)){
+		ESChannelStatusMap::const_iterator status_p1 = channelStatus_->getMap().find(strip1);
+		if(status_p1->getStatusCode() == 0) condP1 = 0;
+		//		else std::cout << " >>> status_p1->getStatusCode() = " << status_p1->getStatusCode() << std::endl;
+	      }
+	  }
+
 	  break;
 	case PFLayer::PS2:
 	  ps2_energies.push_back(psclus->energy());
+
+	  for(unsigned int iVec=0; iVec<recH_Frac.size(); ++iVec){
+	    ESDetId strip2 = recH_Frac.at(iVec).recHitRef()->detId();
+	    if(strip2 != ESDetId(0)) {
+	      ESChannelStatusMap::const_iterator status_p2 = channelStatus_->getMap().find(strip2);
+	      if(status_p2->getStatusCode() == 0) condP2 = 0;
+	    }
+	  }
+
 	  break;
 	default:
 	  break;
 	}
-      }      
+      }
+      //RA change ePS1 ePS2 in accordance to channel status of recHits
+
+      if(condP1 == 1) ePS1 = -1.;
+      if(condP2 == 1) ePS2 = -1.;
+
+      std::cout << " >>> condP1 = " << condP1 << " ePS1 = " << ePS1 << " ps1_energies.size() = " << ps1_energies.size()  << std::endl;
+      std::cout << " >>> condP2 = " << condP2 << " ePS2 = " << ePS2 << " ps2_energies.size() = " << ps2_energies.size()  << std::endl;
+
       _pfEnergyCalibration->energyEm(*(clus->the_ptr()),
 				     ps1_energies,ps2_energies,
 				     ePS1,ePS2,
@@ -409,6 +482,7 @@ buildSuperCluster(CalibClusterPtr& seed,
 
     energyweighttot += energyweight;
     corrSCEnergy    += clus->energy();   
+
     corrPS1Energy   += ePS1;
     corrPS2Energy   += ePS2;
   }

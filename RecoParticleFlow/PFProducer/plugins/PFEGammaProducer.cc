@@ -17,6 +17,11 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 
+#include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
+#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+#include "CondFormats/ESObjects/interface/ESChannelStatus.h"
+
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include <sstream>
 
@@ -46,7 +51,8 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
                                    const pfEGHelpers::HeavyObjectCache*):
   primaryVertex_(reco::Vertex()),
   ebeeClustersCollection_("EBEEClusters"),
-  esClustersCollection_("ESClusters") {
+  esClustersCollection_("ESClusters"){
+  //  channelStatus_(0) {
     
   PFEGammaAlgo::PFEGConfigInfo algo_config;
 
@@ -200,6 +206,28 @@ PFEGammaProducer::beginRun(const edm::Run & run,
                      const edm::EventSetup & es) 
 {
 
+  //  std::cout << " >>> PFEGammaProducer::beginRun " << std::endl;
+
+  /*
+  edm::ESHandle<ESEEIntercalibConstants> esEEInterCalibHandle_;
+  es.get<ESEEIntercalibConstantsRcd>().get(esEEInterCalibHandle_);
+  // //  esEEInterCalib_ = esEEInterCalibHandle_.product();
+  // //  std::cout << "esEEInterCalib_->getGammaLow3() = " << esEEInterCalib_->getGammaLow3() << std::endl;
+  // calibration->initAlphaGamma_ESplanes_fromDB(esEEInterCalibHandle_.product());  
+
+  edm::ESHandle<ESChannelStatus> esChannelStatusHandle_;
+  es.get<ESChannelStatusRcd>().get(esChannelStatusHandle_);
+  // channelStatus_ = esChannelStatusHandle_.product();
+
+  std::cout << " before settings chStat " << std::endl;
+  pfeg_->setESChannelStatus(esChannelStatusHandle_.product());
+
+  std::cout << " before settings esEEint " << std::endl;
+  pfeg_->setAlphaGamma_ESplanes_fromDB(esEEInterCalibHandle_.product());
+
+  std::cout << " POST SET " << std::endl;
+  */
+
   /* // kept for historical reasons
   if(useRegressionFromDB_) {
     
@@ -241,17 +269,33 @@ PFEGammaProducer::produce(edm::Event& iEvent,
     <<"START event: "
     <<iEvent.id().event()
     <<" in run "<<iEvent.id().run()<<std::endl;
-  
+
+  std::cout << " >>> PFEGammaProducer::produce " << std::endl;  
 
   // reset output collection  
   egCandidates_.reset( new reco::PFCandidateCollection );   
   egExtra_.reset( new reco::PFCandidateEGammaExtraCollection ); 
   sClusters_.reset( new reco::SuperClusterCollection );      
+
     
   // Get the EE-PS associations
   edm::Handle<reco::PFCluster::EEtoPSAssociation> eetops;
   iEvent.getByToken(eetopsSrc_,eetops);
   pfeg_->setEEtoPSAssociation(eetops);
+
+  // intercalib
+  edm::ESHandle<ESEEIntercalibConstants> esEEInterCalibHandle_;
+  iSetup.get<ESEEIntercalibConstantsRcd>().get(esEEInterCalibHandle_);
+  std::cout << " before settings esEEint " << std::endl;
+  pfeg_->setAlphaGamma_ESplanes_fromDB(esEEInterCalibHandle_.product());
+
+  edm::ESHandle<ESChannelStatus> esChannelStatusHandle_;
+  iSetup.get<ESChannelStatusRcd>().get(esChannelStatusHandle_);
+  std::cout << " before settings chStat " << std::endl;
+  pfeg_->setESChannelStatus(esChannelStatusHandle_.product());
+
+  std::cout << " POST SET " << std::endl;
+
 
   // Get The vertices from the event
   // and assign dynamic vertex parameters

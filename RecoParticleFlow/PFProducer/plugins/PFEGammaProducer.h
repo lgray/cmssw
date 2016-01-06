@@ -105,7 +105,7 @@ class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<pfEGHel
   bool useCalibrationsFromDB_;
 
   std::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_;  
-  
+
   /// Variables for PFEGamma
   std::string mvaWeightFileEleID_;
   std::vector<double> setchi2Values_;
@@ -142,6 +142,7 @@ class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<pfEGHel
   
   std::string ebeeClustersCollection_;
   std::string esClustersCollection_;
+  //  const ESChannelStatus* channelStatus_;
 
 };
 

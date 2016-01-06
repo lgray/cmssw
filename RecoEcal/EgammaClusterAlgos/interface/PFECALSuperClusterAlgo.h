@@ -24,6 +24,9 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+//#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+#include "CondFormats/ESObjects/interface/ESChannelStatus.h"
+
 #include "TVector2.h"
 
 #include <string>
@@ -126,9 +129,12 @@ class PFECALSuperClusterAlgo {
   edm::EDGetTokenT<edm::View<reco::PFCluster> >   inputTagPFClusters_;
   edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation>   inputTagPFClustersES_;   
   edm::EDGetTokenT<reco::BeamSpot>   inputTagBeamSpot_;
-   
+
   const reco::BeamSpot *beamSpot_;
-  
+  //  const ESEEIntercalibConstants* esEEInterCalib_;
+  const ESChannelStatus* channelStatus_;
+
+
   CalibratedClusterPtrVector _clustersEB;
   CalibratedClusterPtrVector _clustersEE;
   std::auto_ptr<reco::SuperClusterCollection> superClustersEB_;
