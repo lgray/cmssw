@@ -145,6 +145,7 @@ class PFEGammaAlgo {
   void setAlphaGamma_ESplanes_fromDB(const ESEEIntercalibConstants* esEEInterCalib){
     std::cout << " call 1PFEGammaAlgo " << std::endl;
     std::cout << "esEEInterCalib_->getGammaLow0() = " << esEEInterCalib->getGammaLow0() << std::endl;
+    std::cout << cfg_.thePFEnergyCalibration.get() << std::endl;
     cfg_.thePFEnergyCalibration->initAlphaGamma_ESplanes_fromDB(esEEInterCalib);
     std::cout << " >>> done 1 PFEGammaAlgo " << std::endl;
   }

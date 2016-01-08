@@ -80,10 +80,9 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
   calibPFSCEle_Fbrem_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_endcap");
   calibPFSCEle_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_barrel");
   calibPFSCEle_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_endcap");
-  std::shared_ptr<PFSCEnergyCalibration>  
-    thePFSCEnergyCalibration ( new PFSCEnergyCalibration(calibPFSCEle_Fbrem_barrel,calibPFSCEle_Fbrem_endcap,
-                                                         calibPFSCEle_barrel,calibPFSCEle_endcap )); 
-                               
+  algo_config.thePFSCEnergyCalibration.reset( new PFSCEnergyCalibration( calibPFSCEle_Fbrem_barrel,calibPFSCEle_Fbrem_endcap,
+                                                                         calibPFSCEle_barrel,calibPFSCEle_endcap ) ); 
+                                 
   algo_config.useEGammaSupercluster = 
     iConfig.getParameter<bool>("useEGammaSupercluster");
   algo_config.produceEGCandsWithNoSuperCluster = 
@@ -170,7 +169,7 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
   useCalibrationsFromDB_
     = iConfig.getParameter<bool>("useCalibrationsFromDB");    
 
-  std::shared_ptr<PFEnergyCalibration> calibration(new PFEnergyCalibration()); 
+  algo_config.thePFEnergyCalibration.reset(new PFEnergyCalibration()); 
 
   int algoType 
     = iConfig.getParameter<unsigned>("algoType");
@@ -286,6 +285,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   // intercalib
   edm::ESHandle<ESEEIntercalibConstants> esEEInterCalibHandle_;
   iSetup.get<ESEEIntercalibConstantsRcd>().get(esEEInterCalibHandle_);
+  std::cout << "pointer to record: " << std::hex << esEEInterCalibHandle_.product() << std::dec << std::endl;
   std::cout << " before settings esEEint " << std::endl;
   pfeg_->setAlphaGamma_ESplanes_fromDB(esEEInterCalibHandle_.product());
 
