@@ -1,0 +1,11 @@
+<lcgdict>
+  <class name="CaloParticle"  ClassVersion="2">
+   <version ClassVersion="2" checksum="3749156473"/>
+  </class>
+  <class name="CaloParticleCollection"/>
+  <class name="edm::Wrapper<CaloParticleCollection>"/>
+  <class name="CaloParticleRef"/>
+  <class name="CaloParticleRefVector"/>
+  <class name="CaloParticleRefProd"/>
+  <class name="CaloParticleContainer"/>
+</lcgdict>
