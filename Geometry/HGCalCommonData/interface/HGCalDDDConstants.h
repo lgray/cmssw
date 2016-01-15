@@ -83,7 +83,7 @@ private:
   bool waferInLayer(int wafer, int lay) const;
 
   const HGCalParameters* hgpar_;
-  const double           tan30deg_;
+  const double tan30deg_;
   double                 rmax_;
 };
 
