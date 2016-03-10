@@ -18,6 +18,49 @@ using namespace reco;
 //for debug only 
 //#define PFLOW_DEBUG
 
+namespace {
+  class QuickUnion{    
+  public:
+    QuickUnion(const unsigned NBranches) {
+      _count = NBranches;
+      _id.resize(NBranches);
+      _size.resize(NBranches);
+      for( unsigned i = 0; i < NBranches; ++i ) {
+	_id[i] = i;
+	_size[i] = 1;
+      }
+    }
+    
+    int count() const { return _count; }
+    
+    unsigned find(unsigned p) {
+      while( p != _id[p] ) {
+	_id[p] = _id[_id[p]];
+	p = _id[p];
+      }
+      return p;
+    }
+    
+    bool connected(unsigned p, unsigned q) { return find(p) == find(q); }
+    
+    void unite(unsigned p, unsigned q) {
+      unsigned rootP = find(p);
+      unsigned rootQ = find(q);
+      _id[p] = q;
+      
+      if(_size[rootP] < _size[rootQ] ) { 
+	_id[rootP] = rootQ; _size[rootQ] += _size[rootP]; 
+      } else { 
+	_id[rootQ] = rootP; _size[rootP] += _size[rootQ]; 
+      }
+      --_count;
+    }
+    std::vector<unsigned> _id;
+    std::vector<unsigned> _size;
+    int _count;    
+  };
+}
+
 PFBlockAlgo::PFBlockAlgo() : 
   blocks_( new reco::PFBlockCollection ),  
   debug_(false),
@@ -107,6 +150,24 @@ PFBlockAlgo::findBlocks() {
   if( blocks_.get() ) blocks_->clear();
   else                blocks_.reset( new reco::PFBlockCollection );
   blocks_->reserve(elements_.size());
+
+  // use quick union algorithm to scan over list of 
+  // hits once then deal with block processing
+  /*
+  QuickUnion qu(elements_.size());
+  for( unsigned i = 0; i < elements_.size(); ++i ) {
+    const auto& iel = elements_[i].get();
+    for( unsigned j = i+1; j < elements_.size(); ++j ) {
+      double dist = -1.0;
+      const auto& jel = elements_[j].get();
+      if( linkPrefilter( iel, jel ) ) {
+        link( iel, jel, linktype, linktest, dist );
+      }
+      if( dist >= 0.5 ) qu.unite(i,j);
+    }
+  }
+  */
+
   for(IE ie = elements_.begin(); 
       ie != elements_.end();) {
     
@@ -135,8 +196,8 @@ PFBlockAlgo::findBlocks() {
 // return the start of the new block
 PFBlockAlgo::IE
 PFBlockAlgo::associate( PFBlockAlgo::ElementList& elems,
-			   std::unordered_map<std::pair<size_t,size_t>,PFBlockLink>& links,
-			   reco::PFBlock& block) {
+                        std::unordered_map<std::pair<size_t,size_t>,PFBlockLink>& links,
+                        reco::PFBlock& block) {
   if( elems.size() == 0 ) return elems.begin();
   ElementList::iterator scan_upper(elems.begin()), search_lower(elems.begin()), 
     scan_lower(elems.begin());
@@ -144,6 +205,9 @@ PFBlockAlgo::associate( PFBlockAlgo::ElementList& elems,
   double dist = -1;
   PFBlockLink::Type linktype = PFBlockLink::NONE;
   PFBlock::LinkTest linktest = PFBlock::LINKTEST_RECHIT;
+
+  
+
   block.addElement(scan_lower->get()); // seed the block
   // the terminating condition of this loop is when the next range 
   // to scan has zero length (i.e. you have found no more nearest neighbours)
