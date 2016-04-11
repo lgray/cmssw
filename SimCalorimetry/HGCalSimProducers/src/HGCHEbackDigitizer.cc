@@ -38,7 +38,7 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
       it++)
     {
       chargeColl.fill(0.f);      
-      for(size_t i=0; i<it->second.hit_info[0].size(); ++i)
+      for(int i=0; i<it->second.hit_info[0].size(); ++i)
 	{          
 	  //convert total energy keV->MIP, since converted to keV in accumulator
 	  const float totalIniMIPs( (it->second).hit_info[0][i]*keV2MIP_ );

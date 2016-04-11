@@ -9,6 +9,9 @@
 <use   name="hepmc"/>
 <use   name="CLHEP"/>
 <use   name="vdt_headers"/>
+<use   name="eigen"/>
 <export>
   <lib   name="1"/>
 </export>
+<flags CXXFLAGS="-g -Og"/>
+

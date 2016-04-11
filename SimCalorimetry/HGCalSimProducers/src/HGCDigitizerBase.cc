@@ -1,5 +1,7 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerBase.h"
 
+#include "SimCalorimetry/HGCalSimProducers/interface/GaussFast.h"
+
 using namespace hgc_digi;
 
 template<class DFr>
@@ -21,22 +23,22 @@ void HGCDigitizerBase<DFr>::runSimple(std::auto_ptr<HGCDigitizerBase::DColl> &co
       it++) {
     chargeColl.fill(0.f); 
     toa.fill(0.f);
-    for(size_t i=0; i<it->second.hit_info[0].size(); i++) {
-      double rawCharge((it->second).hit_info[0][i]);
+    for(int i=0; i<it->second.hit_info[0].size(); i++) {
+      float rawCharge((it->second).hit_info[0][i]);
       
       //time of arrival
       toa[i]=(it->second).hit_info[1][i];
-      if(myFEelectronics_->toaMode()==HGCFEElectronics<DFr>::WEIGHTEDBYE && rawCharge>0) 
+      if(myFEelectronics_->toaMode()==HGCFEElectronics<DFr>::WEIGHTEDBYE && rawCharge>0.f) 
         toa[i]=(it->second).hit_info[1][i]/rawCharge;
       
       //convert total energy in GeV to charge (fC)
       //double totalEn=rawEn*1e6*keV2fC_;
-      double totalCharge=rawCharge;
+      float totalCharge=rawCharge;
       
       //add noise (in fC)
       //we assume it's randomly distributed and won't impact ToA measurement
-      totalCharge += std::max( CLHEP::RandGaussQ::shoot(engine,0,noise_fC_) , 0. );
-      if(totalCharge<0) totalCharge=0;
+      totalCharge += std::max( (float)hgcal::GaussFast::shoot(engine,0.f,noise_fC_) , 0.f );
+      if(totalCharge<0.f) totalCharge=0.f;
       
       chargeColl[i]= totalCharge;
     }

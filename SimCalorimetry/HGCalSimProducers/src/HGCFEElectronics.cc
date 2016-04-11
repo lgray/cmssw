@@ -4,6 +4,8 @@
 
 #include "vdt/vdtMath.h"
 
+#include <string.h>
+
 using namespace hgc_digi;
 
 //
@@ -22,7 +24,7 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet &ps) :
         adcPulse_[i] = (float)temp[i];
       }
       // normalize adc pulse
-      for( unsigned i = 0; i < adcPulse_.size(); ++i ) {
+      for( unsigned i = 0; i < hgc::PULSE_SIZE; ++i ) {
         adcPulse_[i] = adcPulse_[i]/adcPulse_[2];
       }
       temp = ps.getParameter< std::vector<double> >("pulseAvgT");
@@ -102,6 +104,7 @@ template<class DFr>
 void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame, HGCSimHitData& chargeColl, int thickness)
 {
   //convolute with pulse shape to compute new ADCs
+  hgc::HGCSimHitData newCharge;
   newCharge.fill(0.f);
   bool debug(false);
   for(int it=0; it<(int)(chargeColl.size()); it++)
@@ -115,7 +118,7 @@ void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame, HGCSimHitData& charg
 
       if(debug) edm::LogVerbatim("HGCFE") << "\t Redistributing SARS ADC" << charge << " @ " << it;
       
-      for(int ipulse=-2; ipulse<(int)(adcPulse_.size())-2; ipulse++)
+      for(int ipulse=-2; ipulse<(int)(hgc::PULSE_SIZE)-2; ipulse++)
 	{
 	  if(it+ipulse<0) continue;
 	  if(it+ipulse>=(int)(dataFrame.size())) continue;
@@ -151,6 +154,8 @@ void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame, HGCSimHitData& charg
 template<class DFr>
 void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& chargeColl, HGCSimHitData& toaColl, int thickness, CLHEP::HepRandomEngine* engine)
 {
+  std::array<bool,hgc::nSamples> busyFlags,totFlags;
+  hgc::HGCSimHitData newCharge,toaFromToT;
   busyFlags.fill(false);
   totFlags.fill(false);
   newCharge.fill( 0.f );
@@ -236,7 +241,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
         for(int jt=0; jt<it; ++jt)
           {
             const unsigned int deltaT=(it-jt);
-            if((deltaT+2) >  adcPulse_.size() || chargeColl[jt]==0.f || totFlags[jt] || busyFlags[jt]) continue;            
+            if((deltaT+2) >=  hgc::PULSE_SIZE || chargeColl[jt]==0.f || totFlags[jt] || busyFlags[jt]) continue;            
             
             const float leakCharge = chargeColl[jt]*adcPulse_[deltaT+2];
             totalCharge += leakCharge;
@@ -284,28 +289,56 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
     }
 
   //including the leakage from bunches in SARS ADC when not declared busy or in ToT
+  // need to reorganize this loop so that it vectorizes....
+  hgc::HGCWorkVector charge_copy,workspace;
+  charge_copy.fill(0.f);
+  workspace.fill(0.f);
+  for( unsigned i = 0; i < hgc_digi::nSamples; ++i ) {    
+    if( totFlags[i] || busyFlags[i] ) continue;    
+    charge_copy[i+2] = chargeColl[i];
+  }
+  for( unsigned i = 2; i < hgc::PULSE_SIZE+hgc_digi::nSamples; i+=hgc::PULSE_SIZE ) {
+    const auto charge = charge_copy[i];
+    workspace[i-2] = charge*adcPulse_[0];
+    workspace[i-1] = charge*adcPulse_[1];
+    workspace[i]   = charge*adcPulse_[2];
+    workspace[i+1] = charge*adcPulse_[3];
+    workspace[i+2] = charge*adcPulse_[4];
+    workspace[i+3] = charge*adcPulse_[5];
+    /*
+    for( unsigned j = 0; j < hgc::PULSE_SIZE; ++j ) {
+      workspace[i+j-2] += charge_copy[i]*adcPulse[j];
+    }
+    */
+  }
+  for( unsigned i = 0; i < hgc_digi::nSamples; ++i ) {
+    if( totFlags[i] || busyFlags[i] ) continue;
+    newCharge[i] += workspace[i+2];
+  }
+  /*
   for(int it=0; it<(int)(chargeColl.size()); it++)
-    {
+    {      
       //if busy, charge has been already integrated
       if(totFlags[it] || busyFlags[it]) continue;
       if(chargeColl[it]==0.f) continue;
       
       if(debug) edm::LogVerbatim("HGCFE") << "\t SARS ADC pulse activated @ " << it << " : ";
-      for(int ipulse=0; ipulse<(int)(adcPulse_.size()); ipulse++)
+      const int start = std::max(0,2-it);
+      const int stop  = std::min(hgc::PULSE_SIZE, (int)hgc_digi::nSamples - it + 2);
+      for(int ipulse=start; ipulse < stop; ++ipulse)
 	{
           const int itoffset = it + ipulse - 2;
-	  if(itoffset<0) continue;
-	  if(itoffset>=(int)(newCharge.size())) continue;
+          const float val = ( totFlags[itoffset] || busyFlags[itoffset] ? 0.f : chargeColl[it] );
 	  //notice that if the channel is already busy,
 	  //it has already been affected by the leakage of the SARS ADC
-	  if(totFlags[it] || busyFlags[itoffset]) continue;
-	  newCharge[itoffset]+=chargeColl[it]*adcPulse_[ipulse];
-          if(debug) edm::LogVerbatim("HGCFE") << " | " << itoffset << " " << chargeColl[it]*adcPulse_[ipulse] << "( " << chargeColl[it] << "->";
-	  if(debug) edm::LogVerbatim("HGCFE") << newCharge[itoffset] << ") ";
+	  newCharge[itoffset]+=val*adcPulse_[ipulse];
+          //if(debug) edm::LogVerbatim("HGCFE") << " | " << itoffset << " " << chargeColl[it]*adcPulse_[ipulse] << "( " << chargeColl[it] << "->";
+	  //if(debug) edm::LogVerbatim("HGCFE") << newCharge[itoffset] << ") ";
 	}
       
       if(debug) edm::LogVerbatim("HGCFE") << std::endl;
     }
+  */
 
   //set new ADCs and ToA
   if(debug) edm::LogVerbatim("HGCFE") << "\t final result : ";

@@ -23,7 +23,7 @@ class HGCFEElectronics
   
   enum HGCFEElectronicsFirmwareVersion { TRIVIAL, SIMPLE, WITHTOT };
   enum HGCFEElectronicsTOTMode { WEIGHTEDBYE, SIMPLETHRESHOLD };
-
+  
   /**
      @short CTOR
    */
@@ -82,14 +82,15 @@ class HGCFEElectronics
   
   //private members
   uint32_t fwVersion_;
-  std::array<float,6> adcPulse_, pulseAvgT_;
+  hgc::HGCPulseVector adcPulse_, pulseAvgT_;
+  //hgc::HGCWorkVector charge_copy_,workspace_;
   std::vector<float> tdcChargeDrainParameterisation_;
   float adcSaturation_fC_, adcLSB_fC_, tdcLSB_fC_, tdcSaturation_fC_,
     adcThreshold_fC_, tdcOnset_fC_, toaLSB_ns_, tdcResolutionInNs_; 
   uint32_t toaMode_;
   //caches
-  std::array<bool,hgc::nSamples>  busyFlags, totFlags;
-  hgc::HGCSimHitData newCharge, toaFromToT;
+  //std::array<bool,hgc::nSamples>  busyFlags, totFlags;
+  //hgc::HGCSimHitData newCharge, toaFromToT;
 };
 
 #endif
