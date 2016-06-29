@@ -410,15 +410,16 @@ void HydraProducer::produce( Event &iEvent, const EventSetup & )
             
             //match recHit with uncalib
             DetId key(recHits[i]->ptrAt(j)->detId());
-            auto iter = uncalibRecHits[key.subdetId()-3]->find(key);
-            if( iter != uncalibRecHits[key.subdetId()-3]->end() ) {
-                uncalibAmplitude = double(iter->amplitude());
-                amplitudeSet = true;
-                //std::cout << "YEP YEP YEP YEP" << std::endl;
-            } else {
-                //std::cout << "NOPE NOPE NOPE NOPE" << std::endl;
+            if( uncalibRecHits.size() ) {
+                auto iter = uncalibRecHits[key.subdetId()-3]->find(key);
+                if( iter != uncalibRecHits[key.subdetId()-3]->end() ) {
+                    uncalibAmplitude = double(iter->amplitude());
+                    amplitudeSet = true;
+                    //std::cout << "YEP YEP YEP YEP" << std::endl;
+                } else {
+                    //std::cout << "NOPE NOPE NOPE NOPE" << std::endl;
+                }
             }
-            
             if(amplitudeSet){
                 if(debug_){
                     //std::cout << " >>> PF = " << recHits[i]->ptrAt(j)->energy() << " detId = " << recHits[i]->ptrAt(j)->detId() << std::endl;
