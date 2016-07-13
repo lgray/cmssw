@@ -13,10 +13,9 @@
 // Create a vector of Hexels associated to one cluster from a collection of HGCalRecHits - this can be used 
 // directly to make the final cluster list - this method can be invoked multiple times for the same event 
 // with different input (reset should be called between events)
-void HGCalImagingAlgo::makeClusters(
-                                  const HGCRecHitCollection& hits)
-{
 
+void HGCalImagingAlgo::makeClusters(const HGCRecHitCollection& hits) {
+  
   const HGCalDDDConstants* ddd = &(geometry->topology().dddConstants());
 
 
@@ -49,6 +48,13 @@ void HGCalImagingAlgo::makeClusters(
 
     int layer = HGCalDetId(detid).layer()+int(HGCalDetId(detid).zside()>0)*(maxlayer+1);
     
+<<<<<<< HEAD
+=======
+    if( layer_select != -1 && 
+	layer != layer_select && 
+	layer != int(layer_select + int(HGCalDetId(detid).zside()>0)*(maxlayer+1)) ) continue;
+
+>>>>>>> 98c5a30... turn single layer select into a debugging tool
     // determine whether this is a half-hexagon
     // (copied from Lindsey's code not (yet?) available in release - is this even right ?
 
