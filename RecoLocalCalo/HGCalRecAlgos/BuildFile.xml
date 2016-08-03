@@ -1,4 +1,5 @@
 <use   name="clhep"/>
+<use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/HGCRecHit"/>
 <use   name="root"/>
 <use   name="rootminuit"/>
