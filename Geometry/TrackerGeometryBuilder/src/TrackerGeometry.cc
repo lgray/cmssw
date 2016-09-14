@@ -267,7 +267,7 @@ void TrackerGeometry::fillTestMap(const GeometricDet* gd) {
 }
 
 TrackerGeometry::ModuleType TrackerGeometry::getDetectorType(DetId detid) const {
-  for (auto iVal : theDetTypetList) {
+  for (const auto& iVal : theDetTypetList) {
     DetId detid_max = std::get<0>(iVal);
     TrackerGeometry::ModuleType mtype =  std::get<1>(iVal);     
     if (detid.rawId() <=  detid_max.rawId()) return mtype;
@@ -275,7 +275,7 @@ TrackerGeometry::ModuleType TrackerGeometry::getDetectorType(DetId detid) const 
   return TrackerGeometry::ModuleType::UNKNOWN;
 }
 float TrackerGeometry::getDetectorThickness(DetId detid) const {
-  for (auto iVal : theDetTypetList) {
+  for (const auto& iVal : theDetTypetList) {
     DetId detid_max = std::get<0>(iVal);
     if (detid.rawId() <=  detid_max.rawId()) 
       return std::get<2>(iVal);
