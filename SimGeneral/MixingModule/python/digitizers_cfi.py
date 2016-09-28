@@ -47,7 +47,7 @@ from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, 
     
 eras.phase2_hgcal.toModify( theDigitizers,
                             hgceeDigitizer = cms.PSet(hgceeDigitizer),
-                            #hgchebackDigitizer = cms.PSet(hgchebackDigitizer),
+                            hgchebackDigitizer = cms.PSet(hgchebackDigitizer),
                             hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer),
 )
 
