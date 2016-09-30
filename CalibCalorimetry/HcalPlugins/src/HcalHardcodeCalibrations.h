@@ -108,5 +108,6 @@ private:
   bool setHEdsegm;
   bool setHBdsegm;
   bool testHFQIE10;
+  bool killHE;
 };
 
