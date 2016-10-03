@@ -56,10 +56,7 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
       throw cms::Exception("InvalidRecHit")
 	<< "HGCalRecHitSimpleAlgo encountered a non-HGCal det id: " << baseid.det() << ' ' << baseid.subdetId() << ' ' << baseid.rawId();
     }
-
-    HGCalDetId hid(uncalibRH.id());
-
-
+    
     //    float clockToNsConstant = 25;    
     float energy = uncalibRH.amplitude() * weights_[layer] * 0.001f;
     float time   = uncalibRH.jitter();
