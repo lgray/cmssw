@@ -75,7 +75,7 @@ void HGCROIAnalyzer::slimRecHits(const edm::Event &iEvent, const edm::EventSetup
     {
       edm::ESHandle<HGCalGeometry> eeGeom;
       iSetup.get<IdealGeometryRecord>().get("HGCalEESensitive",eeGeom);
-      const HGCalTopology &topo=eeGeom->topology();
+      //const HGCalTopology &topo=eeGeom->topology();
     //   const HGCalDDDConstants &dddConst=topo.dddConstants();
 
       float eeMipEn(55.1);
@@ -137,7 +137,7 @@ void HGCROIAnalyzer::slimRecHits(const edm::Event &iEvent, const edm::EventSetup
     {
       edm::ESHandle<HGCalGeometry> hefGeom;
       iSetup.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",hefGeom);
-      const HGCalTopology &topo=hefGeom->topology();
+      //const HGCalTopology &topo=hefGeom->topology();
     //   const HGCalDDDConstants &dddConst=topo.dddConstants();
 
       float hefMipEn(85.0);

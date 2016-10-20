@@ -124,7 +124,7 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing){
       std::vector<std::vector<double> > fractions_first;
 
       // first pass can have noise it in
-      shareEnergy(current_v[i],seeds,fractions);
+      shareEnergy(current_v[i],seeds,fractions_first);
 
       // reset and run second pass after vetoing seeds
       // that result in trivial clusters (less than 1.9 effective cells)

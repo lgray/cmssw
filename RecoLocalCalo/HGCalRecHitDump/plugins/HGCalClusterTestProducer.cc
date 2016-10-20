@@ -38,7 +38,6 @@ class HGCalClusterTestProducer : public edm::stream::EDProducer<> {
 
   edm::EDGetTokenT<HGCRecHitCollection> hits_ee_token;
   edm::EDGetTokenT<HGCRecHitCollection> hits_ef_token;
-  edm::EDGetTokenT<edm::View<reco::Candidate> > genParticlesToken;
   
   reco::CaloCluster::AlgoId algoId;
 
@@ -77,8 +76,6 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
   }else{
     algo = new HGCalImagingAlgo(delta_c, kappa, ecut, 0, algoId, verbosity);
   }
-
-  genParticlesToken = consumes<edm::View<reco::Candidate> >( edm::InputTag("genParticles") );
 
   std::cout << "Constructing HGCalClusterTestProducer" << std::endl;
 
@@ -133,10 +130,6 @@ void HGCalClusterTestProducer::produce(edm::Event& evt,
   if(doSharing)
     std::cout << "Sharing clusters size     : " << clusters_sharing->size() << std::endl;
 
-  for(unsigned i = 0; i < genParticles.size(); ++i ) {
-    std::cout << genParticles[i].pt() << ' ' << genParticles[i].eta() << ' ' << genParticles[i].phi() << std::endl;
-  }
-  
   evt.put(std::move(clusters));
   evt.put(std::move(clusters_sharing),"sharing");
 }
