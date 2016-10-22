@@ -3,6 +3,7 @@
 
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -13,6 +14,8 @@
 
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 
 //#include "RecoLocalCalo/HGCalRecHitDump/interface/RecHitTools.h"
 
@@ -22,6 +25,7 @@
 #include <set>
 
 
+#include "RecoLocalCalo/HGCalRecHitDump/interface/HGCalHelpers.h"
 #include "KDTreeLinkerAlgoT.h"
 
 
@@ -39,25 +43,22 @@ std::vector<size_t> sorted_indices(const std::vector<T> &v) {
   return idx;
 }
 
-
 class HGCalImagingAlgo
 {
-
-
+  
  public:
   enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
 
  HGCalImagingAlgo() : layer_select(-1), delta_c(0.), kappa(1.), ecut(0.),
                       cluster_offset(0),
-		      geometry(0), ddd(0),
-		      //topology(*thetopology_p),
-		      algoId(reco::CaloCluster::undefined),
+		      geometry(0), 
+                      algoId(reco::CaloCluster::undefined),
 		      verbosity(pERROR),
 		      points(2*(maxlayer+2)){
  }
 
   HGCalImagingAlgo(float delta_c_in, double kappa_in, double ecut_in,
-		   const HGCalGeometry *thegeometry_p,
+		   const CaloGeometry *thegeometry_p,
 		   //		   const CaloSubdetectorTopology *thetopology_p,
 		   reco::CaloCluster::AlgoId algoId_in,
 		   VerbosityLevel the_verbosity = pERROR,
@@ -79,7 +80,7 @@ class HGCalImagingAlgo
 
   HGCalImagingAlgo(float delta_c_in, double kappa_in, double ecut_in,
 		   double showerSigma,
-		   const HGCalGeometry *thegeometry_p,
+		   const CaloGeometry *thegeometry_p,
 		   //		   const CaloSubdetectorTopology *thetopology_p,
 		   reco::CaloCluster::AlgoId algoId_in,
 		   VerbosityLevel the_verbosity = pERROR,
@@ -116,7 +117,7 @@ class HGCalImagingAlgo
   // this is the method to get the cluster collection out
   std::vector<reco::BasicCluster> getClusters(bool);
   // needed to switch between EE and HE with the same algorithm object (to get a single cluster collection)
-  void setGeometry(const HGCalGeometry *thegeometry_p){geometry = thegeometry_p;}
+  void setGeometry(const CaloGeometry *thegeometry_p){geometry = thegeometry_p;}
   // use this if you want to reuse the same cluster object but don't want to accumulate clusters (hardly useful?)
   void reset(){
     current_v.clear();
@@ -136,7 +137,7 @@ class HGCalImagingAlgo
  private:
 
   //max number of layers
-  static const unsigned int maxlayer = 39;
+  static const unsigned int maxlayer = 52;
   const int layer_select; // for debugging
 
   // The two parameters used to identify clusters
@@ -155,10 +156,8 @@ class HGCalImagingAlgo
   // The vector of clusters
   std::vector<reco::BasicCluster> clusters_v;
 
-  const HGCalGeometry *geometry;
-  //  const HGCalTopology &topology;
-  const HGCalDDDConstants* ddd;
-
+  const CaloGeometry *geometry;
+  
   // The algo id
   reco::CaloCluster::AlgoId algoId;
 
@@ -181,16 +180,22 @@ class HGCalImagingAlgo
     bool isBorder;
     bool isHalo;
     int clusterIndex;
-    const HGCalGeometry *geometry;
+    const CaloGeometry *geometry;
 
-    Hexel(const HGCRecHit &hit, DetId id_in, bool isHalf, const HGCalGeometry *geometry_in) :
+    Hexel(const HGCRecHit &hit, DetId id_in, bool isHalf, const CaloGeometry *geometry_in) :
       x(0.),y(0.),z(0.),isHalfCell(isHalf),
       weight(0.), fraction(1.0), detid(id_in), rho(0.), delta(0.),
       nearestHigher(-1), isBorder(false), isHalo(false),
       clusterIndex(-1), geometry(geometry_in)
     {
-      const GlobalPoint position( std::move( geometry->getPosition( detid ) ) );
-      const HGCalGeometry::CornersVec corners( std::move( geometry->getCorners( detid ) ) );
+      const GlobalPoint position( std::move( detid.det() == DetId::Hcal ?
+					     hgcia::getPosition(geometry, HcalDetId(id_in)) :
+					     hgcia::getPosition(geometry, HGCalDetId(id_in)) ) );
+      /*
+      const CaloCellGeometry::CornersVec corners( std::move( geometry->getCorners( detid.det() == DetId::Hcal ?
+										   getCorners(geometry, HcalDetId(id)),
+										   getCorners(geometry, HGCalDetId(id)) ) ) );
+      */
 
       weight = hit.energy();
       x = position.x();
@@ -209,8 +214,7 @@ class HGCalImagingAlgo
       return (rho > rhs.rho);
     }
     int layer(){
-      return HGCalDetId(detid).layer()+
-	(geometry->topology().subDetector()==ForwardSubdetector::HGCEE ? 0 : 28);
+      return hgcia::layerOffset(detid);
     }
 
   };

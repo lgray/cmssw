@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #energy corrector for corrected cluster producer
 imagingClusterHGCal =  cms.EDProducer(
     "HGCalClusterTestProducer",
-    detector = cms.string("both"),
+    detector = cms.string("all"),
     doSharing = cms.bool(False),
     deltac = cms.double(2.),
     ecut = cms.double(0.0001),

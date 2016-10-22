@@ -2,9 +2,6 @@
 
 // Geometry
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 //
 #include "DataFormats/CaloRecHit/interface/CaloID.h"
@@ -14,59 +11,44 @@
 // directly to make the final cluster list - this method can be invoked multiple times for the same event
 // with different input (reset should be called between events)
 
+using namespace hgcia;
+
 void HGCalImagingAlgo::populate(const HGCRecHitCollection& hits) {
-
-  // const HGCalDDDConstants* ddd = &(geometry->topology().dddConstants());
-
-  //used for speedy search
   
-  // std::vector<std::vector<KDNode> >points(2*(maxlayer+1));
-  // std::vector<KDTree> hit_kdtree(2*(maxlayer+1));
-
-  // std::vector<std::array<float,2> > minpos(2*(maxlayer+1),{ {0.0f,0.0f} }),maxpos(2*(maxlayer+1),{ {0.0f,0.0f} });
-
-  //  std::vector<std::vector<Hexel> > points(2*(maxlayer+1)); //a vector of vectors of hexels, one for each layer
   //@@EM todo: the number of layers should be obtained programmatically - the range is 1-n instead of 0-n-1...
-
-
+  
   if (verbosity < pINFO)
     {
       std::cout << "-------------------------------------------------------------" << std::endl;
-      std::cout << "HGC Imaging algorithm invoked for " << (geometry->topology().subDetector()==ForwardSubdetector::HGCEE ? "EE" : "HEF")<< std::endl;
+      std::cout << "HGC Imaging algorithm invoked for " << geometry << std::endl;
       std::cout << "delta_c " << delta_c << " kappa " << kappa;
-      //      if( doSharing ) std::cout << " showerSigma " << std::sqrt(sigma2);
+      std::cout << " showerSigma**2 " << sigma2;
       std::cout << std::endl;
     }
 
   //loop over all hits and create the Hexel structure, skip energies below ecut
-
-  ddd = &(geometry->topology().dddConstants());
-
+  
   for (unsigned int i=0;i<hits.size();++i) {
     const HGCRecHit& hgrh = hits[i];
     if(hgrh.energy() < ecut) continue;
     DetId detid = hgrh.detid();
 
-    int layer = HGCalDetId(detid).layer()+
-      (geometry->topology().subDetector()==ForwardSubdetector::HGCEE ? 0 : 28)+
-      int(HGCalDetId(detid).zside()>0)*(maxlayer+1);
+    int layer = ( detid.det() == DetId::Hcal ?
+		  getLayer(geometry, HcalDetId(detid),maxlayer) :
+		  getLayer(geometry, HGCalDetId(detid),maxlayer) );
     
+    int layer_offset = layerOffset(detid);
+    const int other_layer = ( layer_select + 
+			      layer_offset +
+			      (maxlayer+1)   );
     
-    if( layer_select != -1 &&
-	layer != layer_select &&
-	layer != int(layer_select + (geometry->topology().subDetector()==ForwardSubdetector::HGCEE ? 0 : 28)+
-    int(HGCalDetId(detid).zside()>0)*(maxlayer+1)) ) continue;
+    if( layer_select != -1 && layer != layer_select && layer !=  other_layer) continue;
     
     // determine whether this is a half-hexagon
-    // (copied from Lindsey's code not (yet?) available in release - is this even right ?
-
-    bool isHalf = false;
-    if(ddd!=0){
-      const HGCalDetId hid(detid);
-      const int waferType = ddd->waferTypeT(hid.waferType());
-      isHalf = ddd->isHalfCell(waferType,hid.cell());
-    }
-    const GlobalPoint position( std::move( geometry->getPosition( detid ) ) );
+    const bool isHalf = getIsHalf(geometry,detid);
+    const GlobalPoint position( std::move( detid.det() == DetId::Hcal ?
+					   getPosition(geometry, HcalDetId(detid)) :
+					   getPosition(geometry, HGCalDetId(detid)) ) );
     //here's were the KDNode is passed its dims arguments - note that these are *copied* from the Hexel
     points[layer].emplace_back(new Hexel(hgrh,detid,isHalf,geometry),position.x(),position.y());
     if(points[layer].size()==0){
@@ -225,8 +207,14 @@ math::XYZPoint HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v){
 }
 
 double HGCalImagingAlgo::distance(const Hexel *pt1, const Hexel *pt2){
-  const GlobalPoint position1( std::move( geometry->getPosition( pt1->detid ) ) );
-  const GlobalPoint position2( std::move( geometry->getPosition( pt2->detid ) ) );
+  const auto& det1 = pt1->detid;
+  const auto& det2 = pt2->detid;
+  const GlobalPoint position1( std::move( det1.det() == DetId::Hcal ?
+					  getPosition(geometry, HcalDetId(det1)) :
+					  getPosition(geometry, HGCalDetId(det1)) ) );
+  const GlobalPoint position2( std::move( det2.det() == DetId::Hcal ?
+					  getPosition(geometry, HcalDetId(det2)) :
+					  getPosition(geometry, HGCalDetId(det2)) ) );
   return sqrt(pow(pt1->x - pt2->x, 2) + pow(pt1->y - pt2->y, 2));
 }
 
