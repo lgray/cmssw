@@ -9,5 +9,7 @@ trackTimeValueMapProducer = cms.EDProducer(
     associators = cms.VInputTag(cms.InputTag('quickTrackAssociatorByHits')),
     resolutionModels = cms.VPSet( cms.PSet( modelName = cms.string('ConfigurableFlatResolutionModel'),
                                             resolutionInNs = cms.double(0.020) ),
-                                  cms.PSet( modelName = cms.string('PerfectResolutionModel') ) )
+                                  cms.PSet( modelName = cms.string('PerfectResolutionModel') ) ),
+    minEta = cms.double(-1.0),
+    maxEta = cms.double(10.0)
     )
