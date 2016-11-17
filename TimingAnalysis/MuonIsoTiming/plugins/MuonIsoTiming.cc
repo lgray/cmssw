@@ -53,8 +53,12 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+
 #include "TTree.h"
 #include "TRandom.h"
+
+#include <unordered_map>
 
 //
 // class declaration
@@ -88,6 +92,8 @@ class MuonIsoTiming : public edm::EDAnalyzer {
     
    
     edm::InputTag muonTag_;
+    edm::InputTag tracksTag_;
+    edm::InputTag timesTag_, timeResosTag_;
     edm::InputTag vtxTag_;
     edm::InputTag ebclusTag_;
     edm::InputTag ebtimeTag_;
@@ -106,12 +112,18 @@ class MuonIsoTiming : public edm::EDAnalyzer {
     float vtxY_;
     float vtxZ_;
     float vtxT_;
-    float chIsoAll_;
     float chIsoZCut_;
     float chIsoZTCut_;
+    float chIsoZTCut_3sigma_;
+    float chIsoZTCut_4sigma_;
+    float chIsoZTCut_5sigma_;
+    float chIsoZTCut_6sigma_;
     float ecalPFIsoAll_;
     float ecalPFIsoTCut_;
-    bool genMatched_;
+    int vtxIndex_;
+    bool isLooseMuon_;
+    bool genMatchedHardProcess_;    
+    bool genMatchedPrompt_;    
     float genPt_;
     float genEta_;
     float genPhi_;
@@ -137,12 +149,25 @@ class MuonIsoTiming : public edm::EDAnalyzer {
 // constructors and destructor
 //
 MuonIsoTiming::MuonIsoTiming(const edm::ParameterSet& iConfig) :
-  muonTag_("muons",""),
+  muonTag_("muons",""),	
+  tracksTag_("generalTracks",""),
+  timesTag_("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModel"), 
+  timeResosTag_("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModelResolution"),
   vtxTag_("offlinePrimaryVertices4D",""),
   ebclusTag_("particleFlowClusterECAL"),
   ebtimeTag_("ecalBarrelClusterFastTimer","PerfectResolutionModel"),
   genPartTag_("genParticles")
 {
+  consumes<reco::MuonCollection>(muonTag_);
+  consumes<edm::View<reco::Track> >(tracksTag_);
+  consumes<edm::ValueMap<float> >(timesTag_);
+  consumes<edm::ValueMap<float> >(timeResosTag_);
+  consumes<std::vector<reco::Vertex> >(vtxTag_);
+  consumes<reco::PFClusterCollection>(ebclusTag_);
+  consumes<edm::ValueMap<float> >(ebtimeTag_);
+  consumes<reco::GenParticleCollection>(genPartTag_);
+	   
+  
    //now do what ever initialization is needed
   
   edm::Service<TFileService> fs;
@@ -160,12 +185,17 @@ MuonIsoTiming::MuonIsoTiming(const edm::ParameterSet& iConfig) :
   tree_->Branch("vtxY",&vtxY_);
   tree_->Branch("vtxZ",&vtxZ_);
   tree_->Branch("vtxT",&vtxT_);
-  tree_->Branch("chIsoAll",&chIsoAll_);
   tree_->Branch("chIsoZCut",&chIsoZCut_);
-  tree_->Branch("chIsoZTCut",&chIsoZTCut_);
+  tree_->Branch("chIsoZTCut_3sigma",&chIsoZTCut_3sigma_);
+  tree_->Branch("chIsoZTCut_4sigma",&chIsoZTCut_4sigma_);
+  tree_->Branch("chIsoZTCut_5sigma",&chIsoZTCut_5sigma_);
+  tree_->Branch("chIsoZTCut_6sigma",&chIsoZTCut_6sigma_);
   tree_->Branch("ecalPFIsoAll",&ecalPFIsoAll_);
   tree_->Branch("ecalPFIsoTCut",&ecalPFIsoTCut_);
-  tree_->Branch("genMatched",&genMatched_);
+  tree_->Branch("vtxIndex",&vtxIndex_);
+  tree_->Branch("isLooseMuon",&isLooseMuon_);
+  tree_->Branch("genMatchedHardProcess",&genMatchedHardProcess_);
+  tree_->Branch("genMatchedPrompt",&genMatchedPrompt_);
   tree_->Branch("genPt",&genPt_);
   tree_->Branch("genEta",&genEta_);
   tree_->Branch("genPhi",&genPhi_);
@@ -228,20 +258,97 @@ MuonIsoTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::PFClusterCollection> ebclus;
   iEvent.getByLabel(ebclusTag_,ebclus);
 
-  edm::Handle<std::vector<std::vector<float> > > ebtime;
+  edm::Handle<edm::ValueMap<float> > ebtime;
   iEvent.getByLabel(ebtimeTag_,ebtime);
-  
+
+  edm::Handle<edm::View<reco::Track> > tracks;
+  iEvent.getByLabel(tracksTag_,tracks);
+
+  edm::Handle<edm::ValueMap<float> > times;
+  iEvent.getByLabel(timesTag_,times);
+
+  edm::Handle<edm::ValueMap<float> > timeResos;
+  iEvent.getByLabel(timeResosTag_,timeResos);
+
   edm::Handle<reco::GenParticleCollection> genparts;
   iEvent.getByLabel(genPartTag_,genparts);
   
-  const reco::Vertex &vtx = vtxs->front();
+    
+  //make a map of vertices to track refs within cuts
+  std::unordered_multimap<unsigned,reco::TrackBaseRef> vertices_to_tracks_z, vertices_to_tracks_zt3, vertices_to_tracks_zt4, vertices_to_tracks_zt5, vertices_to_tracks_zt6 ;
+  for( unsigned i = 0; i < tracks->size(); ++i ) {
+    auto ref = tracks->refAt(i);
+    const float time = (*times)[ref];
+    const float timeReso = (*timeResos)[ref] != 0.f ? (*timeResos)[ref] : 0.170f;
+    for( unsigned ivtx = 0; ivtx < vtxs->size(); ++ivtx ) {
+      const auto& thevtx = (*vtxs)[ivtx];
+      const float dz = std::abs(ref->dz(thevtx.position()));
+      const float dt = std::abs(time - thevtx.t());
+      const bool useTime = (thevtx.t() != 0.);
 
+      const float base_cut = std::sqrt(thevtx.tError()*thevtx.tError()
+					    + timeReso*timeReso);
+
+      const float time_cut3 = 3.f*base_cut;
+      const float time_cut4 = 4.f*base_cut;
+      const float time_cut5 = 5.f*base_cut;
+      const float time_cut6 = 6.f*base_cut;
+
+      const bool keepz = ( dz < 0.2f );
+      const bool keept3 = (!useTime || dt < time_cut3);
+      const bool keept4 = (!useTime || dt < time_cut4);
+      const bool keept5 = (!useTime || dt < time_cut5);
+      const bool keept6 = (!useTime || dt < time_cut6);
+      
+      if( keepz ) {
+	vertices_to_tracks_z.emplace(ivtx,ref);
+	if( keept6 ) {
+	  vertices_to_tracks_zt6.emplace(ivtx,ref);
+	}
+	if( keept5 ) {
+	  vertices_to_tracks_zt5.emplace(ivtx,ref);
+	}
+	if( keept4 ) {
+	  vertices_to_tracks_zt4.emplace(ivtx,ref);
+	}
+	if( keept3 ) {
+	  vertices_to_tracks_zt3.emplace(ivtx,ref);
+	}	
+      }      
+    }
+  }
   
-  for (const reco::Muon &muon : *muons) {
+  for (const reco::Muon &muon : *muons) {    
+
+    if( muon.pt()<5. ) continue;
     
-    if (muon.pt()<5. || std::abs(muon.eta())>1.4442) continue;
+    if( muon.track().isNull() ) continue;
     
-    if (muon.track().isNull()) continue;
+    isLooseMuon_ = muon::isLooseMuon(muon);
+
+    int vtx_index = -1;
+
+    // find the 4D vertex this muon is best associated to..
+    float max_weight = 0.f;
+    for( unsigned i = 0; i < vtxs->size(); ++i ) {
+      const auto& vtx = (*vtxs)[i];      
+      const float weight = vtx.trackWeight(muon.track());
+      if( weight > max_weight ) {
+	max_weight = weight;
+	vtx_index = i;
+      }
+    }
+    
+    vtxIndex_ = vtx_index;
+
+    // use highest ranked if muon doesn't belong to any vertex
+    const reco::Vertex& vtx = (vtx_index == -1 ? (*vtxs)[0] : (*vtxs)[vtx_index]);
+    const auto tracks_z  = vertices_to_tracks_z.equal_range(vtx_index);
+    const auto tracks_zt3 = vertices_to_tracks_zt3.equal_range(vtx_index);
+    const auto tracks_zt4 = vertices_to_tracks_zt4.equal_range(vtx_index);
+    const auto tracks_zt5 = vertices_to_tracks_zt5.equal_range(vtx_index);
+    const auto tracks_zt6 = vertices_to_tracks_zt6.equal_range(vtx_index);
+
     
 //     printf("found muon, pt = %5f, eta = %5f\n",muon.pt(),muon.eta());
     
@@ -263,37 +370,84 @@ MuonIsoTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     vtxY_ = vtx.y();
     vtxZ_ = vtx.z();
     vtxT_ = vtx.t();
-    chIsoAll_ = 0.;
     chIsoZCut_ = 0.;
-    chIsoZTCut_ = 0.;
+    chIsoZTCut_3sigma_ = 0.;
+    chIsoZTCut_4sigma_ = 0.;
+    chIsoZTCut_5sigma_ = 0.;
+    chIsoZTCut_6sigma_ = 0.;
     
+    
+    for( auto it = tracks_z.first; it != tracks_z.second; ++it ) {
+      auto ref = it->second.castTo<reco::TrackRef>();
+      if( !ref->quality(reco::TrackBase::highPurity) ) continue;
+      if( ref == muon.track() ) continue;
+      if( reco::deltaR2(ref->eta(), ref->phi(), muon.eta(), muon.phi()) >= 0.3*0.3 ) continue;
+      chIsoZCut_ += ref->pt();
+    }
+
+    for( auto it = tracks_zt3.first; it != tracks_zt3.second; ++it ) {
+      auto ref = it->second.castTo<reco::TrackRef>();
+      if( !ref->quality(reco::TrackBase::highPurity) ) continue;
+      if( ref == muon.track() ) continue;
+      if( reco::deltaR2(ref->eta(), ref->phi(), muon.eta(), muon.phi()) >= 0.3*0.3 ) continue;
+      chIsoZTCut_3sigma_ += ref->pt();
+    }
+
+    for( auto it = tracks_zt4.first; it != tracks_zt4.second; ++it ) {
+      auto ref = it->second.castTo<reco::TrackRef>();
+      if( !ref->quality(reco::TrackBase::highPurity) ) continue;
+      if( ref == muon.track() ) continue;
+      if( reco::deltaR2(ref->eta(), ref->phi(), muon.eta(), muon.phi()) >= 0.3*0.3 ) continue;
+      chIsoZTCut_4sigma_ += ref->pt();
+    }
+    
+    for( auto it = tracks_zt5.first; it != tracks_zt5.second; ++it ) {
+      auto ref = it->second.castTo<reco::TrackRef>();
+      if( !ref->quality(reco::TrackBase::highPurity) ) continue;
+      if( ref == muon.track() ) continue;
+      if( reco::deltaR2(ref->eta(), ref->phi(), muon.eta(), muon.phi()) >= 0.3*0.3 ) continue;
+      chIsoZTCut_5sigma_ += ref->pt();
+    }
+
+    for( auto it = tracks_zt6.first; it != tracks_zt6.second; ++it ) {
+      auto ref = it->second.castTo<reco::TrackRef>();
+      if( !ref->quality(reco::TrackBase::highPurity) ) continue;
+      if( ref == muon.track() ) continue;
+      if( reco::deltaR2(ref->eta(), ref->phi(), muon.eta(), muon.phi()) >= 0.3*0.3 ) continue;
+      chIsoZTCut_6sigma_ += ref->pt();
+    }
+
+
     double ecalisoall = 0.;
     double ecalisotcut = 0.;
     
-    genMatched_ = false;
+    genMatchedHardProcess_ = false;
+    genMatchedPrompt_ = false;
     genPt_ = -99.;
     genEta_ = -99.;
     genPhi_ = -99.;
     
     double mindr = std::numeric_limits<double>::max();
     for (const reco::GenParticle &p : *genparts) {
-      if (p.status()!=3) continue;
+      if ( p.status() != 1 ) continue;
       if (std::abs(p.pdgId())!=13) continue;
       
       double dr = reco::deltaR(muon,p);
-      if (dr<0.2 && dr<mindr) {
-        mindr = dr;
-        genMatched_ = true;
+      if( dr<0.2 && dr<mindr ) {
+        mindr = dr;	
+        genMatchedHardProcess_ = p.fromHardProcessFinalState();
+	genMatchedPrompt_ = p.isPromptFinalState();
         genPt_ = p.pt();
         genEta_ = p.eta();
         genPhi_ = p.phi();
-      }
+      }      
     }
     
     unsigned int iclus = 0;
     for (const reco::PFCluster &clus : *ebclus) {
+      edm::Ref<std::vector<reco::PFCluster> > clusref(ebclus,iclus);
       double pt = clus.energy()/cosh(clus.eta());
-      double t = (*ebtime)[0][iclus];
+      double t = 0;
 
       ++iclus;
       if (pt < 1.) continue;
