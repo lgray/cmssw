@@ -291,8 +291,9 @@
    <version ClassVersion="3" checksum="3320406063"/>
   </class>
   <class name="pat::PackedCandidate" ClassVersion="29">
-   <version ClassVersion="29" checksum="649303924"/>
-   <version ClassVersion="28" checksum="1956349111"/>
+    <version ClassVersion="30" checksum="3392441617"/>
+    <version ClassVersion="29" checksum="649303924"/>
+    <version ClassVersion="28" checksum="1956349111"/>
     <version ClassVersion="27" checksum="2418936168"/>
     <version ClassVersion="26" checksum="2986327792"/>
     <version ClassVersion="25" checksum="3654469025"/>
