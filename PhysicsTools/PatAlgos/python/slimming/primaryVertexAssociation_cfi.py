@@ -14,5 +14,5 @@ phase2_timing.toModify(
     vertices=cms.InputTag("offlinePrimaryVertices4D"),
     trackTimeTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModel"),
     trackTimeResoTag=cms.InputTag("trackTimeValueMapProducer","generalTracksConfigurableFlatResolutionModelResolution"),
-    useTiming=True,
+    assignment=dict(useTiming=True),
 )
