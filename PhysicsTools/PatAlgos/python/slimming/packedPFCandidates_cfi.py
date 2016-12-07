@@ -30,5 +30,8 @@ from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_
 run2_miniAOD_80XLegacy.toModify(packedPFCandidates, chargedHadronIsolation = "" )
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
-phase2_timing.toModify(packedPFCandidates, storeTiming = cms.bool(True))
+phase2_timing.toModify(packedPFCandidates, 
+    storeTiming = cms.bool(True),
+    originalVertices = cms.InputTag("offlinePrimaryVertices4D"),
+)
 
