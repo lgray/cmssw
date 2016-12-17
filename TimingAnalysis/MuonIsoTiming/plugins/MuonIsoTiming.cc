@@ -44,6 +44,7 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -98,6 +99,7 @@ class MuonIsoTiming : public edm::EDAnalyzer {
     edm::InputTag ebclusTag_;
     edm::InputTag ebtimeTag_;
     edm::InputTag genPartTag_;
+    edm::InputTag genJetsTag_;
     
     TTree *tree_;
     
@@ -122,8 +124,9 @@ class MuonIsoTiming : public edm::EDAnalyzer {
     float ecalPFIsoTCut_;
     int vtxIndex_;
     bool isLooseMuon_;
-    bool genMatchedHardProcess_;    
+    bool genMatched_;    
     bool genMatchedPrompt_;    
+    bool genMatchedJet_;
     float genPt_;
     float genEta_;
     float genPhi_;
@@ -156,7 +159,8 @@ MuonIsoTiming::MuonIsoTiming(const edm::ParameterSet& iConfig) :
   vtxTag_("offlinePrimaryVertices4D",""),
   ebclusTag_("particleFlowClusterECAL"),
   ebtimeTag_("ecalBarrelClusterFastTimer","PerfectResolutionModel"),
-  genPartTag_("genParticles")
+  genPartTag_("genParticles"),
+  genJetsTag_("ak4GenJets")
 {
   consumes<reco::MuonCollection>(muonTag_);
   consumes<edm::View<reco::Track> >(tracksTag_);
@@ -166,6 +170,7 @@ MuonIsoTiming::MuonIsoTiming(const edm::ParameterSet& iConfig) :
   consumes<reco::PFClusterCollection>(ebclusTag_);
   consumes<edm::ValueMap<float> >(ebtimeTag_);
   consumes<reco::GenParticleCollection>(genPartTag_);
+  consumes<std::vector<reco::GenJet> >(genJetsTag_);
 	   
   
    //now do what ever initialization is needed
@@ -194,8 +199,9 @@ MuonIsoTiming::MuonIsoTiming(const edm::ParameterSet& iConfig) :
   tree_->Branch("ecalPFIsoTCut",&ecalPFIsoTCut_);
   tree_->Branch("vtxIndex",&vtxIndex_);
   tree_->Branch("isLooseMuon",&isLooseMuon_);
-  tree_->Branch("genMatchedHardProcess",&genMatchedHardProcess_);
+  tree_->Branch("genMatched",&genMatched_);
   tree_->Branch("genMatchedPrompt",&genMatchedPrompt_);
+  tree_->Branch("genMatchedJet",&genMatchedJet_);
   tree_->Branch("genPt",&genPt_);
   tree_->Branch("genEta",&genEta_);
   tree_->Branch("genPhi",&genPhi_);
@@ -273,6 +279,9 @@ MuonIsoTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::GenParticleCollection> genparts;
   iEvent.getByLabel(genPartTag_,genparts);
   
+
+  edm::Handle<std::vector<reco::GenJet> > genjets;
+  iEvent.getByLabel(genJetsTag_,genjets);
     
   //make a map of vertices to track refs within cuts
   std::unordered_multimap<unsigned,reco::TrackBaseRef> vertices_to_tracks_z, vertices_to_tracks_zt3, vertices_to_tracks_zt4, vertices_to_tracks_zt5, vertices_to_tracks_zt6 ;
@@ -421,8 +430,9 @@ MuonIsoTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     double ecalisoall = 0.;
     double ecalisotcut = 0.;
     
-    genMatchedHardProcess_ = false;
+    genMatched_ = false;
     genMatchedPrompt_ = false;
+    genMatchedJet_ = false;
     genPt_ = -99.;
     genEta_ = -99.;
     genPhi_ = -99.;
@@ -435,12 +445,21 @@ MuonIsoTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double dr = reco::deltaR(muon,p);
       if( dr<0.2 && dr<mindr ) {
         mindr = dr;	
-        genMatchedHardProcess_ = p.fromHardProcessFinalState();
+        genMatched_ = true;
 	genMatchedPrompt_ = p.isPromptFinalState();
         genPt_ = p.pt();
         genEta_ = p.eta();
         genPhi_ = p.phi();
       }      
+    }
+
+    mindr = std::numeric_limits<double>::max();
+    for( const auto& jet : *genjets ) {
+      if( jet.pt() < 15.0 ) continue;
+      double dr = reco::deltaR(muon,jet);
+      if( dr < 0.3 && dr < mindr ) {
+	genMatchedJet_ = true;
+      }
     }
     
     unsigned int iclus = 0;
