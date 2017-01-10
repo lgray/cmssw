@@ -23,7 +23,9 @@ trackingParticles = cms.PSet(
 		pixel = cms.VInputTag(cms.InputTag( 'g4SimHits','TrackerHitsPixelBarrelLowTof'),
         	cms.InputTag('g4SimHits','TrackerHitsPixelBarrelHighTof'),
         	cms.InputTag('g4SimHits','TrackerHitsPixelEndcapLowTof'),
-        	cms.InputTag('g4SimHits','TrackerHitsPixelEndcapHighTof') )
+        	cms.InputTag('g4SimHits','TrackerHitsPixelEndcapHighTof'),
+                ),
+                timing = cms.VInputTag()
 	),
 	simTrackCollection = cms.InputTag('g4SimHits'),
 	simVertexCollection = cms.InputTag('g4SimHits'),
@@ -61,3 +63,8 @@ phase2_muon.toModify( trackingParticles, simHitCollections = dict(
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify( trackingParticles, simHitCollections = dict( tracker = []) )
+
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify( trackingParticles, simHitCollections = dict( timing = [cms.InputTag('g4SimHits:FastTimerHitsBarrel'),
+                                                                                     cms.InputTag('g4SimHits:FastTimerHitsEndcap')]) ) 
+phase2_timing_layer.toModify( trackingParticles, volumeZ = cms.double(320.0) ) 
