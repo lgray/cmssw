@@ -1,0 +1,11 @@
+<lcgdict>
+   <class name="FTLTrackingRecHitFromHit" ClassVersion="3">
+        <version ClassVersion="3" checksum="3399436891"/>
+   </class>
+   <class name="FTLTrackingRecHitFromCluster" ClassVersion="3">
+        <version ClassVersion="3" checksum="3729004517"/>
+   </class>
+   <class name="FTLTrackingClusteringRecHit" ClassVersion="3">
+        <version ClassVersion="3" checksum="3951810147"/>
+   </class>
+</lcgdict>
