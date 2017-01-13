@@ -19,7 +19,7 @@ class FTLTrackingBasicCPE {
         FTLTrackingBasicCPE(const FastTimeGeometry* geom, float fixedError=0.28*1.2, float fixedErrorBH=3) ;
 
        std::pair<LocalPoint,LocalError> localParameters(const FTLRecHit &obj, const Surface &surf) const {
-            float loce2 = (obj.id().det() == DetId::Forward ? fixedError2_ : fixedErrorBH2_);
+	    float loce2 = detIdErr2_.find(obj.id())->second;
             return std::make_pair(
                         surf.toLocal(getPosition(obj)),
                         LocalError(loce2,0,loce2)
@@ -35,7 +35,7 @@ class FTLTrackingBasicCPE {
         PositionHint hint(const FTLTrackingRecHitFromHit & hit) const { return hint(*hit.objRef()); }
         PositionHint hint(const FTLTrackingRecHitFromCluster & hit) const { return hint(*hit.objRef()); }
         PositionHint hint(const FTLRecHit & obj) const {
-            float loce = (obj.id().det() == DetId::Forward ? fixedError_ : fixedErrorBH_);
+	  float loce = detIdErr_.find(obj.id())->second;
             const GlobalPoint & gp = getPosition(obj);
             return PositionHint(gp.x(), gp.y(), loce);
         }
@@ -52,6 +52,7 @@ class FTLTrackingBasicCPE {
         const FastTimeGeometry *geom_;
         const float fixedError_, fixedError2_;
         const float fixedErrorBH_, fixedErrorBH2_;
+	std::unordered_map<unsigned,float> detIdErr_, detIdErr2_;
 };
 
 #endif
