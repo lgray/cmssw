@@ -7,10 +7,10 @@ namespace {
             bool operator()(FastTimeDetId id1, const FTLRecHit &hit2) const { return comp(id1, FastTimeDetId(hit2.id())); }
             bool operator()(const FTLRecHit &hit1, FastTimeDetId id2) const { return comp(FastTimeDetId(hit1.id()),id2); }
             bool comp(FastTimeDetId id1, FastTimeDetId id2) const {
-	      if (id1.type() != id2.type() || id1.zside() != id2.zside()) {
-		return id1 < id2;
+	      if( id1.zside() == id2.zside() ) {
+		return id1.ieta() < id2.ieta();
 	      }
-	      return id1.ieta() < id2.ieta();
+	      return id1.zside() < id2.zside();
             }
         };
 }
@@ -20,10 +20,13 @@ FTLTrackingDiskData::FTLTrackingDiskData(const edm::Handle<FTLTrackingDiskData::
     cpe_(cpe),truthMap_(0)
 {
     index_.clear();
-    auto range = std::equal_range(data->begin(), data->end(), FastTimeDetId(FastTimeDetId::FastTimeEndcap,0,0,zside), FTLBySideAndEta());
-    for (const_iterator it = range.first; it < range.second; ++it) {
-      index_.emplace_back(cpe_->hint(*it), it);
-    }    
+    for( auto it = data->begin(); it != data->end(); ++it ) {
+      FastTimeDetId temp(it->id());      
+      if( temp.zside() == zside && 
+	  temp.type() == FastTimeDetId::FastTimeEndcap ) {	
+	index_.emplace_back(cpe_->hint(*it),it);
+      }
+    }
     buildIndex_();
 }
 
@@ -58,7 +61,7 @@ std::vector<TrajectoryMeasurement> FTLTrackingDiskData::measurements(TrajectoryS
             float energy = obj.energy();
             LocalTrajectoryError lte = tsos.localError();
             if (est_pair.first) {
-                ret.emplace_back(tsos, hitptr, est_pair.second);
+	      ret.emplace_back(tsos, hitptr, est_pair.second);
             }
             if (ftltracking::g_debuglevel > 2) {
                 if (est_pair.second > 400) continue;

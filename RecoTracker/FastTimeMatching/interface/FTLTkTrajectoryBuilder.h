@@ -85,9 +85,9 @@ class FTLTkTrajectoryBuilder {
         const bool lostHitsOnBH_;
 
         // --- Event Setup stuff (or similar) ---
-        uint32_t geomCacheId_;
-        std::unique_ptr<FTLTracker> hgcTracker_;
-        edm::ESHandle<FastTimeGeometry> caloGeom_;
+        uint32_t ftlCacheId_;
+        std::unique_ptr<FTLTracker> ftlTracker_;
+        edm::ESHandle<FastTimeGeometry> ftlGeom_;
         edm::ESHandle<GlobalTrackingGeometry> trkGeom_;
         edm::ESHandle<Propagator> prop_, propOppo_;
         edm::ESHandle<MagneticField> bfield_;

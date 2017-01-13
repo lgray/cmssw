@@ -48,7 +48,7 @@ FTLTkTrajectoryBuilder::FTLTkTrajectoryBuilder(const edm::ParameterSet& ps, edm:
     minChi2ForInvalidHit_(ps.getParameter<double>("minChi2ForInvalidHit")),
     clusterRadius_(ps.getParameter<double>("clusterRadius")),
     lostHitsOnBH_(ps.getParameter<bool>("lostHitsOnBH")),
-    geomCacheId_(0),
+    ftlCacheId_(0),
     truthMap_(nullptr)
 {
     std::string palgo = ps.getParameter<std::string>("patternRecoAlgo");
@@ -68,13 +68,13 @@ FTLTkTrajectoryBuilder::FTLTkTrajectoryBuilder(const edm::ParameterSet& ps, edm:
 void
 FTLTkTrajectoryBuilder::init(const edm::Event& evt, const edm::EventSetup& es)
 {
-    //Get Calo Geometry
-    if (es.get<CaloGeometryRecord>().cacheIdentifier() != geomCacheId_) {
-        es.get<CaloGeometryRecord>().get(caloGeom_);
-        geomCacheId_ = es.get<CaloGeometryRecord>().cacheIdentifier();
-        hgcTracker_.reset(new FTLTracker(caloGeom_.product()));
-        cpe_.reset(new FTLTrackingBasicCPE(&*caloGeom_)); // FIXME better
-    } 
+  //Get Calo Geometry
+  if( es.get<IdealGeometryRecord>().cacheIdentifier() != ftlCacheId_ ) {
+    es.get<IdealGeometryRecord>().get("SFBX",ftlGeom_);
+    ftlCacheId_ = es.get<IdealGeometryRecord>().cacheIdentifier();
+    ftlTracker_.reset(new FTLTracker(ftlGeom_.product()));
+    cpe_.reset(new FTLTrackingBasicCPE(&*ftlGeom_)); // FIXME better
+  } 
 
     es.get<GlobalTrackingGeometryRecord>().get(trkGeom_);
     es.get<IdealMagneticFieldRecord>().get(bfield_);
@@ -87,13 +87,15 @@ FTLTkTrajectoryBuilder::init(const edm::Event& evt, const edm::EventSetup& es)
    
     trajFilter_->setEvent(evt, es); 
 
-    data_.reset(new FTLTrackingData(*hgcTracker_, &*cpe_));
+    data_.reset(new FTLTrackingData(*ftlTracker_, &*cpe_));
 
-    evt.getByToken(srcBarrel_, srcBarrel); data_->addData(srcBarrel, FastTimeDetId::FastTimeBarrel);
+    // comment out barrel for now
+    //evt.getByToken(srcBarrel_, srcBarrel); data_->addData(srcBarrel, FastTimeDetId::FastTimeBarrel);
     evt.getByToken(srcEndcap_, srcEndcap); data_->addData(srcEndcap, FastTimeDetId::FastTimeEndcap);
+    //data_->addData(srcEndcap,FastTime);
 
-    evt.getByToken(srcClusters_, srcClusters); 
-    data_->addClusters(srcClusters);
+    //evt.getByToken(srcClusters_, srcClusters); 
+    //data_->addClusters(srcClusters);
 }
 
 
@@ -138,12 +140,12 @@ FTLTkTrajectoryBuilder::trajectories(const FreeTrajectoryState &fts, std::vector
     };
 
     int zside = fts.momentum().eta() > 0 ? +1 : -1;
-    const FTLDiskGeomDet *disk = hgcTracker_->firstDisk(zside,direction);
+    const FTLDiskGeomDet *disk = ftlTracker_->firstDisk(zside,direction);
     std::vector<TempTrajectory> myfinaltrajectories;
     std::vector<TempTrajectory> trajectories = advanceOneLayer(fts, TempTrajectory(direction, 0), disk, false);
     unsigned int depth = 2;
-    for (disk = hgcTracker_->nextDisk(disk,direction); disk != nullptr; disk = hgcTracker_->nextDisk(disk,direction), ++depth) {
-        if (trajectories.empty()) continue;
+    for (disk = ftlTracker_->nextDisk(disk,direction); disk != nullptr; disk = ftlTracker_->nextDisk(disk,direction), ++depth) {
+      if (trajectories.empty()) continue;
         if (ftltracking::g_debuglevel > 1) {
             printf("   New destination: disk subdet %d, zside %+1d, layer %2d, z = %+8.2f\n", disk->subdet(), disk->zside(), disk->layer(), disk->toGlobal(LocalPoint(0,0,0)).z());
         }
@@ -197,6 +199,7 @@ FTLTkTrajectoryBuilder::trajectories(const FreeTrajectoryState &fts, std::vector
     if (!trajectories.empty()) {
         if (ftltracking::g_debuglevel > 1) printf("A total of %lu trajectories reached the end of the tracker from this track\n", trajectories.size());
         for (TempTrajectory & t : trajectories) {
+	  std::cout << "qualityFilter = " << trajFilter_->qualityFilter(t) << std::endl;
             if (t.foundHits() > 0 && trajFilter_->qualityFilter(t)) {
                 myfinaltrajectories.push_back(std::move(t));
             }
@@ -262,7 +265,7 @@ FTLTkTrajectoryBuilder::advanceOneLayer(const Start &start, const TempTrajectory
     // for debug
     if (truthMap_) diskData.setTruth(truthMap_); 
 
-    //printf("        Looking for hits on disk subdet %d, zside %+1d, layer %2d: %u total hits\n", disk->subdet(), disk->zside(), disk->layer(), diskData.size());
+    printf("        Looking for hits on disk subdet %d, zside %+1d, layer %2d: %u total hits\n", disk->subdet(), disk->zside(), disk->layer(), diskData.size());
     std::vector<TrajectoryMeasurement> meas;
     switch(algo_) {
         case SingleHitAlgo:    meas = diskData.measurements(tsos, *estimator_); break;
@@ -310,12 +313,14 @@ FTLTkTrajectoryBuilder::advanceOneLayer(const Start &start, const TempTrajectory
     }
 
     // Possibly add an invalid hit, for the hypothesis that the track didn't leave a valid hit
+    
     if (minChi2ForInvalidHit_ > 0) {
         if (meas.size() > 0  && !ret.empty() && meas.front().estimate() < minChi2ForInvalidHit_) {
             if (ftltracking::g_debuglevel > 3) printf("        will not add the invalid hit after %lu valid hits, as the best valid hit has chi2 of %.1f\n", ret.size(), meas.front().estimate());
             return ret;
         }
     }
+    
     auto missing = (disk->subdet() != 5 || lostHitsOnBH_) ? TrackingRecHit::missing : TrackingRecHit::inactive;
     ret.push_back(traj.foundHits() ? traj : TempTrajectory(traj.direction(),0)); // either just one lost hit, or a trajectory not starting on a lost hit
     ret.back().push(TrajectoryMeasurement(tsos, std::make_shared<InvalidTrackingRecHit>(*disk, missing)));
@@ -344,7 +349,7 @@ FTLTkTrajectoryBuilder::bwrefit(const Trajectory &traj, float scaleErrors) const
     const Propagator &propOppo = (traj.direction() == alongMomentum ? *propOppo_ : *prop_);
 
     for (int i = tms.size()-1; i >= 0; --i) {
-        const FTLDiskGeomDet * det = hgcTracker_->idToDet(tms[i].recHit()->geographicalId());
+        const FTLDiskGeomDet * det = ftlTracker_->idToDet(tms[i].recHit()->geographicalId());
         if (det == 0) {
             if (ftltracking::g_debuglevel > 0)  {
                 printf(" ---> failure in finding det for step %d on det %d, subdet %d\n",i,tms[i].recHit()->geographicalId().det(),tms[i].recHit()->geographicalId().subdetId());
