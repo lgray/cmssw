@@ -43,7 +43,7 @@ ftlTrajectoryBuilderPSet = cms.PSet(
     #
     # at the end, pick only the single best trajectory from this track
     # (note: if not, will run the trajectoryCleaner on them)
-    fastCleaner = cms.bool(False),
+    fastCleaner = cms.bool(True),
     #
     # parameters to choose the best track: 
     # the figure of merit is  foundHitBouns * hits - lostHitPenalty * (lost hits) - chi2
@@ -78,7 +78,7 @@ ftlTrajectoryBuilderPSet = cms.PSet(
         maxConsecLostHits = cms.int32(2), # <<== important, decides when to give up on the track
         maxLostHitsFraction = cms.double(0.3),
         constantValueForLostHitsFractionFilter = cms.double(2.0),
-        minimumNumberOfHits = cms.int32(7), # <<== important, decides whether to keep the track or not
+        minimumNumberOfHits = cms.int32(1), # <<== important, decides whether to keep the track or not
         chargeSignificance = cms.double(-1.0),
         maxCCCLostHits = cms.int32(9999),
         maxLostHits = cms.int32(999),

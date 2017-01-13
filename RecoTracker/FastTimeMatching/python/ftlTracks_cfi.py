@@ -16,6 +16,6 @@ ftlTracks = cms.EDProducer("FTLTracking",
     srcTruth = cms.InputTag("mix","MergedCaloTruth"),
 
     # verbosity of printout (0 = none)
-    debugLevel = cms.untracked.uint32(0)
+    debugLevel = cms.untracked.uint32(3)
 )
 

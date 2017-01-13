@@ -23,160 +23,160 @@
 
 
 class FTLTracking : public edm::stream::EDProducer<> {
-    public:
-        explicit FTLTracking(const edm::ParameterSet& ps);
-        ~FTLTracking() {}
-        virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
-
-    private:
-        /// workhorse 
-        FTLTkTrajectoryBuilder builder_;
-
-        /// for seeding
-        const edm::EDGetTokenT<reco::TrackCollection> srcTk_;
-        const StringCutObjectSelector<reco::Track> cutTk_;
-
-        /// do the backwards fit
-        const bool doBackwardsRefit_;
-
-        /// for the debug output
-        const edm::EDGetTokenT<FTLRecHitCollection> srcBarrel_, srcEndcap_;
-
-        /// for debugging
-        const bool hasMCTruth_;
-        const edm::EDGetTokenT<std::vector<CaloParticle>> srcTruth_;
-        CaloTruthRevMap revTruthMap_;
-
-        void declareOutput(const std::string &label); 
-        void makeOutput(const std::vector<Trajectory> &trajs, edm::Event &out, const std::string &label); 
-        void writeAllHitsByLayer(const FTLRecHitCollection &hits, edm::Event &out, const std::string &label, int layers);
+public:
+  explicit FTLTracking(const edm::ParameterSet& ps);
+  ~FTLTracking() {}
+  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  
+private:
+  /// workhorse 
+  FTLTkTrajectoryBuilder builder_;
+  
+  /// for seeding
+  const edm::EDGetTokenT<reco::TrackCollection> srcTk_;
+  const StringCutObjectSelector<reco::Track> cutTk_;
+  
+  /// do the backwards fit
+  const bool doBackwardsRefit_;
+  
+  /// for the debug output
+  const edm::EDGetTokenT<FTLRecHitCollection> srcBarrel_, srcEndcap_;
+  
+  /// for debugging
+  const bool hasMCTruth_;
+  const edm::EDGetTokenT<std::vector<CaloParticle> > srcTruth_;
+  CaloTruthRevMap revTruthMap_;
+  
+  void declareOutput(const std::string &label); 
+  void makeOutput(const std::vector<Trajectory> &trajs, edm::Event &out, const std::string &label); 
+  void writeAllHitsByLayer(const FTLRecHitCollection &hits, edm::Event &out, const std::string &label, int layers);
 };
 
 
 FTLTracking::FTLTracking(const edm::ParameterSet& ps) :
-    builder_(ps, consumesCollector()),
-    srcTk_(consumes<reco::TrackCollection>(ps.getParameter<edm::InputTag>("srcTk"))),
-    cutTk_(ps.getParameter<std::string>("cutTk")),
-    doBackwardsRefit_(ps.getParameter<bool>("doBackwardsRefit")),
-    srcBarrel_(consumes<FTLRecHitCollection>(ps.getParameter<edm::InputTag>("srcBarrel"))),
-    srcEndcap_(consumes<FTLRecHitCollection>(ps.getParameter<edm::InputTag>("srcEndcap"))),
-    hasMCTruth_(ps.existsAs<edm::InputTag>("srcTruth")),
-    srcTruth_(hasMCTruth_ ? consumes<std::vector<CaloParticle>>(ps.getParameter<edm::InputTag>("srcTruth")) : edm::EDGetTokenT<std::vector<CaloParticle>>())
+  builder_(ps, consumesCollector()),
+  srcTk_(consumes<reco::TrackCollection>(ps.getParameter<edm::InputTag>("srcTk"))),
+  cutTk_(ps.getParameter<std::string>("cutTk")),
+  doBackwardsRefit_(ps.getParameter<bool>("doBackwardsRefit")),
+  srcBarrel_(consumes<FTLRecHitCollection>(ps.getParameter<edm::InputTag>("srcBarrel"))),
+  srcEndcap_(consumes<FTLRecHitCollection>(ps.getParameter<edm::InputTag>("srcEndcap"))),
+  hasMCTruth_(ps.existsAs<edm::InputTag>("srcTruth")),
+  srcTruth_(hasMCTruth_ ? consumes<std::vector<CaloParticle>>(ps.getParameter<edm::InputTag>("srcTruth")) : edm::EDGetTokenT<std::vector<CaloParticle>>())
 {
-    ftltracking::g_debuglevel = ps.getUntrackedParameter<uint32_t>("debugLevel",0);
-
-    declareOutput("");
-    //if (doBackwardsRefit_) declareOutput("bw");
-    if (ftltracking::g_debuglevel > 0) {
-        produces<std::vector<reco::CaloCluster> >("FastTimeBarrel");
-        produces<std::vector<reco::CaloCluster> >("FastTimeEndcap");
-    }
+  ftltracking::g_debuglevel = ps.getUntrackedParameter<uint32_t>("debugLevel",0);
+  
+  declareOutput("");
+  //if (doBackwardsRefit_) declareOutput("bw");
+  if (ftltracking::g_debuglevel > 0) {
+    produces<std::vector<reco::CaloCluster> >("Barrel");
+    produces<std::vector<reco::CaloCluster> >("Endcap");
+  }
 }
 
 void
 FTLTracking::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-    builder_.init(evt, es);
-
-    edm::Handle<std::vector<CaloParticle>> truth;
-    if (hasMCTruth_) {
-        evt.getByToken(srcTruth_, truth);
-        for (const CaloParticle &p : *truth) {
-            if (ftltracking::g_debuglevel > 0) {
-                if (p.eventId().event() == 0 && p.eventId().bunchCrossing() == 0) {
-                    printf("Considering truth particle of pdgId %+6d eid %d/%d pt %7.1f eta %+5.2f phi %+5.2f simclusters %4d \n", 
-                            p.pdgId(), p.eventId().event(), p.eventId().bunchCrossing(), p.pt(), p.eta(), p.phi(), int(p.simClusters().size()));
-                }
-            }
-            for (const auto & scr : p.simClusters()) {
-                //printf("    simcluster pt %7.1f eta %+5.2f phi %+5.2f rechits %4d simhits %d \n",
-                //    scr->pt(), scr->eta(), scr->phi(), scr->numberOfRecHits(), scr->numberOfSimHits());
-                for (const auto & pair : scr->hits_and_fractions()) {
-                    revTruthMap_.emplace(pair.first, std::make_pair(&p, pair.second));
-                }
-            }
-        }
-        builder_.setTruth(&revTruthMap_);
+  builder_.init(evt, es);
+  
+  edm::Handle<std::vector<CaloParticle>> truth;
+  if (hasMCTruth_) {
+    evt.getByToken(srcTruth_, truth);
+    for (const CaloParticle &p : *truth) {
+      if (ftltracking::g_debuglevel > 0) {
+	if (p.eventId().event() == 0 && p.eventId().bunchCrossing() == 0) {
+	  printf("Considering truth particle of pdgId %+6d eid %d/%d pt %7.1f eta %+5.2f phi %+5.2f simclusters %4d \n", 
+		 p.pdgId(), p.eventId().event(), p.eventId().bunchCrossing(), p.pt(), p.eta(), p.phi(), int(p.simClusters().size()));
+	}
+      }
+      for (const auto & scr : p.simClusters()) {
+	//printf("    simcluster pt %7.1f eta %+5.2f phi %+5.2f rechits %4d simhits %d \n",
+	//    scr->pt(), scr->eta(), scr->phi(), scr->numberOfRecHits(), scr->numberOfSimHits());
+	for (const auto & pair : scr->hits_and_fractions()) {
+	  revTruthMap_.emplace(pair.first, std::make_pair(&p, pair.second));
+	}
+      }
     }
+    builder_.setTruth(&revTruthMap_);
+  }
     
-
-    if (ftltracking::g_debuglevel > 0) {
-      edm::Handle<FTLRecHitCollection> srcBarrel, srcEndcap;
-        evt.getByToken(srcBarrel_, srcBarrel); 
-        evt.getByToken(srcEndcap_, srcEndcap); 
-        writeAllHitsByLayer(*srcBarrel, evt, "Barrel", 1);
-        writeAllHitsByLayer(*srcEndcap, evt, "Endcap", 1);
+  
+  if (ftltracking::g_debuglevel > 0) {
+    edm::Handle<FTLRecHitCollection> srcBarrel, srcEndcap;
+    evt.getByToken(srcBarrel_, srcBarrel); 
+    evt.getByToken(srcEndcap_, srcEndcap); 
+    writeAllHitsByLayer(*srcBarrel, evt, "Barrel", 1);
+    writeAllHitsByLayer(*srcEndcap, evt, "Endcap", 1);
+  }
+  
+  // Get tracks
+  edm::Handle<reco::TrackCollection> tracks;
+  evt.getByToken(srcTk_, tracks);
+  
+  // Loop on tracks, make one or more trajectories per track
+  std::vector<Trajectory> finaltrajectories;
+  unsigned int itrack = 0;
+  for (const reco::Track &tk : *tracks) { ++itrack;
+    if (!cutTk_(tk)) continue;
+    if (ftltracking::g_debuglevel > 1) {
+      printf("\n\nConsidering track pt %7.1f eta %+5.2f phi %+5.2f valid hits %d outer lost hits %d highPurity %1d\n", tk.pt(), tk.eta(), tk.phi(), tk.hitPattern().numberOfValidHits(), tk.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS), tk.quality(reco::Track::highPurity));
     }
-
-    // Get tracks
-    edm::Handle<reco::TrackCollection> tracks;
-    evt.getByToken(srcTk_, tracks);
-
-    // Loop on tracks, make one or more trajectories per track
-    std::vector<Trajectory> finaltrajectories;
-    unsigned int itrack = 0;
-    for (const reco::Track &tk : *tracks) { ++itrack;
-        if (!cutTk_(tk)) continue;
-        if (ftltracking::g_debuglevel > 1) {
-            printf("\n\nConsidering track pt %7.1f eta %+5.2f phi %+5.2f valid hits %d outer lost hits %d highPurity %1d\n", tk.pt(), tk.eta(), tk.phi(), tk.hitPattern().numberOfValidHits(), tk.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS), tk.quality(reco::Track::highPurity));
-        }
-        builder_.trajectories( reco::TrackRef(tracks,itrack-1), finaltrajectories, alongMomentum );
+    builder_.trajectories( reco::TrackRef(tracks,itrack-1), finaltrajectories, alongMomentum );
+  }
+  if (ftltracking::g_debuglevel > 0) {
+    printf("\n\nA total of %lu trajectories found in the event\n",finaltrajectories.size());
+  }
+  
+  // Global cleaning (should not do much except in case of collimated tracks)
+  unsigned int size_pre = finaltrajectories.size();
+  builder_.cleanTrajectories(finaltrajectories);
+  if (ftltracking::g_debuglevel > 0 && size_pre != finaltrajectories.size()) {
+    printf("A total of %lu trajectories after multiple cleaner\n", finaltrajectories.size());
+  }
+  
+  // Debug Printout 
+  if (ftltracking::g_debuglevel > 0)  {
+    std::set<const reco::Track *> done;
+    for (const Trajectory &t : finaltrajectories) {
+      printf("- Trajectory     "); builder_.printTraj(t);
+      const reco::Track & tk  = * (dynamic_cast<const TrajectorySeedFromTrack &>(t.seed())).track();
+      printf("\t from track pt %7.1f eta %+5.2f phi %+5.2f valid hits %2d outer lost hits %d highPurity %1d\n", tk.pt(), tk.eta(), tk.phi(), tk.hitPattern().numberOfValidHits(), tk.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS), tk.quality(reco::Track::highPurity));
+      done.insert(&tk);
     }
-    if (ftltracking::g_debuglevel > 0) {
-        printf("\n\nA total of %lu trajectories found in the event\n",finaltrajectories.size());
+    printf("Seed tracks not reconstructed:\n");
+    for (const reco::Track &tk : *tracks) {
+      if (!cutTk_(tk)) continue;
+      if (done.count(&tk)) continue; // reconstructed
+      printf("- Track pt %7.1f eta %+5.2f phi %+5.2f valid hits %2d outer lost hits %d highPurity %1d\n", tk.pt(), tk.eta(), tk.phi(), tk.hitPattern().numberOfValidHits(), tk.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS), tk.quality(reco::Track::highPurity));
     }
-
-    // Global cleaning (should not do much except in case of collimated tracks)
-    unsigned int size_pre = finaltrajectories.size();
-    builder_.cleanTrajectories(finaltrajectories);
-    if (ftltracking::g_debuglevel > 0 && size_pre != finaltrajectories.size()) {
-        printf("A total of %lu trajectories after multiple cleaner\n", finaltrajectories.size());
+    printf("done.\n");
+  }
+  
+  // Output (direct fit)
+  makeOutput(finaltrajectories, evt, "");
+  
+  // Make backwards fit
+  if (doBackwardsRefit_) {
+    // Run
+    if (ftltracking::g_debuglevel > 0) printf("Now going backwards\n");
+    std::vector<Trajectory> bwfits;
+    for (const Trajectory &t : finaltrajectories) {
+      Trajectory && tbw = builder_.bwrefit(t);
+      if (tbw.isValid()) bwfits.push_back(tbw);
     }
-
-    // Debug Printout 
+    finaltrajectories.swap(bwfits);
+    
     if (ftltracking::g_debuglevel > 0)  {
-        std::set<const reco::Track *> done;
-        for (const Trajectory &t : finaltrajectories) {
-            printf("- Trajectory     "); builder_.printTraj(t);
-            const reco::Track & tk  = * (dynamic_cast<const TrajectorySeedFromTrack &>(t.seed())).track();
-            printf("\t from track pt %7.1f eta %+5.2f phi %+5.2f valid hits %2d outer lost hits %d highPurity %1d\n", tk.pt(), tk.eta(), tk.phi(), tk.hitPattern().numberOfValidHits(), tk.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS), tk.quality(reco::Track::highPurity));
-            done.insert(&tk);
+      for (const Trajectory &t : finaltrajectories) {
+	printf("- TrajectoryBW "); builder_.printTraj(t);
+      }
         }
-        printf("Seed tracks not reconstructed:\n");
-        for (const reco::Track &tk : *tracks) {
-            if (!cutTk_(tk)) continue;
-            if (done.count(&tk)) continue; // reconstructed
-            printf("- Track pt %7.1f eta %+5.2f phi %+5.2f valid hits %2d outer lost hits %d highPurity %1d\n", tk.pt(), tk.eta(), tk.phi(), tk.hitPattern().numberOfValidHits(), tk.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS), tk.quality(reco::Track::highPurity));
-        }
-        printf("done.\n");
-    }
-
+    
     // Output (direct fit)
-    makeOutput(finaltrajectories, evt, "");
-
-    // Make backwards fit
-    if (doBackwardsRefit_) {
-        // Run
-        if (ftltracking::g_debuglevel > 0) printf("Now going backwards\n");
-        std::vector<Trajectory> bwfits;
-        for (const Trajectory &t : finaltrajectories) {
-            Trajectory && tbw = builder_.bwrefit(t);
-            if (tbw.isValid()) bwfits.push_back(tbw);
-        }
-        finaltrajectories.swap(bwfits);
-
-        if (ftltracking::g_debuglevel > 0)  {
-            for (const Trajectory &t : finaltrajectories) {
-                printf("- TrajectoryBW "); builder_.printTraj(t);
-            }
-        }
-
-        // Output (direct fit)
-        //makeOutput(finaltrajectories, evt, "");
-    }
-
-    builder_.done();
-    revTruthMap_.clear();
+    //makeOutput(finaltrajectories, evt, "");
+  }
+  
+  builder_.done();
+  revTruthMap_.clear();
 }
 
 void FTLTracking::declareOutput(const std::string &label) 

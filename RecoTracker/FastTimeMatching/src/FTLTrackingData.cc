@@ -11,7 +11,7 @@ FTLTrackingData::addData(const edm::Handle<FTLTrackingData::TColl> &data, int su
             const  FTLDiskGeomDet *disk = tracker_->disk(zside, idisk);
             if (disk->subdet() != subdet) continue;
             data_[disk] = Disk(data, subdet, zside, disk->layer(), cpe_);
-            //printf("Added DiskData @%p for %1d/%+1d/%2d with %u hits\n", disk, subdet, zside, disk->layer(), data_[disk].size());
+            printf("Added DiskData @%p for %1d/%+1d/%2d with %u hits\n", disk, subdet, zside, disk->layer(), data_[disk].size());
         }
     }
 }
