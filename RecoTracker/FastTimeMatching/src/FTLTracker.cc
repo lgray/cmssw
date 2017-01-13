@@ -24,18 +24,26 @@ void FTLTracker::makeDisks(int subdet, int disks)
   const std::vector<DetId> & ids = geom_->getValidDetIds();
   if (ftltracking::g_debuglevel > 0) std::cout << "on subdet " << subdet << " I got a total of " << ids.size() << " det ids " << std::endl;
   for (auto & i : ids) {
-    const GlobalPoint & pos = geom_->getPosition(i); 
-    float z = pos.z();
-    float rho = pos.perp();
+    //const GlobalPoint & pos = geom_->getPosition(i); 
+    const auto& corners = geom_->getCorners(i);
+    float z = corners[0].z();
+    float maxrho = 0.0;
+    float minrho = std::numeric_limits<float>::max();
+    for( unsigned i = 0; i < corners.size()/2; ++i ) {
+      maxrho = std::max(corners[i].perp2(), maxrho);
+      minrho = std::min(corners[i].perp2(), minrho);
+    }
+    maxrho = std::sqrt(maxrho);
+    minrho = std::sqrt(minrho);
     int side = z > 0 ? +1 : -1;
     int layer = 0;
     if (subdet == 5) {
-      if (std::abs(z) < 400 || std::abs(z) > 600 || (layer == 4 && rho > 240)) continue; // bad, not BH
+      if (std::abs(z) < 400 || std::abs(z) > 600 || (layer == 4 && maxrho > 240)) continue; // bad, not BH
     }
     (side > 0 ? zsumPos : zsumNeg)[layer] += z;
     (side > 0 ? countPos : countNeg)[layer]++;
-    if (rho > rmax[layer]) rmax[layer] = rho;
-    if (rho < rmin[layer]) rmin[layer] = rho;
+    if (maxrho > rmax[layer]) rmax[layer] = maxrho;
+    if (minrho < rmin[layer]) rmin[layer] = minrho;
   }
   for (int i = 0; i < disks; ++i) {
     float radlen=0.65f, xi=radlen * 0.42e-3; // see DataFormats/GeometrySurface/interface/MediumProperties.h    
