@@ -6,10 +6,11 @@
 #include "PixelRod.h"
 #include "TOBRod.h"
 #include "Phase2OTBarrelRod.h"
+#include "FTLBarrelSector.h"
 
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 
-/** A concrete implementation for TOB layer or PixelBarrel layer or a Phase 2 OT Barrel layer as long as it is similar to the previous ones
+/** A concrete implementation for TOB layer or PixelBarrel layer or a Phase 2 OT Barrel layer or the Barrel FTL as long as it is similar to the previous ones
  *  
  */
 #pragma GCC visibility push(hidden)
@@ -29,6 +30,10 @@ class TBPLayer : public TBLayer {
   TBPLayer(std::vector<const Phase2OTBarrelRod*>& inner,
 	   std::vector<const Phase2OTBarrelRod*>& outer) __attribute__ ((cold)):  
     TBLayer(inner,outer, GeomDetEnumerators::P2OTB){construct();}
+
+  TBPLayer(std::vector<const FTLBarrelSector*>& inner,
+	   std::vector<const FTLBarrelSector*>& outer) __attribute__ ((cold)):  
+    TBLayer(inner,outer, GeomDetEnumerators::TimingBarrel){construct();}
 
   
   ~TBPLayer()  __attribute__ ((cold));
