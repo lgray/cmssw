@@ -8,7 +8,7 @@
 #include "SubLayerCrossings.h"
 
 
-/** A concrete implementation for TOB Rod 
+/** A concrete implementation for FTL Barrel Sector
  *  
  */
 
@@ -18,9 +18,7 @@ class FTLBarrelSector final : public DetRod {
   typedef GenericBinFinderInZ<float,GeomDet>   BinFinderType;
 
   FTLBarrelSector(std::vector<const GeomDet*>& innerDets,
-		  std::vector<const GeomDet*>& outerDets,
-		  std::vector<const GeomDet*>& innerDetBrothers,
-		  std::vector<const GeomDet*>& outerDetBrothers) __attribute__ ((cold));
+		  std::vector<const GeomDet*>& outerDets) __attribute__ ((cold));
   ~FTLBarrelSector() __attribute__ ((cold));
   
   // GeometricSearchDet interface
@@ -50,8 +48,7 @@ class FTLBarrelSector final : public DetRod {
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
-		   std::vector<DetGroup>& result,
-		   std::vector<DetGroup>& brotherresult) const __attribute__ ((hot));
+		   std::vector<DetGroup>& result) const __attribute__ ((hot));
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
@@ -64,25 +61,17 @@ class FTLBarrelSector final : public DetRod {
 			const SubLayerCrossing& crossing,
 			float window, 
 			std::vector<DetGroup>& result,
-			std::vector<DetGroup>& brotherresult,
 			bool checkClosest) const __attribute__ ((hot));
 
-  const std::vector<const GeomDet*>& subRod( int ind) const {
+  const std::vector<const GeomDet*>& subSector( int ind) const {
     return (ind==0 ? theInnerDets : theOuterDets);
   }
-
-  const std::vector<const GeomDet*>& subRodBrothers( int ind) const {
-    return (ind==0 ? theInnerDetBrothers : theOuterDetBrothers);
-  }
-
-
+  
  private:
   std::vector<const GeomDet*> theDets;
   std::vector<const GeomDet*> theInnerDets;
   std::vector<const GeomDet*> theOuterDets;
-  std::vector<const GeomDet*> theInnerDetBrothers;
-  std::vector<const GeomDet*> theOuterDetBrothers;
-
+  
   ReferenceCountingPointer<Plane> theInnerPlane;
   ReferenceCountingPointer<Plane> theOuterPlane;
 

@@ -8,7 +8,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
-/** A concrete builder for Phase2OTBarrelRod 
+/** A concrete builder for FTLBarrelSector
  */
 
 #pragma GCC visibility push(hidden)
