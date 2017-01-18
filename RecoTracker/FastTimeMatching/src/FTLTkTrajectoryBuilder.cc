@@ -48,7 +48,7 @@ FTLTkTrajectoryBuilder::FTLTkTrajectoryBuilder(const edm::ParameterSet& ps, edm:
     minChi2ForInvalidHit_(ps.getParameter<double>("minChi2ForInvalidHit")),
     clusterRadius_(ps.getParameter<double>("clusterRadius")),
     lostHitsOnBH_(ps.getParameter<bool>("lostHitsOnBH")),
-    ftlCacheId_(0),
+    geomCacheId_(0),
     truthMap_(nullptr)
 {
     std::string palgo = ps.getParameter<std::string>("patternRecoAlgo");
@@ -68,12 +68,17 @@ FTLTkTrajectoryBuilder::FTLTkTrajectoryBuilder(const edm::ParameterSet& ps, edm:
 void
 FTLTkTrajectoryBuilder::init(const edm::Event& evt, const edm::EventSetup& es)
 {
-  //Get Calo Geometry
-  if( es.get<IdealGeometryRecord>().cacheIdentifier() != ftlCacheId_ ) {
-    es.get<IdealGeometryRecord>().get("SFBX",ftlGeom_);
-    ftlCacheId_ = es.get<IdealGeometryRecord>().cacheIdentifier();
-    ftlTracker_.reset(new FTLTracker(ftlGeom_.product()));
-    cpe_.reset(new FTLTrackingBasicCPE(&*ftlGeom_)); // FIXME better
+  //Get FTL Geometry
+  if( es.get<IdealGeometryRecord>().cacheIdentifier() != geomCacheId_ ) {
+    geomCacheId_ = es.get<IdealGeometryRecord>().cacheIdentifier(); 
+    //barrel
+    es.get<IdealGeometryRecord>().get("FastTimeBarrel",ftlEndcapGeom_);       
+    ftlBarrelTracker_.reset(new FTLTracker(ftlBarrelGeom_.product()));
+    cpeBarrel_.reset(new FTLTrackingBasicCPE(&*ftlBarrelGeom_)); // FIXME better
+    //endcap
+    es.get<IdealGeometryRecord>().get("SFBX",ftlEndcapGeom_);
+    ftlEndcapTracker_.reset(new FTLTracker(ftlEndcapGeom_.product()));
+    cpeEndcap_.reset(new FTLTrackingBasicCPE(&*ftlEndcapGeom_)); // FIXME better
   } 
 
     es.get<GlobalTrackingGeometryRecord>().get(trkGeom_);
@@ -87,22 +92,21 @@ FTLTkTrajectoryBuilder::init(const edm::Event& evt, const edm::EventSetup& es)
    
     trajFilter_->setEvent(evt, es); 
 
-    data_.reset(new FTLTrackingData(*ftlTracker_, &*cpe_));
+    dataBarrel_.reset(new FTLTrackingData(*ftlBarrelTracker_, &*cpeBarrel_));
+    dataEndcap_.reset(new FTLTrackingData(*ftlEndcapTracker_, &*cpeEndcap_));
 
     // comment out barrel for now
-    //evt.getByToken(srcBarrel_, srcBarrel); data_->addData(srcBarrel, FastTimeDetId::FastTimeBarrel);
-    evt.getByToken(srcEndcap_, srcEndcap); data_->addData(srcEndcap, FastTimeDetId::FastTimeEndcap);
-    //data_->addData(srcEndcap,FastTime);
-
-    //evt.getByToken(srcClusters_, srcClusters); 
-    //data_->addClusters(srcClusters);
+    evt.getByToken(srcBarrel_, srcBarrel); dataBarrel_->addData(srcBarrel, FastTimeDetId::FastTimeBarrel);
+    evt.getByToken(srcEndcap_, srcEndcap); dataEndcap_->addData(srcEndcap, FastTimeDetId::FastTimeEndcap);
+    
 }
 
 
 void 
 FTLTkTrajectoryBuilder::done()
 {
-    data_.reset();
+    dataBarrel_.reset();
+    dataEndcap_.reset();
 }
 
 
@@ -140,11 +144,11 @@ FTLTkTrajectoryBuilder::trajectories(const FreeTrajectoryState &fts, std::vector
     };
 
     int zside = fts.momentum().eta() > 0 ? +1 : -1;
-    const FTLDiskGeomDet *disk = ftlTracker_->firstDisk(zside,direction);
+    const FTLDiskGeomDet *disk = ftlEndcapTracker_->firstDisk(zside,direction);
     std::vector<TempTrajectory> myfinaltrajectories;
     std::vector<TempTrajectory> trajectories = advanceOneLayer(fts, TempTrajectory(direction, 0), disk, false);
     unsigned int depth = 2;
-    for (disk = ftlTracker_->nextDisk(disk,direction); disk != nullptr; disk = ftlTracker_->nextDisk(disk,direction), ++depth) {
+    for (disk = ftlEndcapTracker_->nextDisk(disk,direction); disk != nullptr; disk = ftlEndcapTracker_->nextDisk(disk,direction), ++depth) {
       if (trajectories.empty()) continue;
         if (ftltracking::g_debuglevel > 1) {
             printf("   New destination: disk subdet %d, zside %+1d, layer %2d, z = %+8.2f\n", disk->subdet(), disk->zside(), disk->layer(), disk->toGlobal(LocalPoint(0,0,0)).z());
@@ -260,7 +264,7 @@ FTLTkTrajectoryBuilder::advanceOneLayer(const Start &start, const TempTrajectory
     }
 
     // get the data on the layer
-    const auto & diskData = data_->diskData(disk);
+    const auto & diskData = dataEndcap_->diskData(disk);
 
     // for debug
     if (truthMap_) diskData.setTruth(truthMap_); 
@@ -349,7 +353,7 @@ FTLTkTrajectoryBuilder::bwrefit(const Trajectory &traj, float scaleErrors) const
     const Propagator &propOppo = (traj.direction() == alongMomentum ? *propOppo_ : *prop_);
 
     for (int i = tms.size()-1; i >= 0; --i) {
-        const FTLDiskGeomDet * det = ftlTracker_->idToDet(tms[i].recHit()->geographicalId());
+        const FTLDiskGeomDet * det = ftlEndcapTracker_->idToDet(tms[i].recHit()->geographicalId());
         if (det == 0) {
             if (ftltracking::g_debuglevel > 0)  {
                 printf(" ---> failure in finding det for step %d on det %d, subdet %d\n",i,tms[i].recHit()->geographicalId().det(),tms[i].recHit()->geographicalId().subdetId());
