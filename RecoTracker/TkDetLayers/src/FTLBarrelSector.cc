@@ -28,20 +28,15 @@ namespace {
 
 
 FTLBarrelSector::FTLBarrelSector(vector<const GeomDet*>& innerDets,
-				 vector<const GeomDet*>& outerDets,
-				 vector<const GeomDet*>& innerDetBrothers,
-				 vector<const GeomDet*>& outerDetBrothers):
+				 vector<const GeomDet*>& outerDets) :
   DetRod(true),
-  theInnerDets(innerDets),theOuterDets(outerDets),theInnerDetBrothers(innerDetBrothers),theOuterDetBrothers(outerDetBrothers)
+  theInnerDets(innerDets),theOuterDets(outerDets)
 {
   theDets.assign(theInnerDets.begin(),theInnerDets.end());
   theDets.insert(theDets.end(),theOuterDets.begin(),theOuterDets.end());
-  theDets.insert(theDets.end(),theInnerDetBrothers.begin(),theInnerDetBrothers.end());
-  theDets.insert(theDets.end(),theOuterDetBrothers.begin(),theOuterDetBrothers.end());
-
-
+  
   RodPlaneBuilderFromDet planeBuilder;
-  setPlane( planeBuilder( theDets));
+  setPlane( planeBuilder( theDets ) );
   theInnerPlane = planeBuilder( theInnerDets);
   theOuterPlane = planeBuilder( theOuterDets);
 
@@ -49,8 +44,6 @@ FTLBarrelSector::FTLBarrelSector(vector<const GeomDet*>& innerDets,
 
   theInnerBinFinder = BinFinderType(theInnerDets.begin(), theInnerDets.end());
   theOuterBinFinder = BinFinderType(theOuterDets.begin(), theOuterDets.end());
-
-
  
 #ifdef EDM_ML_DEBUG
   LogDebug("TkDetLayers") << "==== DEBUG FTLBarrelSector =====" ; 
@@ -63,15 +56,6 @@ FTLBarrelSector::FTLBarrelSector(vector<const GeomDet*>& innerDets,
 			    << (**i).position().phi() ;
   }
   
-  for (vector<const GeomDet*>::const_iterator i=theInnerDetBrothers.begin();
-       i != theInnerDetBrothers.end(); i++){
-    LogDebug("TkDetLayers") << "inner FTLBarrelSector's Det Brother pos z,perp,eta,phi: " 
-			    << (**i).position().z() << " , " 
-			    << (**i).position().perp() << " , " 
-			    << (**i).position().eta() << " , " 
-			    << (**i).position().phi() ;
-  }
-
   for (vector<const GeomDet*>::const_iterator i=theOuterDets.begin();
        i != theOuterDets.end(); i++){
     LogDebug("TkDetLayers") << "outer FTLBarrelSector's Det pos z,perp,eta,phi: " 
@@ -81,14 +65,6 @@ FTLBarrelSector::FTLBarrelSector(vector<const GeomDet*>& innerDets,
 			    << (**i).position().phi() ;
   }
   
-  for (vector<const GeomDet*>::const_iterator i=theOuterDetBrothers.begin();
-       i != theOuterDetBrothers.end(); i++){
-    LogDebug("TkDetLayers") << "outer FTLBarrelSector's Det Brother pos z,perp,eta,phi: " 
-			    << (**i).position().z() << " , " 
-			    << (**i).position().perp() << " , " 
-			    << (**i).position().eta() << " , " 
-			    << (**i).position().phi() ;
-  }
   LogDebug("TkDetLayers") << "==== end DEBUG FTLBarrelSector =====" ; 
 #endif  
 
@@ -127,25 +103,17 @@ FTLBarrelSector::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   if(! crossings.isValid()) return;
 
   std::vector<DetGroup> closestResult;
-  std::vector<DetGroup> closestBrotherResult;
-  addClosest( tsos, prop, est, crossings.closest(), closestResult, closestBrotherResult);
+  addClosest( tsos, prop, est, crossings.closest(), closestResult);
   if (closestResult.empty()){
     std::vector<DetGroup> nextResult;
-    std::vector<DetGroup> nextBrotherResult;
-    addClosest( tsos, prop, est, crossings.other(), nextResult, nextBrotherResult);
+    addClosest( tsos, prop, est, crossings.other(), nextResult);
     if(nextResult.empty())    return;
 
-    DetGroupElement nextGel( nextResult.front().front());  
+    DetGroupElement nextGel( nextResult.front().front() );  
     int crossingSide = LayerCrossingSide().barrelSide( nextGel.trajectoryState(), prop);
-    std::vector<DetGroup> closestCompleteResult;
-    DetGroupMerger::orderAndMergeTwoLevels(std::move(closestResult),std::move(closestBrotherResult),closestCompleteResult,
-					   0, crossingSide);
-    std::vector<DetGroup> nextCompleteResult;
-    DetGroupMerger::orderAndMergeTwoLevels(std::move(nextResult),std::move(nextBrotherResult),nextCompleteResult,
-					   0, crossingSide);
-
-    DetGroupMerger::orderAndMergeTwoLevels( std::move(closestCompleteResult), std::move(nextCompleteResult), result, 
-					   crossings.closestIndex(), crossingSide);   
+    
+    DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result, 
+					    crossings.closestIndex(), crossingSide);   
   } else {
   
     DetGroupElement closestGel( closestResult.front().front());
@@ -153,22 +121,13 @@ FTLBarrelSector::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
 
     searchNeighbors( tsos, prop, est, crossings.closest(), window,
-     		     closestResult, closestBrotherResult, false);
-
-    std::vector<DetGroup> closestCompleteResult;
-    DetGroupMerger::orderAndMergeTwoLevels(std::move(closestResult),std::move(closestBrotherResult),closestCompleteResult,
-					   0, crossingSide);
+     		     closestResult, false);    
 
     std::vector<DetGroup> nextResult;
-    std::vector<DetGroup> nextBrotherResult;
     searchNeighbors( tsos, prop, est, crossings.other(), window,
-		     nextResult, nextBrotherResult, true);
-
-    std::vector<DetGroup> nextCompleteResult;
-    DetGroupMerger::orderAndMergeTwoLevels(std::move(nextResult),std::move(nextBrotherResult),nextCompleteResult,
-					   0, crossingSide);
-
-    DetGroupMerger::orderAndMergeTwoLevels( std::move(closestCompleteResult), std::move(nextCompleteResult), result, 
+		     nextResult, true);
+    
+    DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result, 
 					    crossings.closestIndex(), crossingSide);
   }
 
@@ -230,19 +189,14 @@ FTLBarrelSector::addClosest( const TrajectoryStateOnSurface& tsos,
 			     const Propagator& prop,
 			     const MeasurementEstimator& est,
 			     const SubLayerCrossing& crossing,
-			     vector<DetGroup>& result,
-			     vector<DetGroup>& brotherresult) const
+			     vector<DetGroup>& result) const
 {
 
-  const vector<const GeomDet*>& sRod( subRod( crossing.subLayerIndex()));
-  bool firstgroup = CompatibleDetToGroupAdder::add( *sRod[crossing.closestDetIndex()], 
+  const vector<const GeomDet*>& sSector( subSector( crossing.subLayerIndex() ) );
+  bool firstgroup = CompatibleDetToGroupAdder::add( *sSector[crossing.closestDetIndex()], 
 						    tsos, prop, est, result);
-  // it assumes that the closestDetIndex is ok also for the brother detectors: the crossing is NOT recomputed
-  const vector<const GeomDet*>& sRodBrothers( subRodBrothers( crossing.subLayerIndex()));
-  bool brothergroup = CompatibleDetToGroupAdder::add( *sRodBrothers[crossing.closestDetIndex()], 
-						      tsos, prop, est, brotherresult);
-
-  return firstgroup || brothergroup;
+  
+  return firstgroup;
 }
 
 
@@ -292,20 +246,18 @@ void FTLBarrelSector::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				       const SubLayerCrossing& crossing,
 				       float window, 
 				       vector<DetGroup>& result,
-				       vector<DetGroup>& brotherresult,
 				       bool checkClosest) const
 {
   GlobalPoint gCrossingPos = crossing.position();
 
-  const vector<const GeomDet*>& sRod( subRod( crossing.subLayerIndex()));
-  const vector<const GeomDet*>& sBrotherRod( subRodBrothers( crossing.subLayerIndex()));
+  const vector<const GeomDet*>& sSector( subSector( crossing.subLayerIndex() ) );
  
   int closestIndex = crossing.closestDetIndex();
   int negStartIndex = closestIndex-1;
   int posStartIndex = closestIndex+1;
 
   if (checkClosest) { // must decide if the closest is on the neg or pos side
-    if (gCrossingPos.z() < sRod[closestIndex]->surface().position().z()) {
+    if (gCrossingPos.z() < sSector[closestIndex]->surface().position().z()) {
       posStartIndex = closestIndex;
     }
     else {
@@ -315,16 +267,12 @@ void FTLBarrelSector::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 
   typedef CompatibleDetToGroupAdder Adder;
   for (int idet=negStartIndex; idet >= 0; idet--) {
-    if (!overlap( gCrossingPos, *sRod[idet], window)) break;
-    if (!Adder::add( *sRod[idet], tsos, prop, est, result)) break;
-    // If the two above checks are passed also the brother module will be added with no further checks
-    Adder::add( *sBrotherRod[idet], tsos, prop, est, brotherresult);
+    if (!overlap( gCrossingPos, *sSector[idet], window)) break;
+    if (!Adder::add( *sSector[idet], tsos, prop, est, result)) break;    
   }
-  for (int idet=posStartIndex; idet < static_cast<int>(sRod.size()); idet++) {
-    if (!overlap( gCrossingPos, *sRod[idet], window)) break;
-    if (!Adder::add( *sRod[idet], tsos, prop, est, result)) break;
-    // If the two above checks are passed also the brother module will be added with no further checks
-    Adder::add( *sBrotherRod[idet], tsos, prop, est, brotherresult);
+  for (int idet=posStartIndex; idet < static_cast<int>(sSector.size()); idet++) {
+    if (!overlap( gCrossingPos, *sSector[idet], window)) break;
+    if (!Adder::add( *sSector[idet], tsos, prop, est, result)) break;    
   }
 }
 
