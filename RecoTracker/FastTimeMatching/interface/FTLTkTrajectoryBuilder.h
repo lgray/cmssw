@@ -85,9 +85,9 @@ class FTLTkTrajectoryBuilder {
         const bool lostHitsOnBH_;
 
         // --- Event Setup stuff (or similar) ---
-        uint32_t ftlCacheId_;
-        std::unique_ptr<FTLTracker> ftlTracker_;
-        edm::ESHandle<FastTimeGeometry> ftlGeom_;
+        uint32_t geomCacheId_;
+        std::unique_ptr<FTLTracker> ftlBarrelTracker_, ftlEndcapTracker_;
+        edm::ESHandle<FastTimeGeometry> ftlBarrelGeom_, ftlEndcapGeom_;
         edm::ESHandle<GlobalTrackingGeometry> trkGeom_;
         edm::ESHandle<Propagator> prop_, propOppo_;
         edm::ESHandle<MagneticField> bfield_;
@@ -95,14 +95,14 @@ class FTLTkTrajectoryBuilder {
         edm::ESHandle<TrajectoryStateUpdator> updator_;
         edm::ESHandle<TrajectoryCleaner> trajectoryCleaner_;
         std::unique_ptr<TrajectoryFilter> trajFilter_;
-        std::unique_ptr<FTLTrackingBasicCPE> cpe_;
+        std::unique_ptr<FTLTrackingBasicCPE> cpeBarrel_, cpeEndcap_;
 
         // --- Event Data ---
         // note that handles have to be kept, since they're needed to build refs
         edm::Handle<FTLRecHitCollection> srcBarrel, srcEndcap;
         edm::Handle<reco::CaloClusterCollection> srcClusters;
         // data re-arranged for tracking
-        std::unique_ptr<FTLTrackingData> data_;
+        std::unique_ptr<FTLTrackingData> dataBarrel_,dataEndcap_;
         // for debug
         const CaloTruthRevMap *truthMap_;
 
