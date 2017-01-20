@@ -86,7 +86,7 @@ class FTLTkTrajectoryBuilder {
 
         // --- Event Setup stuff (or similar) ---
         uint32_t geomCacheId_;
-        std::unique_ptr<FTLTracker> ftlBarrelTracker_, ftlEndcapTracker_;
+        std::unique_ptr<FTLTracker> ftlTracker_;
         edm::ESHandle<FastTimeGeometry> ftlBarrelGeom_, ftlEndcapGeom_;
         edm::ESHandle<GlobalTrackingGeometry> trkGeom_;
         edm::ESHandle<Propagator> prop_, propOppo_;
@@ -109,6 +109,8 @@ class FTLTkTrajectoryBuilder {
         /// --- Pattern reco ---
         template<class Start>
         std::vector<TempTrajectory> advanceOneLayer(const Start &start, const TempTrajectory &traj, const FTLDiskGeomDet *disk, bool bestHitOnly) const ;
+	template<class Start>
+        std::vector<TempTrajectory> advanceOneLayer(const Start &start, const TempTrajectory &traj, const FTLBarrelDetLayer *cylinder, bool bestHitOnly) const ;
 
         /// --- Utilities ---
         void trim(std::vector<TempTrajectory> &tempTrajectories) const {

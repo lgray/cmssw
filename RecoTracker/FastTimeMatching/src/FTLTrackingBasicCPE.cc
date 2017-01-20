@@ -10,9 +10,11 @@ FTLTrackingBasicCPE::FTLTrackingBasicCPE(const FastTimeGeometry* geom, float fix
   for( const auto id : geom_->getValidDetIds() ) {
     const auto corners = std::move(geom_->getCorners(id));
     float maxdist2 = 0.f; 
-    for( unsigned i = 0 ; i < 2; ++i ) {
-      maxdist2 = std::max( 0.5f*(corners[i] - corners[i+2]).perp2(), maxdist2 );      
-    }
+    for( unsigned i = 0 ; i < corners.size(); ++i ) {
+      for( unsigned j = i+1 ; j < corners.size(); ++j ) {
+	maxdist2 = std::max( (corners[i] - corners[j]).mag2(), maxdist2 );      
+      }
+    }    
     auto itr = detIdErr2_.emplace(id,oneOverTwelve*maxdist2);
     detIdErr_.emplace(id,std::sqrt(itr.first->second));
   }

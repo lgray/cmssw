@@ -20,14 +20,15 @@ class FTLBarrelDetLayer {
     for( auto* ptr : sectors_ ) delete ptr;
   }
   
-  int type() const { return id_.type(); }
+  int ftlType() const { return id_.type(); }
   int zside() const { return id_.zside(); }
+  int layer() const { return 0; }
 
   DetId geographicalId() const { return id_; }
   
   bool operator<(const FTLBarrelDetLayer &other) const { 
-    if( id_.type() == other.type() ) return id_.zside() < other.zside();
-    return id_.type() < other.type();
+    if( id_.type() == other.ftlType() ) return id_.zside() < other.zside();
+    return id_.type() < other.ftlType();
   }
   
   const std::vector<const FTLBarrelSectorGeomDet*>& sectors() const { return sectors_; }

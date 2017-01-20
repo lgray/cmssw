@@ -13,6 +13,10 @@
 class FTLBarrelSectorGeomDet : public GeomDet {
  public:
   FTLBarrelSectorGeomDet(DetId id, Plane::PlanePointer detPlane, const std::vector<std::pair<DetId, const GeomDet*> >& dets, float radlen, float xi) ;
+
+  ~FTLBarrelSectorGeomDet() {
+    for( auto ptr : components_ ) delete ptr;
+  }
   
   int layer() const { return 0; }
   int ftlType() const { return id_.type(); }

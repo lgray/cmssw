@@ -19,13 +19,14 @@ FTLTrackingData::addData(const edm::Handle<FTLTrackingData::TColl> &data, int ty
 void
 FTLTrackingData::addData(const edm::Handle<FTLTrackingData::TColl> &data, int type, int iphi) 
 {
-  if (ftltracking::g_debuglevel > 0) printf("Adding data for subdet %d/%d, %lu total hits\n", type,iphi, data->size());
+  //printf("Adding data for subdet %d/%d, %lu total hits\n", type, iphi, data->size());
   for (int zside = -1; zside <= +1; zside += 2) {
     for (unsigned int ilayer = 0, nlayer = tracker_->numberOfBarrelLayers(zside); ilayer < nlayer; ++ilayer) {
-      const  FTLBarrelSectorGeomDet *sector = tracker_->barrelLayer(zside, ilayer)->sectors()[iphi];
+      const  FTLBarrelSectorGeomDet *sector = tracker_->barrelLayer(zside, ilayer)->sectors()[iphi-1];
       if (sector->ftlType() != type && sector->iphi() != iphi) continue;
       dataBarrel_[sector] = Layer(data, type, zside, iphi, sector->layer(), cpeBarrel_);
-      printf("Added LayerData @%p for Sector: %1d/%+1d/%3d/%2d with %u hits\n", sector, type, zside, iphi, sector->layer(), dataBarrel_[sector].size());
+      if( dataBarrel_[sector].size() )
+	if (ftltracking::g_debuglevel > 0) printf("Added LayerData @%p for Sector: %1d/%+1d/%3d/%2d with %u hits\n", sector, type, zside, iphi, sector->layer(), dataBarrel_[sector].size());
     }
   }
 }
