@@ -73,12 +73,14 @@ FTLTkTrajectoryBuilder::init(const edm::Event& evt, const edm::EventSetup& es)
     geomCacheId_ = es.get<IdealGeometryRecord>().cacheIdentifier(); 
     //barrel
     es.get<IdealGeometryRecord>().get("FastTimeBarrel",ftlBarrelGeom_);       
-    ftlBarrelTracker_.reset(new FTLTracker(ftlBarrelGeom_.product()));
     cpeBarrel_.reset(new FTLTrackingBasicCPE(&*ftlBarrelGeom_)); // FIXME better
     //endcap
     es.get<IdealGeometryRecord>().get("SFBX",ftlEndcapGeom_);
-    ftlEndcapTracker_.reset(new FTLTracker(ftlEndcapGeom_.product()));
     cpeEndcap_.reset(new FTLTrackingBasicCPE(&*ftlEndcapGeom_)); // FIXME better
+
+    ftlTracker_.reset(new FTLTracker(ftlBarrelGeom_.product(),
+				     ftlEndcapGeom_.product()) );
+				     
   } 
 
     es.get<GlobalTrackingGeometryRecord>().get(trkGeom_);
@@ -92,11 +94,12 @@ FTLTkTrajectoryBuilder::init(const edm::Event& evt, const edm::EventSetup& es)
    
     trajFilter_->setEvent(evt, es); 
 
-    data_.reset(new FTLTrackingData(*ftlBarrelTracker_, &*cpeBarrel_, &*cpeEndcap_));
+    data_.reset(new FTLTrackingData(*ftlTracker_, &*cpeBarrel_, &*cpeEndcap_));
 
     // comment out barrel for now
     evt.getByToken(srcBarrel_, srcBarrel); 
-    for( unsigned iphi = 0 ; iphi < 720; ++iphi ) {
+    printf("Adding data for subdet %d, %lu total hits\n", FastTimeDetId::FastTimeBarrel, srcBarrel->size());
+    for( unsigned iphi = 1 ; iphi < 721; ++iphi ) {
       data_->addData(srcBarrel, FastTimeDetId::FastTimeBarrel,iphi);      
     }
     evt.getByToken(srcEndcap_, srcEndcap); data_->addData(srcEndcap, FastTimeDetId::FastTimeEndcap);
@@ -145,11 +148,14 @@ FTLTkTrajectoryBuilder::trajectories(const FreeTrajectoryState &fts, std::vector
     };
 
     int zside = fts.momentum().eta() > 0 ? +1 : -1;
-    const FTLDiskGeomDet *disk = ftlEndcapTracker_->firstEndcapLayer(zside,direction);
+    const FTLBarrelDetLayer *cyl = ftlTracker_->firstBarrelLayer(zside,direction);
+    const FTLDiskGeomDet *disk = ftlTracker_->firstEndcapLayer(zside,direction);
+    std::vector<TempTrajectory> trajectoriesBarrel = advanceOneLayer(fts, TempTrajectory(direction,0), cyl, false);
+    std::cout << "found "<< trajectoriesBarrel.size() << " barrel trajectories!"<< std::endl;
     std::vector<TempTrajectory> myfinaltrajectories;
     std::vector<TempTrajectory> trajectories = advanceOneLayer(fts, TempTrajectory(direction, 0), disk, false);
-    unsigned int depth = 2;
-    for (disk = ftlEndcapTracker_->nextEndcapLayer(disk,direction); disk != nullptr; disk = ftlEndcapTracker_->nextEndcapLayer(disk,direction), ++depth) {
+    unsigned int depth = 2;    
+    for (disk = ftlTracker_->nextEndcapLayer(disk,direction); disk != nullptr; disk = ftlTracker_->nextEndcapLayer(disk,direction), ++depth) {
       if (trajectories.empty()) continue;
         if (ftltracking::g_debuglevel > 1) {
             printf("   New destination: disk type %d, zside %+1d, layer %2d, z = %+8.2f\n", disk->ftlType(), disk->zside(), disk->layer(), disk->toGlobal(LocalPoint(0,0,0)).z());
@@ -200,6 +206,11 @@ FTLTkTrajectoryBuilder::trajectories(const FreeTrajectoryState &fts, std::vector
             //printf("    Reduced to %lu trajectories after sorting and trimming\n", newCands.size());
         }
         trajectories.swap(newCands);
+    }
+    size_t oldTrajSize = trajectories.size();
+    trajectories.resize(trajectories.size()+trajectoriesBarrel.size());
+    for( unsigned i = oldTrajSize; i < trajectories.size(); ++i ) {
+      trajectories[i] = std::move(trajectoriesBarrel[i-oldTrajSize]);
     }
     if (!trajectories.empty()) {
         if (ftltracking::g_debuglevel > 1) printf("A total of %lu trajectories reached the end of the tracker from this track\n", trajectories.size());
@@ -332,6 +343,110 @@ FTLTkTrajectoryBuilder::advanceOneLayer(const Start &start, const TempTrajectory
     return ret;
 }
 
+template<class Start>
+std::vector<TempTrajectory> 
+FTLTkTrajectoryBuilder::advanceOneLayer(const Start &start, const TempTrajectory &traj, const FTLBarrelDetLayer *cylinder, bool bestHitOnly) const  
+{
+    std::vector<TempTrajectory> ret;
+
+    const Propagator &prop = (traj.direction() == alongMomentum ? *prop_ : *propOppo_);
+    // propagate to the plane of the layer
+    TrajectoryStateOnSurface tsos = prop.propagate(start, *cylinder->surface());
+    if (!tsos.isValid()) { 
+        if (ftltracking::g_debuglevel > 0)  {
+	  printf("        Destination cylinder type %d, zside %+1d, layer %2d, z = %+8.2f\n", cylinder->ftlType(), cylinder->zside(), cylinder->layer(), cylinder->surface()->toGlobal(LocalPoint(0,0,0)).z());
+            printf("         --> propagation failed.\n"); 
+        }
+        return ret; 
+    }
+
+    // check if inside the bounds of the layer
+    if ( std::abs(tsos.globalPosition().z()) > cylinder->surface()->bounds().length() ||
+	 std::abs(tsos.globalPosition().perp() - cylinder->surface()->radius()) > cylinder->surface()->bounds().thickness()) {
+        if (ftltracking::g_debuglevel > 0)  {
+            GlobalPoint gp = tsos.globalPosition();
+            printf("        Prop point: global eta %+5.2f phi %+5.2f  x = %+8.2f y = %+8.2f z = %+8.2f rho = %8.2f\n", gp.eta(), float(gp.phi()), gp.x(), gp.y(), gp.z(), gp.perp());
+            //LocalPoint lp = tsos.localPosition();
+            //printf("            local                       x = %+8.2f y = %+8.2f z = %+8.2f rho = %8.2f\n", lp.x(), lp.y(), lp.z(), lp.perp());
+            printf("         --> outside the bounds.\n"); 
+        }
+        return ret; 
+    }
+
+    // get the data on the layer
+    //estimate iphi
+    float theGlobalPhi = tsos.globalPosition().phi();
+    while( theGlobalPhi < 0 ) theGlobalPhi += 2*M_PI;
+    unsigned iphi = std::floor( theGlobalPhi * 720.0 / (2*M_PI) ) + 1;
+    std::cout << "TSOS phi = " << theGlobalPhi << " TSOS iphi = " << iphi << std::endl;
+    auto sector = cylinder->sectors()[iphi-1];
+    const auto & sectorData = data_->layerData(sector);
+
+    // for debug
+    if (truthMap_) sectorData.setTruth(truthMap_); 
+
+    printf("        Looking for hits on sector type %d, zside %+1d, iphi %+3d, layer %2d: %u total hits\n", sector->ftlType(), sector->zside(), sector->iphi(), sector->layer(), sectorData.size());
+    std::vector<TrajectoryMeasurement> meas;
+    switch(algo_) {
+        case SingleHitAlgo:    meas = sectorData.measurements(tsos, *estimator_); break;
+        case ClusterizingAlgo: meas = sectorData.clusterizedMeasurements(tsos, *estimator_, clusterRadius_); break;
+        case MixedAlgo:    
+                meas = sectorData.clusterMeasurements(tsos, *estimator_); 
+                std::vector<TrajectoryMeasurement> meas2 = sectorData.measurements(tsos, *estimator_); 
+                if (meas.empty()) meas2.swap(meas);
+            break;
+    };
+
+    // sort hits from better to worse
+    std::sort(meas.begin(), meas.end(), TrajMeasLessEstim());
+    if (ftltracking::g_debuglevel > 1)  printf("        Compatible hits: %lu\n", meas.size());
+
+    // for each, make a new trajectory candidate
+    for (const TrajectoryMeasurement &tm : meas) {
+        if (deltaChiSquareForHits_ > 0) {
+            if (meas.size() > 1  && !ret.empty() && tm.estimate() > meas.front().estimate() + deltaChiSquareForHits_) {
+                if (ftltracking::g_debuglevel > 3) printf("        stop after the first %lu hits, since this chi2 of %.1f is too bad wrt the best one of %.1f\n", ret.size(), tm.estimate(), meas.front().estimate());
+                break;
+            }
+        }
+        TrajectoryStateOnSurface updated = updator_->update(tm.forwardPredictedState(), *tm.recHit());
+        if (!updated.isValid()) { 
+            if (ftltracking::g_debuglevel > 0)  {
+                std::cout << "          Hit with chi2 = " << tm.estimate() << std::endl;
+                std::cout << "              track state     " << tm.forwardPredictedState().localPosition() << std::endl;
+                std::cout << "              rechit position " << tm.recHit()->localPosition() << std::endl;
+                std::cout << "               --> failed update state" << std::endl;
+            }
+            continue;
+        }
+
+        // Add a valid hit
+        ret.push_back(traj.foundHits() ? traj : TempTrajectory(traj.direction(),0)); // don't start with a lost hit
+        ret.back().push(TrajectoryMeasurement(tm.forwardPredictedState(),
+                                              updated,
+                                              tm.recHit(),
+                                              tm.estimate()), 
+                        tm.estimate());
+    
+        // fast return
+        if (bestHitOnly) return ret;
+    }
+
+    // Possibly add an invalid hit, for the hypothesis that the track didn't leave a valid hit
+    
+    if (minChi2ForInvalidHit_ > 0) {
+        if (meas.size() > 0  && !ret.empty() && meas.front().estimate() < minChi2ForInvalidHit_) {
+            if (ftltracking::g_debuglevel > 3) printf("        will not add the invalid hit after %lu valid hits, as the best valid hit has chi2 of %.1f\n", ret.size(), meas.front().estimate());
+            return ret;
+        }
+    }
+    
+    auto missing = (cylinder->ftlType() != 5 || lostHitsOnBH_) ? TrackingRecHit::missing : TrackingRecHit::inactive;
+    ret.push_back(traj.foundHits() ? traj : TempTrajectory(traj.direction(),0)); // either just one lost hit, or a trajectory not starting on a lost hit
+    ret.back().push(TrajectoryMeasurement(tsos, std::make_shared<InvalidTrackingRecHit>(*sector, missing)));
+    return ret;
+}
+
 void
 FTLTkTrajectoryBuilder::cleanTrajectories(std::vector<Trajectory> &trajectories) const {
     if (!trajectoryCleanerName_.empty()) {
@@ -354,7 +469,7 @@ FTLTkTrajectoryBuilder::bwrefit(const Trajectory &traj, float scaleErrors) const
     const Propagator &propOppo = (traj.direction() == alongMomentum ? *propOppo_ : *prop_);
 
     for (int i = tms.size()-1; i >= 0; --i) {
-        const FTLDiskGeomDet * det = ftlEndcapTracker_->idToEndcapDet(tms[i].recHit()->geographicalId());
+        const FTLDiskGeomDet * det = ftlTracker_->idToEndcapDet(tms[i].recHit()->geographicalId());
         if (det == 0) {
             if (ftltracking::g_debuglevel > 0)  {
                 printf(" ---> failure in finding det for step %d on det %d, subdet %d\n",i,tms[i].recHit()->geographicalId().det(),tms[i].recHit()->geographicalId().subdetId());

@@ -2,10 +2,12 @@
 #include "RecoTracker/FastTimeMatching/interface/ftldebug.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "RecoTracker/FastTimeMatching/interface/FTLBarrelGeomDet.h"
 
-
-FTLTracker::FTLTracker(const FastTimeGeometry *geom) :
-    geom_(geom)
+FTLTracker::FTLTracker(const FastTimeGeometry *barrel,
+		       const FastTimeGeometry *endcap) :
+  barrelGeom_(barrel),
+  endcapGeom_(endcap)
 {
   if (ftltracking::g_debuglevel > 0) std::cout << "Making the FTLTracker" << std::endl;
   //makeBarrel(FastTimeDetId::FastTimeBarrel, 1); // type , number of layers
@@ -19,6 +21,8 @@ FTLTracker::FTLTracker(const FastTimeGeometry *geom) :
   for( unsigned i = 0; i < disksNeg_.size(); ++i ) 
     disksLookupNeg_.emplace(disksNeg_[i]->geographicalId(),i);
 
+  makeCylinders(FastTimeDetId::FastTimeBarrel,1);
+
   auto barrelSort = [](const FTLBarrelDetLayer *a, const FTLBarrelDetLayer *b) -> bool { return (*a) < (*b); };
   std::sort(cylindersPos_.begin(), cylindersPos_.end(), barrelSort);
   for( unsigned i = 0; i < cylindersPos_.size(); ++i ) 
@@ -28,16 +32,72 @@ FTLTracker::FTLTracker(const FastTimeGeometry *geom) :
     cylindersLookupNeg_.emplace(cylindersNeg_[i]->geographicalId(),i);
 }
 
+#include "DataFormats/GeometrySurface/interface/BoundingBox.h"
+void FTLTracker::makeCylinders(int subdet, int layers) {
+  std::unordered_multimap<uint32_t,std::pair<DetId,const GeomDet*> > sectorsPos,sectorsNeg;
+
+  const std::vector<DetId>& ids = barrelGeom_->getValidDetIds();
+  if (ftltracking::g_debuglevel > 0) std::cout << "on subdet " << subdet << " I got a total of " << ids.size() << " det ids " << std::endl;
+
+  GlobalVector aX( 1,0,0 );
+  GlobalVector aY( 0,1,0 );
+  GlobalVector aZ( 0,0,1 );
+  Plane::RotationType rot(aZ,-aY,aX); // plane from global vectors;
+
+  for( const auto& i : ids ) {
+    FastTimeDetId id(i);
+    FastTimeDetId geo(id.type(),0,id.iphi(),id.zside());
+    Surface::PositionType::BasicVectorType posSum(0,0,0);
+    const auto& corners = barrelGeom_->getCorners(id);
+    
+    for( unsigned i = 0; i < 2; ++i ) {
+      posSum += corners[i].basicVector();
+      posSum += corners[i+4].basicVector();
+    }
+    Surface::PositionType meanPos( posSum/4.f );
+    const float width = (corners[0] - corners[4]).mag();
+    const float length = (corners[0] - corners[1]).mag();
+        
+    GeomDet* thedet = new FTLBarrelGeomDet(id,meanPos,rot,width,length);
+    
+    std::vector<GlobalPoint> gdcorners = BoundingBox().corners(thedet->specificSurface());
+      
+    /*
+    for( unsigned i = 0; i < corners.size(); ++i ) {
+      std::cout << i << " global calo: " << (corners[i] - meanPos) << " perp=" << corners[i].perp() << std::endl;
+      auto localpt = thedet->specificSurface().toLocal(corners[i]);
+      std::cout << i << " local calo : " << localpt << " perp= " << localpt.perp() << std::endl ;
+      std::cout << i << " globalgd   : " << (gdcorners[i] - meanPos) << " perp= " << gdcorners[i].perp() << std::endl ;
+      localpt = thedet->specificSurface().toLocal(gdcorners[i]);
+      std::cout << i << " localdg    : " << localpt << " perp= " << localpt.perp() << std::endl ;
+      std::cout << std::endl;
+    }
+    std::cout << std::endl << std::endl;
+    */
+
+    if( id.zside() > 0 )
+      sectorsPos.emplace(geo,std::make_pair(id,thedet));
+    else 
+      sectorsNeg.emplace(geo,std::make_pair(id,thedet));
+  }
+  
+  std::cout << sectorsPos.size() << ' ' << sectorsNeg.size() << std::endl;
+
+  float radlen=0.65f, xi=radlen * 0.42e-3;
+  addBarrelLayer(new FTLBarrelDetLayer(FastTimeDetId(FastTimeDetId::FastTimeBarrel,0,0,1),sectorsPos,radlen,xi));
+  addBarrelLayer(new FTLBarrelDetLayer(FastTimeDetId(FastTimeDetId::FastTimeBarrel,0,0,-1),sectorsNeg,radlen,xi));
+}
+
 void FTLTracker::makeDisks(int subdet, int disks)
 {    
   std::vector<float>  rmax(disks, 0), rmin(disks, 9e9);
   std::vector<double> zsumPos(disks), zsumNeg(disks);
   std::vector<int>    countPos(disks), countNeg(disks);
-  const std::vector<DetId> & ids = geom_->getValidDetIds();
+  const std::vector<DetId> & ids = endcapGeom_->getValidDetIds();
   if (ftltracking::g_debuglevel > 0) std::cout << "on subdet " << subdet << " I got a total of " << ids.size() << " det ids " << std::endl;
   for (auto & i : ids) {
-    //const GlobalPoint & pos = geom_->getPosition(i); 
-    const auto& corners = geom_->getCorners(i);
+    //const GlobalPoint & pos = endcapGeom_->getPosition(i); 
+    const auto& corners = endcapGeom_->getCorners(i);
     float z = corners[0].z();
     float maxrho = 0.0;
     float minrho = std::numeric_limits<float>::max();
