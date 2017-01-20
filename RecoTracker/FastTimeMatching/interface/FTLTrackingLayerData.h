@@ -1,7 +1,7 @@
-#ifndef RecoTracker_FastTimeMatching_FTLTrackingDiskData_h
-#define RecoTracker_FastTimeMatching_FTLTrackingDiskData_h
+#ifndef RecoTracker_FastTimeMatching_FTLTrackingLayerData_h
+#define RecoTracker_FastTimeMatching_FTLTrackingLayerData_h
 
-/// Class that holds the rechits on one FTL endcap Layer, and does the lookup
+/// Class that holds the rechits on one FTL barrel or endcap Layer, and does the lookup
 //  Almost like a MeasurementDetWithData in the tracker
 //
 //  note 1: the class is typedeffed on the rechit collection, but is not a template
@@ -20,7 +20,7 @@
 #include "RecoTracker/FastTimeMatching/interface/ftldebug.h"
 
 
-class FTLTrackingDiskData {
+class FTLTrackingLayerData {
     public:
         typedef FTLRecHitCollection TColl;
         typedef TColl::value_type value_type;
@@ -30,8 +30,12 @@ class FTLTrackingDiskData {
         typedef FTLTrackingRecHit<ref_type> rechit_type;
         typedef FTLTrackingClusteringRecHit rechitcluster_type;
 
-        FTLTrackingDiskData() {}
-        FTLTrackingDiskData(const edm::Handle<TColl> &data, int subdet, int zside, int layer, const FTLTrackingBasicCPE *cpe) ;
+        FTLTrackingLayerData() {}
+	//endcap
+        FTLTrackingLayerData(const edm::Handle<TColl> &data, int subdet, int zside, int layer, const FTLTrackingBasicCPE *cpe) ;
+	//barrel
+	FTLTrackingLayerData(const edm::Handle<TColl> &data, int type, int zside, int iphi, int layer, const FTLTrackingBasicCPE *cpe) ;
+
 
         void addClusters(const edm::Handle<reco::CaloClusterCollection> &data, int subdet, int zside, int layer) ;
 

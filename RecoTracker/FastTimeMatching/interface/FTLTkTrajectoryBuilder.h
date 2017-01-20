@@ -102,7 +102,7 @@ class FTLTkTrajectoryBuilder {
         edm::Handle<FTLRecHitCollection> srcBarrel, srcEndcap;
         edm::Handle<reco::CaloClusterCollection> srcClusters;
         // data re-arranged for tracking
-        std::unique_ptr<FTLTrackingData> dataBarrel_,dataEndcap_;
+        std::unique_ptr<FTLTrackingData> data_;
         // for debug
         const CaloTruthRevMap *truthMap_;
 

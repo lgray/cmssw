@@ -11,9 +11,21 @@ FTLTracker::FTLTracker(const FastTimeGeometry *geom) :
   //makeBarrel(FastTimeDetId::FastTimeBarrel, 1); // type , number of layers
   makeDisks(FastTimeDetId::FastTimeEndcap, 1);
 
-  auto ptrSort = [](const FTLDiskGeomDet *a, const FTLDiskGeomDet *b) -> bool { return (*a) < (*b); };
-  std::sort(disksPos_.begin(), disksPos_.end(), ptrSort);
-  std::sort(disksNeg_.begin(), disksNeg_.end(), ptrSort);
+  auto endcapSort = [](const FTLDiskGeomDet *a, const FTLDiskGeomDet *b) -> bool { return (*a) < (*b); };
+  std::sort(disksPos_.begin(), disksPos_.end(), endcapSort);
+  for( unsigned i = 0; i < disksPos_.size(); ++i ) 
+    disksLookupPos_.emplace(disksPos_[i]->geographicalId(),i);
+  std::sort(disksNeg_.begin(), disksNeg_.end(), endcapSort);
+  for( unsigned i = 0; i < disksNeg_.size(); ++i ) 
+    disksLookupNeg_.emplace(disksNeg_[i]->geographicalId(),i);
+
+  auto barrelSort = [](const FTLBarrelDetLayer *a, const FTLBarrelDetLayer *b) -> bool { return (*a) < (*b); };
+  std::sort(cylindersPos_.begin(), cylindersPos_.end(), barrelSort);
+  for( unsigned i = 0; i < cylindersPos_.size(); ++i ) 
+    cylindersLookupPos_.emplace(cylindersPos_[i]->geographicalId(),i);
+  std::sort(cylindersNeg_.begin(), cylindersNeg_.end(), barrelSort);  
+  for( unsigned i = 0; i < cylindersNeg_.size(); ++i ) 
+    cylindersLookupNeg_.emplace(cylindersNeg_[i]->geographicalId(),i);
 }
 
 void FTLTracker::makeDisks(int subdet, int disks)
@@ -49,17 +61,17 @@ void FTLTracker::makeDisks(int subdet, int disks)
     float radlen=0.65f, xi=radlen * 0.42e-3; // see DataFormats/GeometrySurface/interface/MediumProperties.h    
     if (countPos[i]) {
       printf("Positive disk %2d at z = %+7.2f   %6.1f <= rho <= %6.1f\n", i+1, zsumPos[i]/countPos[i], rmin[i], rmax[i]);
-      addDisk(new FTLDiskGeomDet(subdet, +1, i+1, zsumPos[i]/countPos[i], rmin[i], rmax[i], radlen, xi));
+      addEndcapLayer(new FTLDiskGeomDet(subdet, +1, i+1, zsumPos[i]/countPos[i], rmin[i], rmax[i], radlen, xi));
     }
     if (countNeg[i]) {
       printf("Negative disk %2d at z = %+7.2f   %6.1f <= rho <= %6.1f\n", i+1, zsumNeg[i]/countPos[i], rmin[i], rmax[i]);
-      addDisk(new FTLDiskGeomDet(subdet, -1, i+1, zsumNeg[i]/countNeg[i], rmin[i], rmax[i], radlen, xi));
+      addEndcapLayer(new FTLDiskGeomDet(subdet, -1, i+1, zsumNeg[i]/countNeg[i], rmin[i], rmax[i], radlen, xi));
     }
   }
 }
 
 
-const FTLDiskGeomDet * FTLTracker::nextDisk(const FTLDiskGeomDet *from, PropagationDirection direction) const 
+const FTLDiskGeomDet * FTLTracker::nextEndcapLayer(const FTLDiskGeomDet *from, PropagationDirection direction) const 
 {
     const std::vector<FTLDiskGeomDet *> & vec = (from->zside() > 0 ? disksPos_ : disksNeg_);
     auto it = std::find(vec.begin(), vec.end(), from);
@@ -73,16 +85,44 @@ const FTLDiskGeomDet * FTLTracker::nextDisk(const FTLDiskGeomDet *from, Propagat
     }
 }
 
-const FTLDiskGeomDet * FTLTracker::idToDet(DetId id) const 
+const FTLDiskGeomDet * FTLTracker::idToEndcapDet(DetId id) const 
 {
-    // FIXME: can be made less stupid
-    for (const FTLDiskGeomDet * disk : disksPos_) {
-        if (disk->geographicalId() == id) return disk;
+  FastTimeDetId temp(id);
+  auto positr = disksLookupPos_.find(temp.geometryCell());
+  auto negitr = disksLookupNeg_.find(temp.geometryCell());
+  if( positr != disksLookupPos_.end() ) return disksPos_[positr->second];
+  if( negitr != disksLookupNeg_.end() ) return disksNeg_[negitr->second];
+  
+  return nullptr;
+}
+
+const FTLBarrelDetLayer * FTLTracker::nextBarrelLayer(const FTLBarrelDetLayer *from, PropagationDirection direction) const 
+{
+    const auto& lookup = (from->zside() > 0 ? cylindersLookupPos_ : cylindersLookupNeg_);
+    const auto& vec = (from->zside() > 0 ? cylindersPos_ : cylindersNeg_);
+    auto layer = lookup.find(from->geographicalId());
+    if (layer == lookup.end()) throw cms::Exception("LogicError", "nextDisk called with invalid starting disk");
+    auto it = vec.begin() + layer->second;
+    if (direction == alongMomentum) {
+        if (*it == vec.back()) return nullptr;
+        return *(++it);
+    } else {
+        if (it == vec.begin()) return nullptr;
+        return *(--it);
     }
-    for (const FTLDiskGeomDet * disk : disksNeg_) {
-        if (disk->geographicalId() == id) return disk;
-    }
-    return nullptr;
+}
+
+const FTLBarrelDetLayer * FTLTracker::idToBarrelDet(DetId id) const 
+{
+  FastTimeDetId temp(id);
+  auto positr = cylindersLookupPos_.find(temp.geometryCell());
+  auto negitr = cylindersLookupNeg_.find(temp.geometryCell());
+  if( positr != cylindersLookupPos_.end() ) 
+    return cylindersPos_[positr->second];
+  if( negitr != cylindersLookupNeg_.end() ) 
+    return cylindersNeg_[negitr->second];
+  
+  return nullptr;
 }
 
 

@@ -1,4 +1,4 @@
-#include "RecoTracker/FastTimeMatching/interface/FTLTrackingDiskData.h"
+#include "RecoTracker/FastTimeMatching/interface/FTLTrackingLayerData.h"
 #include "RecoTracker/FastTimeMatching/interface/ftldebug.h"
 
 namespace {
@@ -15,7 +15,7 @@ namespace {
         };
 }
 
-FTLTrackingDiskData::FTLTrackingDiskData(const edm::Handle<FTLTrackingDiskData::TColl> &data, int subdet, int zside, int layer, const FTLTrackingBasicCPE *cpe) :
+FTLTrackingLayerData::FTLTrackingLayerData(const edm::Handle<FTLTrackingLayerData::TColl> &data, int type, int zside, int layer, const FTLTrackingBasicCPE *cpe) :
     alldata_(&data), 
     cpe_(cpe),truthMap_(0)
 {
@@ -23,14 +23,30 @@ FTLTrackingDiskData::FTLTrackingDiskData(const edm::Handle<FTLTrackingDiskData::
     for( auto it = data->begin(); it != data->end(); ++it ) {
       FastTimeDetId temp(it->id());      
       if( temp.zside() == zside && 
-	  temp.type() == FastTimeDetId::FastTimeEndcap ) {	
+	  temp.type() == type ) {	
 	index_.emplace_back(cpe_->hint(*it),it);
       }
     }
     buildIndex_();
 }
 
-void FTLTrackingDiskData::addClusters(const edm::Handle<reco::CaloClusterCollection> &data, int type, int zside, int layer) 
+FTLTrackingLayerData::FTLTrackingLayerData(const edm::Handle<FTLTrackingLayerData::TColl> &data, int type, int zside, int iphi, int layer, const FTLTrackingBasicCPE *cpe) :
+    alldata_(&data), 
+    cpe_(cpe),truthMap_(0)
+{
+    index_.clear();
+    for( auto it = data->begin(); it != data->end(); ++it ) {
+      FastTimeDetId temp(it->id());      
+      if( temp.zside() == zside && 
+	  temp.type() == type &&
+	  temp.iphi() == iphi ) {
+	index_.emplace_back(cpe_->hint(*it),it);
+      }
+    }
+    buildIndex_();
+}
+
+void FTLTrackingLayerData::addClusters(const edm::Handle<reco::CaloClusterCollection> &data, int type, int zside, int layer) 
 {
     clusterData_ = & data;
     clusterIndex_.clear();
@@ -44,7 +60,7 @@ void FTLTrackingDiskData::addClusters(const edm::Handle<reco::CaloClusterCollect
     }
 }
 
-std::vector<TrajectoryMeasurement> FTLTrackingDiskData::measurements(TrajectoryStateOnSurface &tsos, const MeasurementEstimator &mest) const 
+std::vector<TrajectoryMeasurement> FTLTrackingLayerData::measurements(TrajectoryStateOnSurface &tsos, const MeasurementEstimator &mest) const 
 {
     std::vector<TrajectoryMeasurement> ret;
     GlobalPoint lp = tsos.globalPosition();
@@ -87,7 +103,7 @@ std::vector<TrajectoryMeasurement> FTLTrackingDiskData::measurements(TrajectoryS
     return ret;
 }
 
-std::vector<TrajectoryMeasurement> FTLTrackingDiskData::clusterizedMeasurements(TrajectoryStateOnSurface &tsos, const MeasurementEstimator &mest, float rCut) const
+std::vector<TrajectoryMeasurement> FTLTrackingLayerData::clusterizedMeasurements(TrajectoryStateOnSurface &tsos, const MeasurementEstimator &mest, float rCut) const
 {
     std::vector<TrajectoryMeasurement> ret;
     GlobalPoint lp = tsos.globalPosition();
@@ -185,7 +201,7 @@ std::vector<TrajectoryMeasurement> FTLTrackingDiskData::clusterizedMeasurements(
     return ret;
 }
 
-std::vector<TrajectoryMeasurement> FTLTrackingDiskData::clusterMeasurements(TrajectoryStateOnSurface &tsos, const MeasurementEstimator &mest) const 
+std::vector<TrajectoryMeasurement> FTLTrackingLayerData::clusterMeasurements(TrajectoryStateOnSurface &tsos, const MeasurementEstimator &mest) const 
 {
     std::vector<TrajectoryMeasurement> ret;
     GlobalPoint lp = tsos.globalPosition();
