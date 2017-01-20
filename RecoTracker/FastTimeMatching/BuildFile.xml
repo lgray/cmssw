@@ -13,6 +13,7 @@
 <use name="Geometry/Records"/>
 <use name="MagneticField/Engine" />
 <use name="MagneticField/Records" />
+<use name="TrackingTools/DetLayers"/>
 <use name="TrackingTools/GeomPropagators"/>
 <use name="TrackingTools/KalmanUpdators"/>
 <use name="TrackingTools/PatternTools"/>
