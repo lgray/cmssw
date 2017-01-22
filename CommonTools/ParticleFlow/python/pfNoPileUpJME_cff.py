@@ -18,3 +18,15 @@ pfNoPileUpJMETask = cms.Task(
     )
 
 pfNoPileUpJMESequence = cms.Sequence(pfNoPileUpJMETask)
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(
+    pfPileUpJME,
+    Vertices = cms.InputTag("offlinePrimaryVertices"),
+)
+
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify(
+    pfPileUpJME,
+    Vertices = cms.InputTag("offlinePrimaryVertices4D"),
+)
