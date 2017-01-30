@@ -18,6 +18,7 @@
 #include "RecoTracker/FastTimeMatching/interface/FTLTkTrajectoryBuilder.h"
 #include "RecoTracker/FastTimeMatching/interface/ftldebug.h"
 
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
@@ -48,7 +49,7 @@ private:
   CaloTruthRevMap revTruthMap_;
   
   void declareOutput(const std::string &label); 
-  void makeOutput(const std::vector<Trajectory> &trajs, edm::Event &out, const std::string &label); 
+  void makeOutput(const std::vector<Trajectory> &trajs, const std::vector<int32_t>& howUsed, edm::Event &out, const std::string &label); 
   void writeAllHitsByLayer(const FTLRecHitCollection &hits, edm::Event &out, const std::string &label, int layers);
 };
 
@@ -114,12 +115,17 @@ FTLTracking::produce(edm::Event& evt, const edm::EventSetup& es)
   
   // Loop on tracks, make one or more trajectories per track
   std::vector<Trajectory> finaltrajectories;
+  std::vector<int32_t> howUsedTrack;
   unsigned int itrack = 0;
   for (const reco::Track &tk : *tracks) { ++itrack;
-    if (!cutTk_(tk)) continue;
+    if (!cutTk_(tk)) {
+      howUsedTrack.push_back(-2); // -2 means not in denominator
+      continue;
+    }
     if (ftltracking::g_debuglevel > 1) {
       printf("\n\nConsidering track pt %7.1f eta %+5.2f phi %+5.2f valid hits %d outer lost hits %d highPurity %1d\n", tk.pt(), tk.eta(), tk.phi(), tk.hitPattern().numberOfValidHits(), tk.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS), tk.quality(reco::Track::highPurity));
-    }
+    }    
+    howUsedTrack.push_back(-1); // -1 means no extrapolated state found (we update later for found hits)
     builder_.trajectories( reco::TrackRef(tracks,itrack-1), finaltrajectories, alongMomentum );
   }
   if (ftltracking::g_debuglevel > 0) {
@@ -138,7 +144,9 @@ FTLTracking::produce(edm::Event& evt, const edm::EventSetup& es)
     std::set<const reco::Track *> done;
     for (const Trajectory &t : finaltrajectories) {
       printf("- Trajectory     "); builder_.printTraj(t);
-      const reco::Track & tk  = * (dynamic_cast<const TrajectorySeedFromTrack &>(t.seed())).track();
+      const reco::TrackRef& tkref = dynamic_cast<const TrajectorySeedFromTrack &>(t.seed()).track();
+      howUsedTrack[tkref.key()] = done.size(); // track is used if not -1 or -2 (give index of "done" track)
+      const reco::Track & tk  = *tkref;
       printf("\t from track pt %7.1f eta %+5.2f phi %+5.2f valid hits %2d outer lost hits %d highPurity %1d\n", tk.pt(), tk.eta(), tk.phi(), tk.hitPattern().numberOfValidHits(), tk.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS), tk.quality(reco::Track::highPurity));
       done.insert(&tk);
     }
@@ -152,7 +160,7 @@ FTLTracking::produce(edm::Event& evt, const edm::EventSetup& es)
   }
   
   // Output (direct fit)
-  makeOutput(finaltrajectories, evt, "");
+  makeOutput(finaltrajectories, howUsedTrack, evt, "");
   
   // Make backwards fit
   if (doBackwardsRefit_) {
@@ -186,15 +194,17 @@ void FTLTracking::declareOutput(const std::string &label)
     produces<std::vector<reco::Track> >(label);
     produces<std::vector<reco::Track> >(label+"Seed");
     produces<std::vector<reco::CaloCluster> >(label);
+    produces<std::vector<int32_t> >(label);
 }
 
-void FTLTracking::makeOutput(const std::vector<Trajectory> &trajs, edm::Event &out, const std::string &label) 
+void FTLTracking::makeOutput(const std::vector<Trajectory> &trajs, const std::vector<int32_t>& howUsed, edm::Event &out, const std::string &label) 
 {
     std::unique_ptr<TrackingRecHitCollection> outHits(new TrackingRecHitCollection());
     std::unique_ptr<std::vector<reco::TrackExtra>> outTkEx(new std::vector<reco::TrackExtra>());
     std::unique_ptr<std::vector<reco::Track>> outTk(new std::vector<reco::Track>());
     std::unique_ptr<std::vector<reco::CaloCluster>> outCl(new std::vector<reco::CaloCluster>());
     std::unique_ptr<std::vector<reco::Track>> outTkSeed(new std::vector<reco::Track>());
+    std::unique_ptr<std::vector<int32_t> > outHowUsed(new std::vector<int32_t>(howUsed));
     auto rTrackExtras = out.getRefBeforePut<reco::TrackExtraCollection>(label);
     auto rHits = out.getRefBeforePut<TrackingRecHitCollection>(label);
 
@@ -277,6 +287,7 @@ void FTLTracking::makeOutput(const std::vector<Trajectory> &trajs, edm::Event &o
         (*outTk)[i].setExtra(reco::TrackExtraRef(rTrackExtras, i));
     }
     out.put(std::move(outHits), label);
+    out.put(std::move(outHowUsed), label);
     out.put(std::move(outTkEx), label);
     out.put(std::move(outTk), label);
     out.put(std::move(outCl), label);

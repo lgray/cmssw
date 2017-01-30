@@ -25,6 +25,15 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 
+namespace {
+  int incr_iphi(int iphi, int increment) {
+    iphi += increment;
+    while( iphi > 720 ) iphi -= 720;
+    while( iphi < 1   ) iphi += 720;
+    return iphi;
+  }
+}
+
 
 FTLTkTrajectoryBuilder::FTLTkTrajectoryBuilder(const edm::ParameterSet& ps, edm::ConsumesCollector && c ) :
     srcBarrel_(c.consumes<FTLRecHitCollection>(ps.getParameter<edm::InputTag>("srcBarrel"))),
@@ -373,65 +382,80 @@ FTLTkTrajectoryBuilder::advanceOneLayer(const Start &start, const TempTrajectory
         return ret; 
     }
 
-    // get the data on the layer
+    // get the data on all layers that overlap with the state
     //estimate iphi
     float theGlobalPhi = tsos.globalPosition().phi();
     while( theGlobalPhi < 0 ) theGlobalPhi += 2*M_PI;
-    unsigned iphi = std::floor( theGlobalPhi * 720.0 / (2*M_PI) ) + 1;
+    int iphi = std::floor( theGlobalPhi * 720.0 / (2*M_PI) ) + 1;
     std::cout << "TSOS phi = " << theGlobalPhi << " TSOS iphi = " << iphi << std::endl;
-    auto sector = cylinder->sectors()[iphi-1];
-    const auto & sectorData = data_->layerData(sector);
+    const int iphiWindow = 1;
+    const bool checkOtherSide = ( std::abs(tsos.globalPosition().eta()) < 0.25f );
+    
+    const FTLBarrelSectorGeomDet* sector = cylinder->sectors()[iphi-1];
+    std::vector<const FTLBarrelSectorGeomDet*> sectors;
+    for( int iiphi = incr_iphi(iphi,-iphiWindow); iiphi <= incr_iphi(iphi,iphiWindow); ++iiphi ) {
+      const auto* sec = cylinder->sectors()[iiphi-1];
+      sectors.push_back(sec);
+      if( checkOtherSide ) {
+	sec = ftlTracker_->firstBarrelLayer(-cylinder->zside(),traj.direction())->sectors()[iiphi-1];
+	sectors.push_back(sec);
+      }
+    }
 
-    // for debug
-    if (truthMap_) sectorData.setTruth(truthMap_); 
-
-    printf("        Looking for hits on sector type %d, zside %+1d, iphi %+3d, layer %2d: %u total hits\n", sector->ftlType(), sector->zside(), sector->iphi(), sector->layer(), sectorData.size());
     std::vector<TrajectoryMeasurement> meas;
-    switch(algo_) {
-        case SingleHitAlgo:    meas = sectorData.measurements(tsos, *estimator_); break;
-        case ClusterizingAlgo: meas = sectorData.clusterizedMeasurements(tsos, *estimator_, clusterRadius_); break;
-        case MixedAlgo:    
-                meas = sectorData.clusterMeasurements(tsos, *estimator_); 
-                std::vector<TrajectoryMeasurement> meas2 = sectorData.measurements(tsos, *estimator_); 
-                if (meas.empty()) meas2.swap(meas);
-            break;
-    };
-
+    for( const auto* sec : sectors ) {
+      std::cout << " checking iphi = " << sec->zside() << ' ' << sec->iphi() << std::endl;
+      const auto & sectorData = data_->layerData(sec);
+      //ftlTracker_->firstBarrelLayer(-cylinder->zside(),direction)->sectors()[iiphi-1];
+      // for debug
+      if (truthMap_) sectorData.setTruth(truthMap_); 
+      
+      printf("        Looking for hits on sector type %d, zside %+1d, iphi %+3d, layer %2d: %u total hits\n", sector->ftlType(), sector->zside(), sector->iphi(), sector->layer(), sectorData.size());      
+      std::vector<TrajectoryMeasurement> temp;
+      switch(algo_) {
+      case SingleHitAlgo:    temp = sectorData.measurements(tsos, *estimator_); break;
+      case ClusterizingAlgo: temp = sectorData.clusterizedMeasurements(tsos, *estimator_, clusterRadius_); break;
+      default:
+	break;
+      };
+      meas.insert(meas.end(),temp.begin(),temp.end());
+    }
+      
     // sort hits from better to worse
     std::sort(meas.begin(), meas.end(), TrajMeasLessEstim());
     if (ftltracking::g_debuglevel > 1)  printf("        Compatible hits: %lu\n", meas.size());
-
+    
     // for each, make a new trajectory candidate
     for (const TrajectoryMeasurement &tm : meas) {
-        if (deltaChiSquareForHits_ > 0) {
-            if (meas.size() > 1  && !ret.empty() && tm.estimate() > meas.front().estimate() + deltaChiSquareForHits_) {
-                if (ftltracking::g_debuglevel > 3) printf("        stop after the first %lu hits, since this chi2 of %.1f is too bad wrt the best one of %.1f\n", ret.size(), tm.estimate(), meas.front().estimate());
-                break;
-            }
-        }
-        TrajectoryStateOnSurface updated = updator_->update(tm.forwardPredictedState(), *tm.recHit());
-        if (!updated.isValid()) { 
-            if (ftltracking::g_debuglevel > 0)  {
-                std::cout << "          Hit with chi2 = " << tm.estimate() << std::endl;
-                std::cout << "              track state     " << tm.forwardPredictedState().localPosition() << std::endl;
-                std::cout << "              rechit position " << tm.recHit()->localPosition() << std::endl;
-                std::cout << "               --> failed update state" << std::endl;
-            }
-            continue;
-        }
-
-        // Add a valid hit
-        ret.push_back(traj.foundHits() ? traj : TempTrajectory(traj.direction(),0)); // don't start with a lost hit
-        ret.back().push(TrajectoryMeasurement(tm.forwardPredictedState(),
-                                              updated,
-                                              tm.recHit(),
-                                              tm.estimate()), 
-                        tm.estimate());
-    
-        // fast return
-        if (bestHitOnly) return ret;
+      if (deltaChiSquareForHits_ > 0) {
+	if (meas.size() > 1  && !ret.empty() && tm.estimate() > meas.front().estimate() + deltaChiSquareForHits_) {
+	  if (ftltracking::g_debuglevel > 3) printf("        stop after the first %lu hits, since this chi2 of %.1f is too bad wrt the best one of %.1f\n", ret.size(), tm.estimate(), meas.front().estimate());
+	  break;
+	}
+      }
+      TrajectoryStateOnSurface updated = updator_->update(tm.forwardPredictedState(), *tm.recHit());
+      if (!updated.isValid()) { 
+	if (ftltracking::g_debuglevel > 0)  {
+	  std::cout << "          Hit with chi2 = " << tm.estimate() << std::endl;
+	  std::cout << "              track state     " << tm.forwardPredictedState().localPosition() << std::endl;
+	  std::cout << "              rechit position " << tm.recHit()->localPosition() << std::endl;
+	  std::cout << "               --> failed update state" << std::endl;
+	}
+	continue;
+      }
+      
+      // Add a valid hit
+      ret.push_back(traj.foundHits() ? traj : TempTrajectory(traj.direction(),0)); // don't start with a lost hit
+      ret.back().push(TrajectoryMeasurement(tm.forwardPredictedState(),
+					    updated,
+					    tm.recHit(),
+					    tm.estimate()), 
+		      tm.estimate());
+      
+      // fast return
+      if (bestHitOnly) return ret;
     }
-
+    
     // Possibly add an invalid hit, for the hypothesis that the track didn't leave a valid hit
     
     if (minChi2ForInvalidHit_ > 0) {

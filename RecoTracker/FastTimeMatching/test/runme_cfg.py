@@ -13,12 +13,12 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/uscms/home/lagray/nobackup/muons_90X_2017-01-03-100/step3.root'),
+    fileNames = cms.untracked.vstring('file:/uscms/home/lagray/nobackup/pions_90X_2017-01-03-100/step3.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -29,6 +29,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 process.load('RecoTracker.FastTimeMatching.ftlTracks_cff')
 
 process.ftlTracks.debugLevel = 999
+#process.ftlTracks.cutTk = cms.string("0.0 < abs(eta) < 0.25 && quality('highPurity')")
 
 process.run = cms.Path(process.ftlTracks)
 
