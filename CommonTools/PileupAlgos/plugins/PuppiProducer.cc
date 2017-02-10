@@ -205,18 +205,15 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       pD0        = lPack->dxy();
       pReco.dZ      = pDZ;
       pReco.d0      = pD0;
-  
-      pReco.id = 0; 
+
+      pReco.id = 0;
       if (std::abs(pReco.charge) == 0){ pReco.id = 0; }
-      if (std::abs(pReco.charge) > 0){
-        if (lPack->fromPV() == 0){ pReco.id = 2; } // 0 is associated to PU vertex
-        if (lPack->fromPV() == (pat::PackedCandidate::PVUsedInFit)){ pReco.id = 1; }
-        if (lPack->fromPV() == (pat::PackedCandidate::PVTight) || lPack->fromPV() == (pat::PackedCandidate::PVLoose)){ 
-          pReco.id = 0;
-          if (!fPuppiForLeptons && fUseDZ && (std::abs(pDZ) < fDZCut)) pReco.id = 1;
-          if (!fPuppiForLeptons && fUseDZ && (std::abs(pDZ) > fDZCut)) pReco.id = 2;
-          if (fPuppiForLeptons && lPack->fromPV() == (pat::PackedCandidate::PVLoose)) pReco.id = 2;
-          if (fPuppiForLeptons && lPack->fromPV() == (pat::PackedCandidate::PVTight)) pReco.id = 1;
+      if (std::abs(pReco.charge) > 0 && lPack->pvAssociationQuality()>=1){
+        if (lPack->vertexRef().key()==0) {
+          pReco.id = 1;
+        }
+        else {
+          pReco.id = 2;
         }
       }
     }
