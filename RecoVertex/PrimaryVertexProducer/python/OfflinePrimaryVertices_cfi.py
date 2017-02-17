@@ -16,7 +16,10 @@ offlinePrimaryVertices = cms.EDProducer(
         minSiliconLayersWithHits = cms.int32(5),
         maxD0Significance = cms.double(5.0), 
         minPt = cms.double(0.0),
-        trackQuality = cms.string("any")
+        trackQuality = cms.string("any"),
+        minHitsForTriplets = cms.int32(-1),
+        minLayersForTriplets = cms.int32(-1),
+        min3DLayersForTriplets = cms.int32(-1),
     ),
 
     TkClusParameters = DA_vectParameters,
@@ -49,3 +52,9 @@ offlinePrimaryVertices = cms.EDProducer(
 from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toModify(offlinePrimaryVertices,
                             TkFilterParameters = dict(minPixelLayersWithHits = 0))
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(
+    offlinePrimaryVertices,
+    TkFilterParameters = dict(minHitsForTriplets = 5, minLayersForTriplets = 5, min3DLayersForTriplets = 5),
+)
