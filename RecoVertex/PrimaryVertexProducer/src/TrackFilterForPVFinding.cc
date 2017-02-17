@@ -9,7 +9,10 @@ TrackFilterForPVFinding::TrackFilterForPVFinding(const edm::ParameterSet& conf)
   maxNormChi2_ = conf.getParameter<double>("maxNormalizedChi2");
   minSiLayers_    = conf.getParameter<int>("minSiliconLayersWithHits");  
   minPxLayers_    = conf.getParameter<int>("minPixelLayersWithHits");  
-
+  minHitsForTriplets_ = conf.getParameter<int>("minHitsForTriplets");
+  minLayersForTriplets_ = conf.getParameter<int>("minLayersForTriplets");
+  min3DLayersForTriplets_ = conf.getParameter<int>("min3DLayersForTriplets");
+  
   // the next few lines are taken from RecoBTag/SecondaryVertex/interface/TrackSelector.h"
   std::string qualityClass =
     conf.getParameter<std::string>("trackQuality");
@@ -37,7 +40,13 @@ TrackFilterForPVFinding::operator() (const reco::TransientTrack & tk) const
 	bool nSiLayCut =  tk.hitPattern().trackerLayersWithMeasurement() >= minSiLayers_;
 	bool trackQualityCut = (quality_==reco::TrackBase::undefQuality)|| tk.track().quality(quality_);
 	
-	return IPSigCut && pTCut && etaCut && normChi2Cut && nPxLayCut && nSiLayCut && trackQualityCut;
+    bool isTriplet = (tk.track().algo() == reco::TrackBase::lowPtTripletStep || tk.track().algo() == reco::TrackBase::highPtTripletStep);
+    bool nHitTripletCut = !isTriplet || (tk.numberOfValidHits() > minHitsForTriplets_);
+    bool nLayTripletCut = !isTriplet || (tk.track().hitPattern().trackerLayersWithMeasurement() > minLayersForTriplets_);
+    bool n3DLayTripletCut = !isTriplet || ( (tk.track().hitPattern().pixelLayersWithMeasurement() + tk.track().hitPattern().numberOfValidStripLayersWithMonoAndStereo()) > min3DLayersForTriplets_);
+
+	return IPSigCut && pTCut && etaCut && normChi2Cut && nPxLayCut && nSiLayCut && trackQualityCut && nHitTripletCut && nLayTripletCut && n3DLayTripletCut;
+>>>>>>> d97c8ad... add additional ad-hoc cuts to track selection for primary vertex reco in phase 2 to avoid large number of fake tracks
 }
 
 

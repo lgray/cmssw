@@ -17,7 +17,10 @@ offlinePrimaryVertices = cms.EDProducer(
         maxD0Significance = cms.double(4.0), 
         minPt = cms.double(0.0),
         maxEta = cms.double(2.4),
-        trackQuality = cms.string("any")
+        trackQuality = cms.string("any"),
+        minHitsForTriplets = cms.int32(-1),
+        minLayersForTriplets = cms.int32(-1),
+        min3DLayersForTriplets = cms.int32(-1),
     ),
 
     TkClusParameters = DA_vectParameters,
@@ -53,8 +56,9 @@ from Configuration.Eras.Modifier_trackingLowPU_cff import trackingLowPU
 trackingLowPU.toModify(offlinePrimaryVertices,
                             TkFilterParameters = dict(minPixelLayersWithHits = 0))
 
-
 # higher eta cut for the phase 2 tracker
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker 
-phase2_tracker.toModify(offlinePrimaryVertices, 
-                        TkFilterParameters = dict(maxEta = 4.0))
+phase2_tracker.toModify(
+    offlinePrimaryVertices,
+    TkFilterParameters = dict(maxEta = 4.0, minHitsForTriplets = 5, minLayersForTriplets = 5, min3DLayersForTriplets = 5),
+)

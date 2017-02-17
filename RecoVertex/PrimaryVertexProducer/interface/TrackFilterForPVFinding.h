@@ -24,6 +24,9 @@ private:
   float maxD0Sig_, minPt_, maxEta_;
   int minSiLayers_, minPxLayers_;
   float maxNormChi2_;
+  int minHitsForTriplets_;
+  int minLayersForTriplets_;
+  int min3DLayersForTriplets_;
   reco::TrackBase::TrackQuality quality_;
 };
 
