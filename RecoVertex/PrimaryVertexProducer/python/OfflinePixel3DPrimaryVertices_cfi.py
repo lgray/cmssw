@@ -14,7 +14,10 @@ pixelVertices = cms.EDProducer("PrimaryVertexProducer",
         maxD0Significance = cms.double(100.0), 
         minPt = cms.double(0.0),
         maxEta = cms.double(100.),
-        trackQuality = cms.string("any")
+        trackQuality = cms.string("any"),
+        minHitsForTriplets = cms.int32(-1),
+        minLayersForTriplets = cms.int32(-1),
+        min3DLayersForTriplets = cms.int32(-1),
     ),
 
     TkClusParameters = cms.PSet(
