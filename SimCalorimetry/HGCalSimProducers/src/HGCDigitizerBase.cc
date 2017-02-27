@@ -85,7 +85,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl> &
 				      const CaloSubdetectorGeometry* theGeom, 
 				      const std::unordered_set<DetId>& validIds,
 				      CLHEP::HepRandomEngine* engine) {
-  HGCSimHitData chargeColl,toa;
+  HGCSimHitData chargeColl,toa,noiseOverSignalColl;
 
   // this represents a cell with no signal charge
   HGCCellInfo zeroData;
@@ -95,6 +95,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl> &
   for( const auto& id : validIds ) {
     chargeColl.fill(0.f); 
     toa.fill(0.f);
+    noiseOverSignalColl.fill(0.f);
     HGCSimHitDataAccumulator::iterator it = simData.find(id);    
     HGCCellInfo& cell = ( simData.end() == it ? zeroData : it->second );
     addCellMetadata(cell,theGeom,id);
@@ -113,15 +114,21 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl> &
       
       //add noise (in fC)
       //we assume it's randomly distributed and won't impact ToA measurement
-      totalCharge += std::max( (float)CLHEP::RandGaussQ::shoot(engine,0.0,cell.size*noise_fC_[cell.thickness-1]) , 0.f );
-      if(totalCharge<0.f) totalCharge=0.f;
+      const double noise = std::max( (float)CLHEP::RandGaussQ::shoot(engine,0.0,cell.size*noise_fC_[cell.thickness-1]) , 0.f );
+      totalCharge += noise;
+      if( totalCharge < 0.f) {
+	totalCharge=0.f;
+      }
       
       chargeColl[i]= totalCharge;
+      if( rawCharge > 0. ) {
+	noiseOverSignalColl[i] = std::abs(noise)/rawCharge;
+      }
     }
     
     //run the shaper to create a new data frame
     DFr rawDataFrame( id );    
-    myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, cell.thickness, engine);
+    myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, noiseOverSignalColl, cell.thickness, engine);
 
     //update the output according to the final shape
     updateOutput(coll,rawDataFrame);
