@@ -44,6 +44,8 @@ hgceeDigitizer = cms.PSet(
             adcThreshold_fC   = cms.double(0.672),
             # raise usage of TDC and mode flag (from J. Kaplon)
             tdcOnset_fC       = cms.double(60) ,
+            # ToA constant fraction
+            toaConstantFraction = cms.double(0.30) ,
             # LSB for time of arrival estimate from TDC in ns
             toaLSB_ns         = cms.double(0.005),
             #toa computation mode (0=by weighted energy, 1=simple threshold)
@@ -97,6 +99,8 @@ hgchefrontDigitizer = cms.PSet(
             tdcOnset_fC       = cms.double(60) ,
             # LSB for time of arrival estimate from TDC in ns
             toaLSB_ns         = cms.double(0.005),
+            # ToA constant fraction
+            toaConstantFraction = cms.double(0.30) ,
             #toa computation mode (0=by weighted energy, 1=simple threshold)
             toaMode           = cms.uint32(1),
             # TDC charge drain parameterisation (from J. Kaplon)

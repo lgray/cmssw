@@ -49,6 +49,7 @@ class HGCFEElectronics
   float getADClsb()       { return adcLSB_fC_;       }
   float getTDClsb()       { return tdcLSB_fC_;       }  
   float getADCThreshold() { return adcThreshold_fC_; }
+  float getTOAConstantFraction()     { return toaConstantFraction_;     }
   float getTDCOnset()     { return tdcOnset_fC_;     }
   void setADClsb(float newLSB) { adcLSB_fC_=newLSB; }
 
@@ -66,13 +67,17 @@ class HGCFEElectronics
      @short implements pulse shape and switch to time over threshold including deadtime
    */
   void runShaperWithToT(DFr &dataFrame, hgc::HGCSimHitData& chargeColl, 
-                        hgc::HGCSimHitData& toa, int thickness, CLHEP::HepRandomEngine* engine);
+                        hgc::HGCSimHitData& toa,
+			hgc::HGCSimHitData& noiseToSignal, 
+			int thickness, CLHEP::HepRandomEngine* engine);
 
   /**
      @short returns how ToT will be computed
    */
   uint32_t toaMode() const { return toaMode_; }
   
+  double getToAResolutionForCharge(float noiseToSignalRatio, int thickness) const;
+
   /**
      @short DTOR
    */
@@ -85,7 +90,7 @@ class HGCFEElectronics
   std::array<float,6> adcPulse_, pulseAvgT_;
   std::vector<float> tdcChargeDrainParameterisation_;
   float adcSaturation_fC_, adcLSB_fC_, tdcLSB_fC_, tdcSaturation_fC_,
-    adcThreshold_fC_, tdcOnset_fC_, toaLSB_ns_, tdcResolutionInNs_; 
+    adcThreshold_fC_, tdcOnset_fC_, toaConstantFraction_, toaLSB_ns_, tdcResolutionInNs_; 
   uint32_t toaMode_;
   //caches
   std::array<bool,hgc::nSamples>  busyFlags, totFlags;

@@ -9,6 +9,7 @@ using namespace hgc_digi;
 //
 template<class DFr>
 HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet &ps) :
+  toaConstantFraction_(-1.f),
   toaMode_(WEIGHTEDBYE)
 {
   tdcResolutionInNs_ = 1e-9; // set time resolution very small by default
@@ -54,6 +55,7 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet &ps) :
     }
   if( ps.exists("adcThreshold_fC") )                adcThreshold_fC_                = ps.getParameter<double>("adcThreshold_fC");
   if( ps.exists("tdcOnset_fC") )                    tdcOnset_fC_                    = ps.getParameter<double>("tdcOnset_fC");
+  if( ps.exists("toaConstantFraction") )            toaConstantFraction_            = ps.getParameter<double>("toaConstantFraction");
   if( ps.exists("toaLSB_ns") )                      toaLSB_ns_                      = ps.getParameter<double>("toaLSB_ns");
   if( ps.exists("tdcChargeDrainParameterisation") ) {
     for( auto val : ps.getParameter< std::vector<double> >("tdcChargeDrainParameterisation") ) {
@@ -149,7 +151,7 @@ void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame, HGCSimHitData& charg
 
 //
 template<class DFr>
-void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& chargeColl, HGCSimHitData& toaColl, int thickness, CLHEP::HepRandomEngine* engine)
+void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& chargeColl, HGCSimHitData& toaColl, HGCSimHitData& noiseToSignal, int thickness, CLHEP::HepRandomEngine* engine)
 {
   busyFlags.fill(false);
   totFlags.fill(false);
@@ -264,7 +266,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
         if(toaMode_==WEIGHTEDBYE) finalToA /= totalCharge;
       }
 
-      toaFromToT[it] = CLHEP::RandGaussQ::shoot(engine,finalToA,tdcResolutionInNs_);
+      toaFromToT[it] = CLHEP::RandGaussQ::shoot(engine,finalToA,getToAResolutionForCharge(noiseToSignalRatio[it],charge));
       newCharge[it]  = (totalCharge-tdcOnset_fC_);      
       
       if(debug) edm::LogVerbatim("HGCFE") << "\t Final busy estimate="<< integTime << " ns = " << busyBxs << " bxs" << std::endl
@@ -323,13 +325,13 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 	{
 	  if(totFlags[it]) 
 	    {
-	      float finalToA(toaFromToT[it]);
-	      while(finalToA < 0.f)  finalToA+=25.f;
-	      while(finalToA > 25.f) finalToA-=25.f;
+	      float myFinalToA(toaFromToT[it]);
+	      while(myFinalToA < 0.f)  myFinalToA+=25.f;
+	      while(myFinalToA > 25.f) myFinalToA-=25.f;
 
 	      //brute force saturation, maybe could to better with an exponential like saturation
 	      const float saturatedCharge(std::min(newCharge[it],tdcSaturation_fC_));	      
-	      newSample.set(true,true,(uint16_t)(finalToA/toaLSB_ns_),(uint16_t)(std::floor(saturatedCharge/tdcLSB_fC_)));
+	      newSample.set(true,true,(uint16_t)(myFinalToA/toaLSB_ns_),(uint16_t)(std::floor(saturatedCharge/tdcLSB_fC_)));
 	    }
 	  else
 	    {
@@ -338,9 +340,12 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
 	}
       else
 	{
-	   //brute force saturation, maybe could to better with an exponential like saturation
+	  float myFinalToA(toaFromToT[it]);
+	  while(myFinalToA < 0.f)  myFinalToA+=25.f;
+	  while(myFinalToA > 25.f) myFinalToA-=25.f;
+	  //brute force saturation, maybe could to better with an exponential like saturation
           const float saturatedCharge(std::min(newCharge[it],adcSaturation_fC_));
-	  newSample.set(newCharge[it]>adj_thresh,false,(uint16_t)0,(uint16_t)(std::floor(saturatedCharge/adcLSB_fC_)));
+	  newSample.set(newCharge[it]>adj_thresh,false,(uint16_t)(myFinalToA/toaLSB_ns_),(uint16_t)(std::floor(saturatedCharge/adcLSB_fC_)));
 	}
       dataFrame.setSample(it,newSample);
     }
@@ -350,6 +355,25 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
     dataFrame.print(msg);
     edm::LogVerbatim("HGCFE") << msg.str() << std::endl;
   }  
+}
+
+template<class DFr>
+double HGCFEElectronics<DFr>::getToAResolutionForCharge(float noiseToSignalRatio, int thickness) const {
+  if( toaConstantFraction_ < 0.0 ) return tdcResolutionInNs_;
+
+  // from http://dx.doi.org/10.1016/j.nima.2016.05.008 
+  // figure 8
+
+  constexpr double stoch2[3] = {1.0*1.0, 1.06*1.06, 1.11*1.11};
+  constexpr double cons2[3]  = {0.009*0.009, 0.008*0.008, 0.010*0.010};
+  
+  const double noiseToSignal2 = noiseToSignalRatio*noiseToSignalRatio;
+  
+  if( noiseToSignalSignalRatio > 0.f ) {
+    return std::sqrt( 0.5*stoch2[thickness-1]*noiseToSignal2 + cons2[thickness-1] );
+  } else {
+    return 25.0/std::sqrt(12); // hits that are all noise get bx width
+  }
 }
 
 // cause the compiler to generate the appropriate code
