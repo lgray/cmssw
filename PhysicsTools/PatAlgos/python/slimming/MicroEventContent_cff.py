@@ -92,4 +92,6 @@ MicroEventContentMC.outputCommands += [
         'keep LHERunInfoProduct_*_*_*',
         'keep GenRunInfoProduct_*_*_*',
         'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*',
+        'keep *_genParticles_xyz0_*',
+        'keep *_genParticles_t0_*',
 ]
