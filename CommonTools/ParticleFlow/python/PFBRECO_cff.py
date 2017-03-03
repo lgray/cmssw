@@ -5,7 +5,7 @@ from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 
 from CommonTools.ParticleFlow.pfPileUp_cfi import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoPileUp_cfi import *
-pfPileUpIsoPFBRECO = pfPileUp.clone( PFCandidates = 'particleFlowPtrs' )
+pfPileUpIsoPFBRECO = pfPileUp.clone( PFCandidates = 'particleFlowPtrs', Jets = cms.InputTag("ak4PFJets") )
 pfNoPileUpIsoPFBRECO = pfNoPileUp.clone( topCollection = 'pfPileUpIsoPFBRECO',
                                          bottomCollection = 'particleFlowPtrs')
 pfNoPileUpIsoPFBRECOTask = cms.Task(
