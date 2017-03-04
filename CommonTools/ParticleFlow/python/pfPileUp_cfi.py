@@ -11,7 +11,7 @@ pfPileUp = cms.EDProducer(
     checkClosestZVertex = cms.bool(True),
     usePrimaryVertexAssignment = cms.bool(False),
     assignmentQualityForPrimary = cms.int32(2),
-    Jets = cms.InputTag("ak4PFJetsTmp"),
+    Jets = cms.InputTag("ak4CaloJetsForTrk"),
     assignment = cms.PSet(
       #cuts to assign primary tracks not used in PV fit based on dZ compatibility
       maxDzSigForPrimaryAssignment = cms.double(5.0), # in OR with next
