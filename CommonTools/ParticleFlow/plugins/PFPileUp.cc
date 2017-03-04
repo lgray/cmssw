@@ -130,6 +130,8 @@ void PFPileUp::produce(Event& iEvent,
       
       pOutput->reserve(pfCandidatesRef->size());
       for(auto const & pf : *pfCandidatesRef) {
+        if (!pf->bestTrack()) continue;
+        
         std::pair<int,PrimaryVertexAssignment::Quality> vtxWithQuality = assignmentAlgo_.chargedHadronVertex( *vertices, *pf, *jets, *builder);
         
         if (vtxWithQuality.first!=0 || vtxWithQuality.second<assignmentQualityForPrimary_) {
