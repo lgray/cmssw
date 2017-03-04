@@ -5,7 +5,7 @@ primaryVertexAssociation = cms.EDProducer("PFCandidatePrimaryVertexSorter",
     #cuts to assign primary tracks not used in PV fit based on dZ compatibility
     maxDzSigForPrimaryAssignment = cms.double(5.0), # in OR with next
     maxDzForPrimaryAssignment = cms.double(0.03), # in OR with prev
-    maxDtSigForPrimaryAssignment = cms.double(4.0),
+    maxDtSigForPrimaryAssignment = cms.double(3.0),
 
     # cuts used to recover b-tracks if they are closed to jet axis
     maxJetDeltaR = cms.double(0.5),
@@ -18,6 +18,7 @@ primaryVertexAssociation = cms.EDProducer("PFCandidatePrimaryVertexSorter",
     maxDxySigForNotReconstructedPrimary = cms.double(2), #in AND with next
     maxDxyForNotReconstructedPrimary = cms.double(0.01), #in AND with prev
     useTiming = cms.bool(False),
+    preferHighRanked = cms.bool(True),
     ),
   particles = cms.InputTag("particleFlow"),
   trackTimeTag = cms.InputTag(""),

@@ -39,6 +39,7 @@ class PrimaryVertexAssignment {
     maxDxySigForNotReconstructedPrimary_ = iConfig.getParameter<double>("maxDxySigForNotReconstructedPrimary");
     maxDxyForNotReconstructedPrimary_ = iConfig.getParameter<double>("maxDxyForNotReconstructedPrimary");
     useTiming_ = iConfig.getParameter<bool>("useTiming");
+    preferHighRanked_ = iConfig.getParameter<bool>("preferHighRanked");
   }
   
   std::pair<int,PrimaryVertexAssignment::Quality> chargedHadronVertex(const reco::VertexCollection& vertices, 
@@ -105,6 +106,7 @@ class PrimaryVertexAssignment {
     double    maxDxySigForNotReconstructedPrimary_;
     double    maxDxyForNotReconstructedPrimary_;
     bool      useTiming_;
+    bool      preferHighRanked_;
 };
 
 #endif
