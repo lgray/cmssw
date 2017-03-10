@@ -20,9 +20,9 @@
 
 <SolidSection label="fastTimingBarreLeveled.xml">
   <Tubs name="FastTimeBarrelCylinder" rMin="[OuterCylinderRin]" rMax="[OuterCylinderRout]" dz="[OuterCylinderL]" startPhi="0*deg" deltaPhi="360*deg"/>
-  <Tubs name="FastTimeBarrel"         rMin="[FastTimeBarrelRin]" rMax="[FastTimeBarrelRin]+[FastTimeBarrelW1]" dz="[FastTimeBarrelL1]" startPhi="0*deg" deltaPhi="360*deg"/>
-  <Tubs name="FastTimeBarrel"         rMin="[FastTimeBarrelRin]" rMax="[FastTimeBarrelRin]+[FastTimeBarrelW2]" dz="[FastTimeBarrelL2]-[FastTimeBarrelL1]" startPhi="0*deg" deltaPhi="360*deg"/>
-  <Tubs name="FastTimeBarrel"         rMin="[FastTimeBarrelRin]" rMax="[FastTimeBarrelRin]+[FastTimeBarrelW3]" dz="[FastTimeBarrelL3]-[FastTimeBarrelL2]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FastTimeBarrel1"         rMin="[FastTimeBarrelRin]" rMax="[FastTimeBarrelRin]+[FastTimeBarrelW1]" dz="[FastTimeBarrelL1]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FastTimeBarrel2"         rMin="[FastTimeBarrelRin]" rMax="[FastTimeBarrelRin]+[FastTimeBarrelW2]" dz="0.5*([FastTimeBarrelL2]-[FastTimeBarrelL1])" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FastTimeBarrel3"         rMin="[FastTimeBarrelRin]" rMax="[FastTimeBarrelRin]+[FastTimeBarrelW3]" dz="0.5*([FastTimeBarrelL3]-[FastTimeBarrelL2])" startPhi="0*deg" deltaPhi="360*deg"/>
 </SolidSection>
 
 <LogicalPartSection label="fastTimingBarreLeveled.xml">
@@ -30,8 +30,16 @@
     <rSolid name="FastTimeBarrelCylinder"/>
     <rMaterial name="materials:Air"/>
   </LogicalPart>
-  <LogicalPart name="FastTimeBarrel" category="unspecified">
-    <rSolid name="FastTimeBarrel"/>
+  <LogicalPart name="FastTimeBarrel1" category="unspecified">
+    <rSolid name="FastTimeBarrel1"/>
+    <rMaterial name="materials:LYSO"/>
+  </LogicalPart>
+  <LogicalPart name="FastTimeBarrel2" category="unspecified">
+    <rSolid name="FastTimeBarrel2"/>
+    <rMaterial name="materials:LYSO"/>
+  </LogicalPart>
+  <LogicalPart name="FastTimeBarrel3" category="unspecified">
+    <rSolid name="FastTimeBarrel3"/>
     <rMaterial name="materials:LYSO"/>
   </LogicalPart>
 </LogicalPartSection>
@@ -43,20 +51,68 @@
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="fastTimingBarrelLeveled:FastTimeBarrelCylinder"/>
-    <rChild name="fastTimingBarrelLeveled:FastTimeBarrel"/>
+    <rChild name="fastTimingBarrelLeveled:FastTimeBarrel1"/>
     <Translation x="0*fm" y="0*fm" z="0*fm"/>
   </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="fastTimingBarrelLeveled:FastTimeBarrelCylinder"/>
+    <rChild name="fastTimingBarrelLeveled:FastTimeBarrel2"/>
+    <Translation x="0*fm" y="0*fm" z="[FastTimeBarrelL1]+0.5*([FastTimeBarrelL2]-[FastTimeBarrelL1])"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="fastTimingBarrelLeveled:FastTimeBarrelCylinder"/>
+    <rChild name="fastTimingBarrelLeveled:FastTimeBarrel2"/>
+    <Translation x="0*fm" y="0*fm" z="-([FastTimeBarrelL1]+0.5*([FastTimeBarrelL2]-[FastTimeBarrelL1]))"/>
+  </PosPart>
+  
+  <PosPart copyNumber="1">
+    <rParent name="fastTimingBarrelLeveled:FastTimeBarrelCylinder"/>
+    <rChild name="fastTimingBarrelLeveled:FastTimeBarrel3"/>
+    <Translation x="0*fm" y="0*fm" z="[FastTimeBarrelL2]+0.5*([FastTimeBarrelL3]-[FastTimeBarrelL2])"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="fastTimingBarrelLeveled:FastTimeBarrelCylinder"/>
+    <rChild name="fastTimingBarrelLeveled:FastTimeBarrel3"/>
+    <Translation x="0*fm" y="0*fm" z="-([FastTimeBarrelL2]+0.5*([FastTimeBarrelL3]-[FastTimeBarrelL2]))"/>
+  </PosPart>
+  
 </PosPartSection>
 
 <SpecParSection label="fastTimingBarreLeveled.xml" eval="true">
   <SpecPar name="fastTiminingBarrelNumbering">
-    <PartSelector path="//FastTimeBarrel"/>
-    <Parameter name="Volume" value="FastTimeBarrel" eval="false"/>
+    <PartSelector path="//FastTimeBarrel1"/>
+    <Parameter name="Volume" value="FastTimeBarrel1" eval="false"/>
     <Parameter name="geomParsB"  value="0*fm"/>
-    <Parameter name="geomParsB"  value="[fastTimingBarrelLeveled:FastTimeBarrelL]"/>
+    <Parameter name="geomParsB"  value="[fastTimingBarrelLeveled:FastTimeBarrelL1]"/>
     <Parameter name="geomParsB"  value="[fastTimingBarrelLeveled:FastTimeBarrelRin]"/>
-    <Parameter name="geomParsB"  value="[fastTimingBarrelLeveled:FastTimeBarrelW]"/>
-    <Parameter name="numberZB"   value="256"/>
+    <Parameter name="geomParsB"  value="[fastTimingBarrelLeveled:FastTimeBarrelW1]"/>
+    <Parameter name="numberZB"   value="88"/>
+    <Parameter name="numberPhiB" value="720"/>
+  </SpecPar>
+</SpecParSection>
+
+<SpecParSection label="fastTimingBarreLeveled.xml" eval="true">
+  <SpecPar name="fastTiminingBarrelNumbering">
+    <PartSelector path="//FastTimeBarrel2"/>
+    <Parameter name="Volume" value="FastTimeBarrel2" eval="false"/>
+    <Parameter name="geomParsB"  value="0*fm"/>
+    <Parameter name="geomParsB"  value="[fastTimingBarrelLeveled:FastTimeBarrelL2]-[fastTimingBarrelLeveled:FastTimeBarrelL1]"/>
+    <Parameter name="geomParsB"  value="[fastTimingBarrelLeveled:FastTimeBarrelRin]"/>
+    <Parameter name="geomParsB"  value="[fastTimingBarrelLeveled:FastTimeBarrelW2]"/>
+    <Parameter name="numberZB"   value="77"/>
+    <Parameter name="numberPhiB" value="720"/>
+  </SpecPar>
+</SpecParSection>
+
+<SpecParSection label="fastTimingBarreLeveled.xml" eval="true">
+  <SpecPar name="fastTiminingBarrelNumbering">
+    <PartSelector path="//FastTimeBarrel3"/>
+    <Parameter name="Volume" value="FastTimeBarrel3" eval="false"/>
+    <Parameter name="geomParsB"  value="0*fm"/>
+    <Parameter name="geomParsB"  value="[fastTimingBarrelLeveled:FastTimeBarrelL3]-[fastTimingBarrelLeveled:FastTimeBarrelL2]"/>
+    <Parameter name="geomParsB"  value="[fastTimingBarrelLeveled:FastTimeBarrelRin]"/>
+    <Parameter name="geomParsB"  value="[fastTimingBarrelLeveled:FastTimeBarrelW3]"/>
+    <Parameter name="numberZB"   value="100"/>
     <Parameter name="numberPhiB" value="720"/>
   </SpecPar>
 </SpecParSection>
