@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="fastTimingBarrelLeveled.xml" eval="true">
+  <Constant name="zero" value="0.0*fm"/>
+  <Constant name="FastTimeBarrelW"    value="4*mm"/>
+  <Constant name="FastTimeBarrelW1"    value="3.75*mm"/>
+  <Constant name="FastTimeBarrelW2"    value="3.0*mm"/>
+  <Constant name="FastTimeBarrelW3"    value="2.4*mm"/>
+  <Constant name="OuterCylinderRin"   value="119*cm-[FastTimeBarrelW]"/>
+  <Constant name="OuterCylinderRout"  value="119*cm"/>
+  <Constant name="OuterCylinderL"     value="2.650*m"/>
+  <Constant name="FastTimeBarrelRin"  value="[OuterCylinderRin]"/>
+  <Constant name="FastTimeBarrelRout" value="[FastTimeBarrelRin]+[FastTimeBarrelW]"/>
+  <Constant name="FastTimeBarrelL1"    value="880*mm"/>
+  <Constant name="FastTimeBarrelL2"    value="1650*mm"/>
+  <Constant name="FastTimeBarrelL3"    value="[OuterCylinderL]"/>
+  <Constant name="FastTimeBarrelL"    value="[OuterCylinderL]"/>
+</ConstantsSection>
+
+<SolidSection label="fastTimingBarreLeveled.xml">
+  <Tubs name="FastTimeBarrelCylinder" rMin="[OuterCylinderRin]" rMax="[OuterCylinderRout]" dz="[OuterCylinderL]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FastTimeBarrel"         rMin="[FastTimeBarrelRin]" rMax="[FastTimeBarrelRin]+[FastTimeBarrelW1]" dz="[FastTimeBarrelL1]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FastTimeBarrel"         rMin="[FastTimeBarrelRin]" rMax="[FastTimeBarrelRin]+[FastTimeBarrelW2]" dz="[FastTimeBarrelL2]-[FastTimeBarrelL1]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FastTimeBarrel"         rMin="[FastTimeBarrelRin]" rMax="[FastTimeBarrelRin]+[FastTimeBarrelW3]" dz="[FastTimeBarrelL3]-[FastTimeBarrelL2]" startPhi="0*deg" deltaPhi="360*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="fastTimingBarreLeveled.xml">
+  <LogicalPart name="FastTimeBarrelCylinder" category="unspecified">
+    <rSolid name="FastTimeBarrelCylinder"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="FastTimeBarrel" category="unspecified">
+    <rSolid name="FastTimeBarrel"/>
+    <rMaterial name="materials:LYSO"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="fastTimingBarreLeveled.xml">
+  <PosPart copyNumber="1">
+    <rParent name="pixbar:Phase2OTBarrel"/>
+    <rChild name="fastTimingBarrelLeveled:FastTimeBarrelCylinder"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="fastTimingBarrelLeveled:FastTimeBarrelCylinder"/>
+    <rChild name="fastTimingBarrelLeveled:FastTimeBarrel"/>
+    <Translation x="0*fm" y="0*fm" z="0*fm"/>
+  </PosPart>
+</PosPartSection>
+
+<SpecParSection label="fastTimingBarreLeveled.xml" eval="true">
+  <SpecPar name="fastTiminingBarrelNumbering">
+    <PartSelector path="//FastTimeBarrel"/>
+    <Parameter name="Volume" value="FastTimeBarrel" eval="false"/>
+    <Parameter name="geomParsB"  value="0*fm"/>
+    <Parameter name="geomParsB"  value="[fastTimingBarrelLeveled:FastTimeBarrelL]"/>
+    <Parameter name="geomParsB"  value="[fastTimingBarrelLeveled:FastTimeBarrelRin]"/>
+    <Parameter name="geomParsB"  value="[fastTimingBarrelLeveled:FastTimeBarrelW]"/>
+    <Parameter name="numberZB"   value="256"/>
+    <Parameter name="numberPhiB" value="720"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

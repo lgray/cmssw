@@ -469,6 +469,28 @@ timingDict = {
             'from Geometry.HGCalGeometry.FastTimeGeometryESProducer_cfi import *',
         ],
         "era" : "phase2_timing, phase2_timing_layer",
+    },
+  "I3" : {
+        1 : [
+            'Geometry/HGCalCommonData/data/fastTimingBarrelLeveled.xml',
+            'Geometry/HGCalCommonData/data/fastTimingEndcap.xml',
+            'Geometry/HGCalCommonData/data/fastTimingElement.xml',
+            ],
+        3 : [
+            'Geometry/HGCalSimData/data/fasttimesens.xml'
+            ],
+        4 : [
+            'Geometry/HGCalSimData/data/fasttimeProdCuts.xml'
+            ],
+        "sim" : [
+            'from Geometry.HGCalCommonData.fastTimeParametersInitialization_cfi import *',
+            'from Geometry.HGCalCommonData.fastTimeNumberingInitialization_cfi import *',
+        ],
+        "reco" :[
+            'from Geometry.CaloEventSetup.FastTimeTopology_cfi import *',
+            'from Geometry.HGCalGeometry.FastTimeGeometryESProducer_cfi import *',
+        ],
+        "era" : "phase2_timing, phase2_timing_layer",
     }
 }
 
@@ -479,6 +501,7 @@ detectorVersionDict = {
     ("O1","T4","C1","M1","F1","I1") : "D10",
     ("O1","T3","C2","M1","F1","I1") : "D4",
     ("O1","T3","C2","M1","F1","I2") : "D8",
+    ("O1","T3","C2","M1","F1","I3") : "D11",
     ("O1","T3","C1","M2","F1","I1") : "D9",
 }
 

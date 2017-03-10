@@ -3,7 +3,7 @@
 
 <SpecParSection label="fasttimesens.xml" eval="true">
   <SpecPar name="fasttimesenseBarrel">
-    <PartSelector path="//FastTimeBarrel"/>
+    <PartSelector path="//FastTimeBarrel*"/>
     <Parameter name="SensitiveDetector" value="FastTimerSensitiveDetector" eval="false"/>
     <Parameter name="ReadOutName" value="FastTimerHitsBarrel" eval="false"/>
     <Parameter name="Type"        value="1"/>
