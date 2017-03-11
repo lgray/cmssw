@@ -3,8 +3,8 @@ primaryVertexAssociation = cms.EDProducer("PFCandidatePrimaryVertexSorter",
     sorting = cms.PSet(),
     assignment = cms.PSet(
     #cuts to assign primary tracks not used in PV fit based on dZ compatibility
-    maxDzSigForPrimaryAssignment = cms.double(5.0), # in OR with next
-    maxDzForPrimaryAssignment = cms.double(0.03), # in OR with prev
+    maxDzSigForPrimaryAssignment = cms.double(2.0), # in OR with next
+    maxDzForPrimaryAssignment = cms.double(0.068), # in OR with prev
     maxDtSigForPrimaryAssignment = cms.double(3.0),
 
     # cuts used to recover b-tracks if they are closed to jet axis
