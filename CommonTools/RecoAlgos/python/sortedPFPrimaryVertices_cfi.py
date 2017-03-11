@@ -6,7 +6,7 @@ sortedPFPrimaryVertices = cms.EDProducer("PFCandidatePrimaryVertexSorter",
     maxDzSigForPrimaryAssignment = cms.double(5.0), # in AND with next
     maxDzForPrimaryAssignment = cms.double(0.1), # in AND with prev
     maxDzErrorForPrimaryAssignment = cms.double(0.05), # in AND with prev, tracks with uncertainty above 500um cannot tell us which pv they come from
-    maxDtSigForPrimaryAssignment = cms.double(4.0),
+    maxDtSigForPrimaryAssignment = cms.double(3.0),
 
     # cuts used to recover b-tracks if they are closed to jet axis
     maxJetDeltaR = cms.double(0.5),
@@ -30,6 +30,5 @@ sortedPFPrimaryVertices = cms.EDProducer("PFCandidatePrimaryVertexSorter",
   produceSortedVertices = cms.bool(True),
   producePileUpCollection  = cms.bool(True),
   produceNoPileUpCollection = cms.bool(True),
-  useTiming = cms.bool(False),
 )
 
