@@ -42,6 +42,7 @@ private:
       
 	edm::EDGetTokenT< CandidateView > tokenPFCandidates_;
 	edm::EDGetTokenT< VertexCollection > tokenVertices_;
+    edm::EDGetTokenT< VertexCollection > tokenVerticesForMultiplicity_;
     edm::EDGetTokenT<CandToVertex> tokenPVAssignment_;
     edm::EDGetTokenT<CandToVertexQuality> tokenPVAssignmentQuality_;
 	std::string     fPuppiName;
