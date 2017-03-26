@@ -51,7 +51,7 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                         cms.PSet( 
                          etaMin = cms.vdouble(0.),
                          etaMax = cms.vdouble(2.5),
-                         ptMin  = cms.vdouble(0.),
+                         ptMin  = cms.vdouble(0.),#Normally 0
                          MinNeutralPt   = cms.vdouble(0.2),
                          MinNeutralPtSlope   = cms.vdouble(0.015),
                          RMSEtaSF = cms.vdouble(1.0),
@@ -60,13 +60,24 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                          puppiAlgos = puppiCentral
                         ),
                         cms.PSet( 
-                         etaMin              = cms.vdouble( 2.5,  3.0),
-                         etaMax              = cms.vdouble( 3.0, 10.0),
-                         ptMin               = cms.vdouble( 0.0,  0.0),
-                         MinNeutralPt        = cms.vdouble( 1.7,  2.0),
-                         MinNeutralPtSlope   = cms.vdouble(0.08, 0.08),
-                         RMSEtaSF            = cms.vdouble(1.20, 0.95),
-                         MedEtaSF            = cms.vdouble(0.90, 0.75),
+                         etaMin = cms.vdouble(2.5),
+                         etaMax = cms.vdouble(3.5),
+                         ptMin  = cms.vdouble(0.),#Normally 0
+                         MinNeutralPt   = cms.vdouble(0.2),
+                         MinNeutralPtSlope   = cms.vdouble(0.030),
+                         RMSEtaSF = cms.vdouble(1.0),
+                         MedEtaSF = cms.vdouble(1.0),
+                         EtaMaxExtrap = cms.double(2.0),
+                         puppiAlgos = puppiCentral
+                         ),
+                        cms.PSet( 
+                         etaMin              = cms.vdouble( 3.5),
+                         etaMax              = cms.vdouble( 4.0),
+                         ptMin               = cms.vdouble( 0.), #Normally 0
+                         MinNeutralPt        = cms.vdouble( 2.0),
+                         MinNeutralPtSlope   = cms.vdouble(0.08),
+                         RMSEtaSF            = cms.vdouble(1.0 ),
+                         MedEtaSF            = cms.vdouble(0.75),
                          EtaMaxExtrap        = cms.double( 2.0),
                          puppiAlgos = puppiForward
                         ),
