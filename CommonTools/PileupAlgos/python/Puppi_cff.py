@@ -31,6 +31,7 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                        DeltaZCut      = cms.double(0.3),
                        candName       = cms.InputTag('particleFlow'),
                        vertexName     = cms.InputTag('offlinePrimaryVertices'),
+                       vertexForMultiplicityName     = cms.InputTag('offlinePrimaryVertices'),
                        PVAssignment = cms.InputTag(''),
                        PVAssignmentQuality = cms.InputTag(''),
                        #candName      = cms.string('packedPFCandidates'),
@@ -85,8 +86,16 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
                       )
 )
                         
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify(
+#from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+#phase2_common.toModify(
+    #puppi,
+    #UsePVAssignmentMap = True,
+    #PVAssignment = cms.InputTag('primaryVertexAssociation','original'),
+    #PVAssignmentQuality = cms.InputTag('primaryVertexAssociation','original'),
+#)
+
+from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
+phase2_timing.toModify(
     puppi,
     DeltaZCut = cms.double(0.1),
     algos = cms.VPSet( 
@@ -120,5 +129,6 @@ phase2_common.toModify(
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toModify(
     puppi,
-    vertexName = cms.InputTag('offlinePrimaryVertices4D')
+    vertexName = cms.InputTag('offlinePrimaryVertices4D'),
+    vertexForMultiplicityName     = cms.InputTag('offlinePrimaryVertices1D')
 )
