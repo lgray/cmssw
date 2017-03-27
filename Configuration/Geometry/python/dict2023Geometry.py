@@ -593,8 +593,7 @@ timingDict = {
     },
     "I3" : {
         1 : [
-            'Geometry/HGCalCommonData/data/fastTimingBarrel.xml',
-            'Geometry/HGCalCommonData/data/fastTimingElement.xml',
+            'Geometry/HGCalCommonData/data/fastTimingBarrel.xml'            
             ],
         3 : [
             'Geometry/HGCalSimData/data/fasttimesens.xml'
