@@ -197,7 +197,7 @@ trackerDict = {
             'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
             'trackerGeometry.applyAlignment = cms.bool(False)',
         ],
-        "era" : "phase2_tracker, trackingPhase2PU140, phase2_timing_layer",
+        "era" : "phase2_tracker, trackingPhase2PU140", ### NOTE T6 should only ever exist with I3!!!!
     },
        
 }
