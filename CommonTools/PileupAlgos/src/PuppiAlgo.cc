@@ -122,6 +122,14 @@ void PuppiAlgo::add(const fastjet::PseudoJet &iParticle,const double &iVal,const
     // for the low PU case, correction.  for checking that the PU-only median will be below the PV particles
     if(std::abs(iParticle.eta()) < fEtaMaxExtrap && (std::abs(puppi_register) >=1 && std::abs(puppi_register) <=2)) fPupsPV.push_back(iVal);
 
+    if (fEtaMaxExtrap < 0 && std::abs(iParticle.eta()) > fEtaMin[0] && std::abs(iParticle.eta()) < fEtaMax[0]) { 
+      if((fCharged[iAlgo] && std::abs(puppi_register) >= 3) || !fCharged[iAlgo]) { 
+        fPups.push_back(iVal);
+        fNCount[iAlgo]++;
+      }
+    }
+    // for the low PU case, correction.  for checking that the PU-only median will be below the PV particles
+    if(std::abs(iParticle.eta()) > fEtaMin[0] && std::abs(iParticle.eta()) < fEtaMax[0] && (std::abs(puppi_register) >=1 && std::abs(puppi_register) <=2)) fPupsPV.push_back(iVal);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
