@@ -312,6 +312,7 @@ TrackerGeometry::ModuleType TrackerGeometry::moduleType(const std::string& name)
     if (name.find("PSMacroPixel") != std::string::npos) return ModuleType::Ph2PSP;
     else if (name.find("PSStrip") != std::string::npos) return ModuleType::Ph2PSS;
     else if (name.find("2S") != std::string::npos) return ModuleType::Ph2SS;
+    else if (name.find("Timing") != std::string::npos) return ModuleType::Ph2Timing;
   }
   return ModuleType::UNKNOWN;  
 }

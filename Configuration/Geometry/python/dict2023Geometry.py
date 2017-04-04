@@ -596,10 +596,10 @@ timingDict = {
             'Geometry/HGCalCommonData/data/fastTimingBarrel.xml',
             ],
         3 : [
-            'Geometry/HGCalSimData/data/fasttimesensBarrelOnly.xml'
+            'Geometry/HGCalSimData/data/fasttimesens.xml'
             ],
         4 : [
-            'Geometry/HGCalSimData/data/fasttimeProdCutsBarrelOnly.xml'
+            'Geometry/HGCalSimData/data/fasttimeProdCuts.xml'
             ],
         "sim" : [
             'from Geometry.HGCalCommonData.fastTimeParametersInitialization_cfi import *',

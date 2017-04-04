@@ -196,38 +196,50 @@ int FastTimeDDDConstants::numberPhi(int type) const {
 
 void FastTimeDDDConstants::initialize() {
 
-  double thmin = atan(ftpar_->geomParEndcap_[0]/ftpar_->geomParEndcap_[2]);
-  etaMax_      = -log(0.5*thmin);
-  double thmax = atan(ftpar_->geomParEndcap_[1]/ftpar_->geomParEndcap_[2]);
-  etaMin_      = -log(0.5*thmax);
-  dEta_        = (etaMax_-etaMin_)/ftpar_->nEtaEndcap_;
+  if( ftpar_->nPhiBarrel_ > 0 ) {
+    dPhiBarrel_ = CLHEP::twopi/ftpar_->nPhiBarrel_;
+    dZBarrel_   = ftpar_->geomParBarrel_[1]/ftpar_->nZBarrel_;
+
 #ifdef EDM_ML_DEBUG
-  std::cout << "Theta range " << thmin/CLHEP::deg << ":" << thmax/CLHEP::deg
-	    << " Eta range " << etaMin_ << ":" << etaMax_ << ":" << dEta_ 
-	    << std::endl;
+    std::cout << "FastTimeDDDConstants initialized with " << ftpar_->nZBarrel_ 
+              << ":" << ftpar_->nPhiBarrel_ << ":" << getCells(1) 
+              << " cells for barrel; dz|dphi " << dZBarrel_ << "|" << dPhiBarrel_
 #endif
-  for (int k=0; k<=ftpar_->nEtaEndcap_; ++k) {
-    double eta   = etaMin_ + k*dEta_;
-    double theta = 2.0*atan(exp(-eta));
-    double rval  = (ftpar_->geomParEndcap_[2])*tan(theta);
-    rLimits_.push_back(rval);
+
   }
-  dZBarrel_   = ftpar_->geomParBarrel_[1]/ftpar_->nZBarrel_;
-  dPhiBarrel_ = CLHEP::twopi/ftpar_->nPhiBarrel_;
-  dPhiEndcap_ = CLHEP::twopi/ftpar_->nPhiEndcap_;
+
+  if( ftpar_->geomParEndcap_.size() ) {
+    
+    double thmin = std::atan(ftpar_->geomParEndcap_[0]/ftpar_->geomParEndcap_[2]);
+    etaMax_      = -std::log(0.5*thmin);
+    double thmax = std::atan(ftpar_->geomParEndcap_[1]/ftpar_->geomParEndcap_[2]);
+    etaMin_      = -std::log(0.5*thmax);
+    dEta_        = (etaMax_-etaMin_)/ftpar_->nEtaEndcap_;
+    dPhiEndcap_ = CLHEP::twopi/ftpar_->nPhiEndcap_;
 #ifdef EDM_ML_DEBUG
-  std::cout << "FastTimeDDDConstants initialized with " << ftpar_->nZBarrel_ 
-	    << ":" << ftpar_->nPhiBarrel_ << ":" << getCells(1) 
-	    << " cells for barrel; dz|dphi " << dZBarrel_ << "|" << dPhiBarrel_
-	    << " and " << ftpar_->nEtaEndcap_ << ":" << ftpar_->nPhiEndcap_
-	    << ":" << getCells(2) << " cells for endcap; dphi " << dPhiEndcap_
-	    << " The Limits in R are" << std::endl;
-  for (unsigned int k=0; k<rLimits_.size(); ++k) {
-    std::cout << "[" << k << "] " << rLimits_[k] << " ";
-    if (k%8 == 7) std::cout << std::endl;
-  }
-  if ((rLimits_.size()-1)%8 != 7) std::cout << std::endl;
+    std::cout << "Theta range " << thmin/CLHEP::deg << ":" << thmax/CLHEP::deg
+              << " Eta range " << etaMin_ << ":" << etaMax_ << ":" << dEta_ 
+              << std::endl;
 #endif
+    for (int k=0; k<=ftpar_->nEtaEndcap_; ++k) {
+      double eta   = etaMin_ + k*dEta_;
+      double theta = 2.0*std::atan(std::exp(-eta));
+      double rval  = (ftpar_->geomParEndcap_[2])*std::tan(theta);
+      rLimits_.push_back(rval);
+    }    
+    
+#ifdef EDM_ML_DEBUG
+    std::cout << "FastTimeDDDConstants initialized with " << ftpar_->nEtaEndcap_ 
+              << ":" << ftpar_->nPhiEndcap_ < ":" << getCells(2) 
+              << " cells for endcap; dphi " << dPhiEndcap_
+              << " The Limits in R are" << std::endl;
+    for (unsigned int k=0; k<rLimits_.size(); ++k) {
+      std::cout << "[" << k << "] " << rLimits_[k] << " ";
+      if (k%8 == 7) std::cout << std::endl;
+    }
+    if ((rLimits_.size()-1)%8 != 7) std::cout << std::endl;
+#endif
+  }
 }
 
 #include "FWCore/Utilities/interface/typelookup.h"

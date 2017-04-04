@@ -65,7 +65,8 @@ public:
       Ph2PXF, 
       Ph2PSP, 
       Ph2PSS, 
-      Ph2SS
+      Ph2SS,
+      Ph2Timing,
    };
 
   virtual ~TrackerGeometry() ;
