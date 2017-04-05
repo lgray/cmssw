@@ -31,9 +31,7 @@ namespace {
       end = tg.endsetDU(det); assert(end>=off); // allow empty subdetectors. Needed for upgrade
       for (int j=off; j!=end; ++j) {
 	assert(tg.detUnits()[j]->geographicalId().subdetId()==i);
-        if( tg.detUnits()[j]->subDetector() != GeomDetEnumerators::TimingEndcap ) {
-          assert(GeomDetEnumerators::subDetGeom[tg.detUnits()[j]->subDetector()]==det);
-        }
+	assert(GeomDetEnumerators::subDetGeom[tg.detUnits()[j]->subDetector()]==det);
 	assert(tg.detUnits()[j]->index()==j);
       }
     }
@@ -116,7 +114,7 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const PTracke
 		 true,
 		 BIG_PIX_PER_ROC_X,
 		 BIG_PIX_PER_ROC_Y); 
-    if(gdsubdetmap[i] == GeometricDet::OTPhase2EndCap)
+    if(gdsubdetmap[i] == GeometricDet::OTPhase2EndCap) 
       buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::P2OTEC,
 		 true,
 		 BIG_PIX_PER_ROC_X,
@@ -172,15 +170,8 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
 				       BIG_PIX_PER_ROC_X,
 				       BIG_PIX_PER_ROC_Y,
 				       gdv[i]->pixROCx(), gdv[i]->pixROCy());
-      //override for timing (hack!)
-      if( det == GeomDetEnumerators::SubDetector::P2OTEC && detName.find("Timing") != std::string::npos ) {
-        auto timingDet = GeomDetEnumerators::SubDetector::TimingEndcap;
-        std::cout << detName << std::endl;
-        thePixelDetTypeMap[detName] = new PixelGeomDetType(t,detName,timingDet);        
-      } else {
-        thePixelDetTypeMap[detName] = new PixelGeomDetType(t,detName,det);
-      }
-
+      
+      thePixelDetTypeMap[detName] = new PixelGeomDetType(t,detName,det);
       tracker->addType(thePixelDetTypeMap[detName]);
     }
 

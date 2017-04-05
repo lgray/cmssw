@@ -16,11 +16,29 @@ Phase2EndcapRing* Phase2EndcapRingBuilder::build(const GeometricDet* aPhase2Endc
   vector<const GeomDet*> backGeomDets;
   double meanZ = 0;
 
-  if(!useBrothers){
+  std::cout << aPhase2EndcapRing->name().fullname() << ' ' 
+	    << allGeometricDets[0]->name().fullname() << ' '
+	    << (allGeometricDets[0]->components().size() ? allGeometricDets[0]->components()[0]->name().fullname() :std::string() ) << std::endl;
+  const bool isTiming = (allGeometricDets[0]->components().size() &&  allGeometricDets[0]->components()[0]->name().fullname().find("Timing") != std::string::npos);
+  std::cout << isTiming << std::endl;
+
+  if( isTiming ) {
+    std::cout << "ncomps = " << allGeometricDets.size() << std::endl;
+    vector<const GeometricDet*> temp; 
+    for( unsigned i = 0; i <  allGeometricDets.size(); ++i ) {
+      for( auto comp : allGeometricDets[i]->components() ){
+	temp.emplace_back(comp);
+      }
+    }
+    allGeometricDets = temp;
+  }
+
+  if(!useBrothers || isTiming){
   
     //---- to evaluate meanZ
     for(vector<const GeometricDet*>::const_iterator compGeometricDets=allGeometricDets.begin(); compGeometricDets!=allGeometricDets.end();compGeometricDets++){
         LogTrace("TkDetLayers") << " compGeometricDets->positionBounds().perp() " << (*compGeometricDets)->positionBounds().z() << std::endl;
+	std::cout << '\t' << (*compGeometricDets)->name().fullname() << std::endl;
         meanZ = meanZ + (*compGeometricDets)->positionBounds().z();
     }
     meanZ = meanZ/allGeometricDets.size();
@@ -36,8 +54,13 @@ Phase2EndcapRing* Phase2EndcapRingBuilder::build(const GeometricDet* aPhase2Endc
       if( fabs( (*compGeometricDets)->positionBounds().z() ) > fabs(meanZ) )
         backGeomDets.push_back(theGeomDet);      
 
-      if( fabs( (*compGeometricDets)->positionBounds().z() ) == fabs(meanZ) )
-        throw DetLayerException("Not possible to assiciate this GeometricDet in front or back");
+      if( fabs( (*compGeometricDets)->positionBounds().z() ) == fabs(meanZ) ) {
+	if( isTiming ) {
+	  frontGeomDets.push_back(theGeomDet);
+	} else {
+	  throw DetLayerException("Not possible to assiciate this GeometricDet in front or back");
+	}
+      }
   
     }
   
