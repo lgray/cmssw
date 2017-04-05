@@ -247,7 +247,7 @@ namespace cms
     case TrackerGeometry::ModuleType::Ph2PXF:
       algotype = AlgorithmType::InnerPixel;
       break;
-    case TrackerGeometry::ModuleType::Ph2PSP:
+    case TrackerGeometry::ModuleType::Ph2PSP:     
       algotype = AlgorithmType::PixelinPS;
       break;
     case TrackerGeometry::ModuleType::Ph2PSS:
@@ -255,6 +255,9 @@ namespace cms
       break;
     case TrackerGeometry::ModuleType::Ph2SS:
       algotype = AlgorithmType::TwoStrip;
+      break;
+    case TrackerGeometry::ModuleType::Ph2Timing:
+      algotype = AlgorithmType::PixelinPS;
       break;
     default:
       edm::LogError("Phase2TrackerDigitizer")<<"ERROR - Wrong Detector Type, No Algorithm available ";

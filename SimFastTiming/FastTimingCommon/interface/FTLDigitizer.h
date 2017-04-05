@@ -135,6 +135,8 @@ namespace ftl_digitizer {
   void FTLDigitizer<SensorPhysics,ElectronicsSim>::accumulate(edm::Handle<edm::PSimHitContainer> const &hits, 
 							      int bxCrossing, 
 							      CLHEP::HepRandomEngine* hre) {
+    if( !hits.isValid() ) return;
+    
     using namespace FTLHelpers;
     //configuration to apply for the computation of time-of-flight
     bool weightToAbyEnergy(false);

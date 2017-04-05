@@ -66,16 +66,23 @@ void CmsDetConstruction::buildSmallDetsforStack(DDFilteredView& fv,
                 	                        std::string attribute){
 
   GeometricDet * det  = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)));
+  static const std::string itTiming = "Timing";
   static const std::string isLower = "TrackerLowerDetectors";
   static const std::string isUpper = "TrackerUpperDetectors";
 
-  if (ExtractStringFromDDD::getString(isLower,&fv) == "true"){
+  const auto sIsLower = ExtractStringFromDDD::getString(isLower,&fv);
+  const auto sIsUpper = ExtractStringFromDDD::getString(isUpper,&fv);
+
+  if (sIsLower == "true"){
     uint32_t temp = 1;
     det->setGeographicalID(DetId(temp));
-  } else if (ExtractStringFromDDD::getString(isUpper,&fv) == "true"){
+  } else if (sIsUpper == "true"){
     uint32_t temp = 2;
     det->setGeographicalID(DetId(temp));
-  } else {
+  } else if ( sIsLower != "true" && sIsUpper != "true" ) {
+    uint32_t temp = 1;
+    det->setGeographicalID(DetId(temp));
+  }else {
     edm::LogError("DetConstruction") << " module defined in a Stack but not upper either lower!? ";
   }
   mother->addComponent(det);
