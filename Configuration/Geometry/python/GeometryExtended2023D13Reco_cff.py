@@ -48,7 +48,3 @@ from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
 # forward
 from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
 
-# timing
-from Geometry.CaloEventSetup.FastTimeTopology_cfi import *
-from Geometry.HGCalGeometry.FastTimeGeometryESProducer_cfi import *
-

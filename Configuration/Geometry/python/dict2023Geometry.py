@@ -591,24 +591,7 @@ timingDict = {
         ],
         "era" : "phase2_timing, phase2_timing_layer",
     },
-    "I3" : {
-        1 : [
-            'Geometry/HGCalCommonData/data/fastTimingBarrel.xml',
-            ],
-        3 : [
-            'Geometry/HGCalSimData/data/fasttimesens.xml'
-            ],
-        4 : [
-            'Geometry/HGCalSimData/data/fasttimeProdCuts.xml'
-            ],
-        "sim" : [
-            'from Geometry.HGCalCommonData.fastTimeParametersInitialization_cfi import *',
-            'from Geometry.HGCalCommonData.fastTimeNumberingInitialization_cfi import *',
-        ],
-        "reco" :[
-            'from Geometry.CaloEventSetup.FastTimeTopology_cfi import *',
-            'from Geometry.HGCalGeometry.FastTimeGeometryESProducer_cfi import *',
-        ],
+    "I3" : { #all of the timing layer comes from the tracker geometry, but make sure to turn on timing_layer
         "era" : "phase2_timing, phase2_timing_layer",
     }
 }
