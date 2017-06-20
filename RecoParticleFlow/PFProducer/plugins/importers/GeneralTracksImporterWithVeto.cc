@@ -147,10 +147,7 @@ importToBlock( const edm::Event& e,
 	std::cout << "Potential Muon P " <<  pftrackref->trackRef()->p() 
 		  << " pt " << pftrackref->trackRef()->p() << std::endl; 
       }
-      if( muId != -1 ) trkElem->setMuonRef(muonref);
-      if ( useTiming_ ) {
-        trkElem->setTime( (*timeH)[pftrackref->trackRef()], (*timeErrH)[pftrackref->trackRef()] );
-      }
+      if( muId != -1 ) trkElem->setMuonRef(muonref);      
       if( vetoed.count(pftrackref->trackRef().key()) == 0 || muonref.isNonnull()){
 	elems.emplace_back(trkElem);
       }

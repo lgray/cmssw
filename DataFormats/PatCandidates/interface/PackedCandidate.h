@@ -691,10 +691,11 @@ namespace pat {
     int8_t packedPuppiweightNoLepDiff_; // storing the DIFFERENCE of (all - "no lep") for compression optimization
     uint8_t rawCaloFraction_;
     int8_t hcalFraction_;
-    int16_t packedTime_;
-    uint8_t packedTimeError_;
-
+    
     bool isIsolatedChargedHadron_;
+
+    int16_t packedTime_;
+    uint8_t packedTimeError_;    
 
     /// the four vector                                                 
     mutable std::atomic<PolarLorentzVector*> p4_;

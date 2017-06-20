@@ -46,7 +46,6 @@ TrackFilterForPVFinding::operator() (const reco::TransientTrack & tk) const
     bool n3DLayTripletCut = !isTriplet || ( (tk.track().hitPattern().pixelLayersWithMeasurement() + tk.track().hitPattern().numberOfValidStripLayersWithMonoAndStereo()) > min3DLayersForTriplets_);
 
 	return IPSigCut && pTCut && etaCut && normChi2Cut && nPxLayCut && nSiLayCut && trackQualityCut && nHitTripletCut && nLayTripletCut && n3DLayTripletCut;
->>>>>>> d97c8ad... add additional ad-hoc cuts to track selection for primary vertex reco in phase 2 to avoid large number of fake tracks
 }
 
 
