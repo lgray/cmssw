@@ -20,6 +20,9 @@ from Configuration.Eras.Modifier_BarrelTDR_timing_reproc_miniaod_cff import Barr
 #vertexing setup
 from RecoVertex.Configuration.RecoVertex_cff import *
 from SimTracker.TrackAssociation.trackTimeValueMapRecycler_cfi import *
+#particle flow recycling
+from RecoParticleFlow.PFProducer.pfTimeAssigner import *
+particleFlow = pfTimeAssigner.clone()
 
 
 _patTask_timing = cms.Task(
@@ -30,6 +33,7 @@ _patTask_timing = cms.Task(
     offlinePrimaryVertices,
     offlinePrimaryVerticesWithBS,
     generalV0Candidates,
+    particleFlow,
     patTask.copy()
     )
 
