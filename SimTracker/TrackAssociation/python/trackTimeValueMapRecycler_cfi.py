@@ -13,4 +13,5 @@ trackTimeValueMapRecycler = cms.EDProducer(
     ptMin = cms.double(0.7),
     pMin = cms.double(0.7),
     etaMaxForPtThreshold = cms.double(1.5),
+    fakeTrackTimeReso = cms.double(0.100)
     )
