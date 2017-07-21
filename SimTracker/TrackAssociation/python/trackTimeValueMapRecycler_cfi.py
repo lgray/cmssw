@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 trackTimeValueMapRecycler = cms.EDProducer(
     'TrackTimeValueMapRecycler',
     trackSrc = cms.InputTag('generalTracks'),
-    trackTimeSrc = cms.InputTag(''),
-    trackTimeResoSrc = cms.InputTag(''),
+    trackTimeSrc = cms.InputTag('trackTimeValueMapProducer:generalTracksPerfectResolutionModel'),
+    trackTimeResoSrc = cms.InputTag('trackTimeValueMapProducer:generalTracksPerfectResolutionModelResolution'),
     pileupSummaryInfo = cms.InputTag('addPileupInfo'),
     resolutionModels = cms.VPSet( cms.PSet( modelName = cms.string('ConfigurableFlatResolutionModel'),
                                             resolutionInNs = cms.double(0.030) ) ),

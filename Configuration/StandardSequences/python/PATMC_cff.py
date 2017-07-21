@@ -53,6 +53,7 @@ timing_reproc.toModify(offlinePrimaryVertices, jets = cms.InputTag('ak4CaloJets'
 timing_reproc.toModify(offlinePrimaryVerticesWithBS, jets = cms.InputTag('ak4CaloJets') )
 timing_reproc.toReplaceWith(patTask, _patTask_timing)
 timing_reproc.toReplaceWith(trackTimeValueMapProducer, trackTimeValueMapRecycler)
+timing_reproc.toReplaceWith(unsortedOfflinePrimaryVertices, unsortedOfflinePrimaryVertices4D)
 
 #def _timingReprocAddTaus( processObject ) :
     
