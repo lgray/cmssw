@@ -179,6 +179,7 @@ void TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, cons
 
     if (track_tps != associatedTracks.back().end() && track_tps->val.size() == 1) {
       const std::pair<float,float> time_info = extractTrackVertexTime(*track_tps->val[0].first);
+      std::cout<< "z = " << time_info.second << " t = " << time_info.first << std::endl;
       generalTrackTimes.push_back(time_info.first);
     }
     else {
