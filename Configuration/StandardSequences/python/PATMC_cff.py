@@ -29,7 +29,10 @@ from RecoParticleFlow.PFProducer.pfTimeAssigner_cfi import *
 
 particleFlow = pfTimeAssigner.clone()
 
-_patTask_timing = cms.Task(
+from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import tpClusterProducer
+from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import quickTrackAssociatorByHits
+
+_patTask_timing = cms.Task(    
     trackTimeValueMapProducer,
     unsortedOfflinePrimaryVertices,
     trackWithVertexRefSelectorBeforeSorting,

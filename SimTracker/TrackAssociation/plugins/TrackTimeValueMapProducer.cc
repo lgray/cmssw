@@ -260,9 +260,11 @@ extractTrackVertexTime( const TrackingParticle &tp, const reco::TransientTrack &
   
   float pathlength = std::sqrt(pathlengthrphi*pathlengthrphi + dz*dz);
   float p = tt.track().p();
+
+  float speed = std::sqrt(1./(1.+m_pion/p))*CLHEP::c_light/CLHEP::cm;  //speed of light in cm/ns
+  float dt = pathlength/speed;
   
-  float speed = std::sqrt(1./(1.+m_pion/p))*CLHEP::c_light*CLHEP::s/CLHEP::m;
-  float dt = 1e9*pathlength/speed;
+  std::cout << time << ' ' << dt << ' ' << time - dt << ' ' << tkz << ' ' << tt.track().vz() << std::endl;
   
   return time-dt;
 }

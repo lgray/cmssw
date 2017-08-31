@@ -163,6 +163,9 @@ void TrackTimeValueMapRecycler::produce(edm::StreamID sid, edm::Event& evt, cons
     const float time = TrackTimes[tkref];
     const float timeReso = TrackTimeResos[tkref];
     
+    std::cout << " time (ns) = " << time << " track_z: " << tkref->vz() 
+	      << " track_eta: " << tkref->eta() << " track_phi: " << tkref->phi() << std::endl;
+
     if( timeReso < fakeTimeResolution_ ) {
       generalTrackTimes.push_back(time);
     } else {
