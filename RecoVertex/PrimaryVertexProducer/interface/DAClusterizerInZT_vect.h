@@ -205,8 +205,9 @@ public:
   bool merge(vertex_t & y, double & beta)const;
   bool purge(vertex_t &, track_t &, double &,
 	     const double) const;
-  void splitAll( vertex_t & y) const;
-  bool split(const double beta,  track_t &t, vertex_t & y, double threshold = 1. ) const;
+  void splitAll( vertex_t & y) const;  
+  bool splitT(const double beta,  track_t &t, vertex_t & y, double threshold = 1. ) const;
+  bool splitZ(const double beta,  track_t &t, vertex_t & y, double threshold = 1. ) const;
   
   double beta0(const double betamax, track_t const & tks, vertex_t const & y) const;
     

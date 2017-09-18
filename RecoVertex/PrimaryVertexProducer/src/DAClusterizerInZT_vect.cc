@@ -10,6 +10,8 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "vdt/vdtMath.h"
 
+#define VI_DEBUG 1
+
 using namespace std;
 
 DAClusterizerInZT_vect::DAClusterizerInZT_vect(const edm::ParameterSet& conf) {
@@ -485,12 +487,11 @@ DAClusterizerInZT_vect::beta0(double betamax, track_t const  & tks, vertex_t con
 
   
 bool 
-DAClusterizerInZT_vect::split(const double beta,  track_t &tks, vertex_t & y, double threshold ) const{
+DAClusterizerInZT_vect::splitT(const double beta,  track_t &tks, vertex_t & y, double threshold ) const{
   // split only critical vertices (Tc >~ T=1/beta   <==>   beta*Tc>~1)
   // an update must have been made just before doing this (same beta, no merging)
   // returns true if at least one cluster was split
   
-  constexpr double epsilonz=1e-3;      // minimum split size z
   constexpr double epsilont=1e-2;      // minimum split size t
   unsigned int nv = y.getSize();
   
@@ -511,6 +512,112 @@ DAClusterizerInZT_vect::split(const double beta,  track_t &tks, vertex_t & y, do
   
   bool split=false;
   const unsigned int nt = tks.getSize();
+
+  for(unsigned int ic=0; ic<critical.size(); ic++){
+    unsigned int k=critical[ic].second;
+
+    // estimate subcluster positions and weight
+    double p1=0, z1=0, t1=0, w1=0;
+    double p2=0, z2=0, t2=0, w2=0;
+    for(unsigned int i=0; i<nt; ++i){
+      if (tks.Z_sum_[i] > 1.e-100) {
+	// winner-takes-all, usually overestimates splitting
+	double tl = tks.t_[i] < y.t_[k] ? 1.: 0.;
+	double tr = 1. - tl;
+
+	// soften it, especially at low T
+	/*
+	double arg = ( tks.z_[i] - y.z_[k] ) * sqrt(beta * tks.dz2_[i]); // + std::fabs(tks.t_[i] - y.t_[k])
+	std::cout << arg << std::endl;
+	if(std::fabs(arg) < 20){
+	  double t = local_exp(-arg);
+	  tl = t/(t+1.);
+	  tr = 1/(t+1.);
+	}
+	*/
+
+	double p = y.pk_[k] * tks.pi_[i] * local_exp(-beta * Eik(tks.z_[i], y.z_[k], tks.dz2_[i], 
+                                                                 tks.t_[i], y.t_[k], tks.dt2_[i])) / tks.Z_sum_[i];
+	double w = p*tks.errsum_[i];
+	p1 += p*tl;  z1 += w*tl*tks.z_[i]; t1 += w*tl*tks.t_[i]; w1 += w*tl;
+	p2 += p*tr;  z2 += w*tr*tks.z_[i]; t2 += w*tr*tks.t_[i]; w2 += w*tr;
+      }
+    }
+
+    if(w1>0){z1 = z1/w1; t1 = t1/w1;} else {z1=y.z_[k]; t1=y.t_[k]-epsilont;}
+    if(w2>0){z2 = z2/w2; t2 = t2/w2;} else {z2=y.z_[k]; t2=y.t_[k]+epsilont;}
+    
+    // reduce split size if there is not enough room
+    if( ( k   > 0 ) && ( t1 < (0.6*y.t_[k] + 0.4*y.t_[k-1])) ){ 
+      t1 = 0.6*y.t_[k] + 0.4*y.t_[k-1]; 
+    }
+    if( ( k+1 < nv) && ( t2 > (0.6*y.t_[k] + 0.4*y.t_[k+1])) ){ 
+      t2 = 0.6*y.t_[k] + 0.4*y.t_[k+1]; 
+    }
+    
+#ifdef VI_DEBUG
+    if(verbose_){
+      if (std::fabs(y.z_[k] - zdumpcenter_) < zdumpwidth_){
+	std::cout << " T= " << std::setw(8) << 1./beta 
+		  << " Tc= " << critical[ic].first 
+		  << "  T splitting " << std::fixed << std::setprecision(4) << y.z_[k] 
+		  << " --> (" << z1 << ',' << t1<< "),(" << z2 << ',' << t2 
+		  << ")     [" << p1 << "," << p2 << "]" ;
+	if ( std::fabs(t2-t1) > epsilont ){
+	  std::cout << std::endl;
+	}else{
+	  std::cout <<  "  rejected " << std::endl;
+	}
+      }
+    }
+#endif
+
+    // split if the new subclusters are significantly separated
+    if( std::fabs(t2-t1) > epsilont ){
+      split = true;
+      double pk1 = p1*y.pk_[k]/(p1+p2);
+      double pk2 = p2*y.pk_[k]/(p1+p2);
+      y.z_[k]  =  z2;
+      y.t_[k]  =  t2;
+      y.pk_[k] = pk2;
+      y.InsertItem(k, z1, t1, pk1);
+      nv++;
+
+     // adjust remaining pointers
+      for(unsigned int jc=ic; jc < critical.size(); jc++){
+        if (critical[jc].second > k) {critical[jc].second++;}
+      }
+    }
+  }
+  return split;
+}
+
+bool 
+DAClusterizerInZT_vect::splitZ(const double beta,  track_t &tks, vertex_t & y, double threshold ) const{
+  // split only critical vertices (Tc >~ T=1/beta   <==>   beta*Tc>~1)
+  // an update must have been made just before doing this (same beta, no merging)
+  // returns true if at least one cluster was split
+  
+  constexpr double epsilonz=1e-3;      // minimum split size z
+  unsigned int nv = y.GetSize();
+  
+  // avoid left-right biases by splitting highest Tc first
+  
+  std::vector<std::pair<double, unsigned int> > critical;
+  for(unsigned int k=0; k<nv; k++){    
+    double Tc= 2*y.swE_[k]/y.sw_[k];
+    if (beta*Tc > threshold){
+      critical.push_back( make_pair(Tc, k));
+    }
+  }
+  if (critical.size()==0) return false;
+
+
+  std::stable_sort(critical.begin(), critical.end(), std::greater<std::pair<double, unsigned int> >() );
+  
+  
+  bool split=false;
+  const unsigned int nt = tks.GetSize();
 
   for(unsigned int ic=0; ic<critical.size(); ic++){
     unsigned int k=critical[ic].second;
@@ -543,17 +650,15 @@ DAClusterizerInZT_vect::split(const double beta,  track_t &tks, vertex_t & y, do
       }
     }
 
-    if(w1>0){z1 = z1/w1; t1 = t1/w1;} else {z1=y.z_[k]-epsilonz; t1=y.t_[k]-epsilont;}
-    if(w2>0){z2 = z2/w2; t2 = t2/w2;} else {z2=y.z_[k]+epsilonz; t2=y.t_[k]+epsilont;}
+    if(w1>0){z1 = z1/w1; t1 = t1/w1;} else {z1=y.z_[k]-epsilonz; t1=y.t_[k];}
+    if(w2>0){z2 = z2/w2; t2 = t2/w2;} else {z2=y.z_[k]+epsilonz; t2=y.t_[k];}
     
     // reduce split size if there is not enough room
     if( ( k   > 0 ) && ( z1 < (0.6*y.z_[k] + 0.4*y.z_[k-1])) ){ 
-      z1 = 0.5*y.z_[k] + 0.5*y.z_[k-1]; 
-      t1 = 0.5*y.t_[k] + 0.5*y.t_[k-1]; 
+      z1 = 0.6*y.z_[k] + 0.4*y.z_[k-1];       
     }
     if( ( k+1 < nv) && ( z2 > (0.6*y.z_[k] + 0.4*y.z_[k+1])) ){ 
-      z2 = 0.5*y.z_[k] + 0.5*y.z_[k+1]; 
-      t2 = 0.5*y.t_[k] + 0.5*y.t_[k+1]; 
+      z2 = 0.6*y.z_[k] + 0.4*y.z_[k+1]; 
     }
     
 #ifdef VI_DEBUG
@@ -561,10 +666,10 @@ DAClusterizerInZT_vect::split(const double beta,  track_t &tks, vertex_t & y, do
       if (std::fabs(y.z_[k] - zdumpcenter_) < zdumpwidth_){
 	std::cout << " T= " << std::setw(8) << 1./beta 
 		  << " Tc= " << critical[ic].first 
-		  << "    splitting " << std::fixed << std::setprecision(4) << y.z_[k] 
+		  << "  Z splitting " << std::fixed << std::setprecision(4) << y.z_[k] 
 		  << " --> (" << z1 << ',' << t1<< "),(" << z2 << ',' << t2 
 		  << ")     [" << p1 << "," << p2 << "]" ;
-	if (std::fabs(z2-z1) > epsilonz || std::fabs(t2-t1) > epsilont){
+	if (std::fabs(z2-z1) > epsilonz){
 	  std::cout << std::endl;
 	}else{
 	  std::cout <<  "  rejected " << std::endl;
@@ -574,7 +679,7 @@ DAClusterizerInZT_vect::split(const double beta,  track_t &tks, vertex_t & y, do
 #endif
 
     // split if the new subclusters are significantly separated
-    if( std::fabs(z2-z1) > epsilonz || std::fabs(t2-t1) > epsilont){
+    if( std::fabs(z2-z1) > epsilonz ){
       split = true;
       double pk1 = p1*y.pk_[k]/(p1+p2);
       double pk2 = p2*y.pk_[k]/(p1+p2);
@@ -695,7 +800,9 @@ DAClusterizerInZT_vect::vertices(const vector<reco::TransientTrack> & tracks, co
     if(useTc_){
       update(beta, tks,y, false, rho0);
       while(merge(y, beta)){update(beta, tks, y, false, rho0);}
-      split(beta, tks, y);
+      splitZ(beta, tks, y);
+      update(beta, tks,y, false, rho0);
+      splitT(beta, tks, y);
       beta=beta/coolingFactor_;
     }else{
       beta=beta/coolingFactor_;
@@ -720,7 +827,7 @@ DAClusterizerInZT_vect::vertices(const vector<reco::TransientTrack> & tracks, co
     while(merge(y,beta)){update(beta, tks,y, false, rho0);}
     unsigned int ntry=0;
     double threshold = 1.0;
-    while( split(beta, tks, y, threshold) && (ntry++<10) ){
+    while( ( splitZ(beta, tks, y, threshold) || splitT(beta, tks, y, threshold) ) && (ntry++<10) ){
       niter=0; 
       while((update(beta, tks,y, false, rho0)>1.e-6)  && (niter++ < maxIterations_)){}
       while(merge(y,beta)){update(beta, tks,y, false, rho0);}
