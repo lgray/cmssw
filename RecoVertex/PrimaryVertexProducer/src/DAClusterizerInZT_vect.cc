@@ -580,7 +580,7 @@ DAClusterizerInZT_vect::splitT(const double beta,  track_t &tks, vertex_t & y, d
       y.z_[k]  =  z2;
       y.t_[k]  =  t2;
       y.pk_[k] = pk2;
-      y.InsertItem(k, z1, t1, pk1);
+      y.insertItem(k, z1, t1, pk1);
       nv++;
 
      // adjust remaining pointers
@@ -599,7 +599,7 @@ DAClusterizerInZT_vect::splitZ(const double beta,  track_t &tks, vertex_t & y, d
   // returns true if at least one cluster was split
   
   constexpr double epsilonz=1e-3;      // minimum split size z
-  unsigned int nv = y.GetSize();
+  unsigned int nv = y.getSize();
   
   // avoid left-right biases by splitting highest Tc first
   
@@ -617,7 +617,7 @@ DAClusterizerInZT_vect::splitZ(const double beta,  track_t &tks, vertex_t & y, d
   
   
   bool split=false;
-  const unsigned int nt = tks.GetSize();
+  const unsigned int nt = tks.getSize();
 
   for(unsigned int ic=0; ic<critical.size(); ic++){
     unsigned int k=critical[ic].second;
@@ -713,7 +713,7 @@ void DAClusterizerInZT_vect::splitAll( vertex_t & y) const {
 #ifdef VI_DEBUG
   if (verbose_) {
     std::cout << "Before Split "<< std::endl;
-    y.DebugOut();
+    y.debugOut();
   }
 #endif
 
@@ -756,7 +756,7 @@ void DAClusterizerInZT_vect::splitAll( vertex_t & y) const {
 #ifdef VI_DEBUG
   if (verbose_) {
     std::cout << "After split " << std::endl;
-    y.DebugOut();
+    y.debugOut();
   }
 #endif
 }
@@ -801,7 +801,9 @@ DAClusterizerInZT_vect::vertices(const vector<reco::TransientTrack> & tracks, co
       update(beta, tks,y, false, rho0);
       while(merge(y, beta)){update(beta, tks, y, false, rho0);}
       splitZ(beta, tks, y);
-      update(beta, tks,y, false, rho0);
+      niter = 0;
+      while ((update(beta, tks, y, false, rho0) > 1.e-6) && 
+	     (niter++ < maxIterations_)) {}
       splitT(beta, tks, y);
       beta=beta/coolingFactor_;
     }else{
@@ -838,7 +840,7 @@ DAClusterizerInZT_vect::vertices(const vector<reco::TransientTrack> & tracks, co
       }
 #endif
       // relax splitting a bit to reduce multiple split-merge cycles of the same cluster
-      threshold *= 1.1; 
+      threshold *= 1.1;       
     }
   }else{
     // merge collapsed clusters 
