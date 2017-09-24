@@ -6,6 +6,7 @@ inclusiveCandidateVertexFinder  = cms.EDProducer("InclusiveCandidateVertexFinder
        tracks = cms.InputTag("particleFlow"),
        minHits = cms.uint32(0),
        maximumLongitudinalImpactParameter = cms.double(0.3),
+       maximumTimeSignificance = cms.double(3.0),
        minPt = cms.double(0.8),
        maxNTracks = cms.uint32(30),
 
