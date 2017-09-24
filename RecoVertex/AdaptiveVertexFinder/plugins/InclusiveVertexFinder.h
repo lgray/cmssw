@@ -31,6 +31,8 @@
 #include "RecoVertex/MultiVertexFit/interface/MultiVertexFitter.h"
 
 #include "RecoVertex/AdaptiveVertexFinder/interface/TTHelpers.h"
+#include "FWCore/Utilities/interface/isFinite.h"
+
 //#define VTXDEBUG 1
 template <class InputContainer, class VTX>
 class TemplatedInclusiveVertexFinder : public edm::stream::EDProducer<> {
@@ -51,6 +53,7 @@ class TemplatedInclusiveVertexFinder : public edm::stream::EDProducer<> {
 	unsigned int				minHits;
 	unsigned int				maxNTracks;
 	double					maxLIP;
+	double                                  maxTimeSig;
         double 					minPt;
         double 					vertexMinAngleCosine;
         double 					vertexMinDLen2DSig;
@@ -69,6 +72,7 @@ TemplatedInclusiveVertexFinder<InputContainer,VTX>::TemplatedInclusiveVertexFind
 	minHits(params.getParameter<unsigned int>("minHits")),
 	maxNTracks(params.getParameter<unsigned int>("maxNTracks")),
        	maxLIP(params.getParameter<double>("maximumLongitudinalImpactParameter")),
+	maxTimeSig(params.getParameter<double>("maximumTimeSignificance")),
  	minPt(params.getParameter<double>("minPt")), //0.8
         vertexMinAngleCosine(params.getParameter<double>("vertexMinAngleCosine")), //0.98
         vertexMinDLen2DSig(params.getParameter<double>("vertexMinDLen2DSig")), //2.5
@@ -147,6 +151,11 @@ void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &eve
 			continue;
                 if( std::abs(tt.track().dz(pv.position())) > maxLIP)
 			continue;
+		if( edm::isFinite(tt.timeExt()) && pv.covariance(3,3) > 0. ) { // only apply if time available
+		  auto tError = std::sqrt( std::pow(tt.dtErrorExt(),2) + pv.covariance(3,3) );
+		  auto dtSig = std::abs(tt.timeExt() - pv.t())/tError;
+		  if( dtSig > maxTimeSig ) continue;
+		}
 		tt.setBeamSpot(*beamSpot);
 		tts.push_back(tt);
 	}
