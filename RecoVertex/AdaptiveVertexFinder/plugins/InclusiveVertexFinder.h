@@ -41,6 +41,46 @@ class TemplatedInclusiveVertexFinder : public edm::stream::EDProducer<> {
 	typedef typename InputContainer::value_type TRK;
 	TemplatedInclusiveVertexFinder(const edm::ParameterSet &params);
 
+	static void fillDescriptions(edm::ConfigurationDescriptions & cdesc) {
+	  edm::ParameterSetDescription pdesc;
+	  pdesc.add<edm::InputTag>("beamSpot",edm::InputTag("offlineBeamSpot"));
+	  pdesc.add<edm::InputTag>("primaryVertices",edm::InputTag("offlinePrimaryVertices"));
+	  pdesc.add<edm::InputTag>("tracks",edm::InputTag("generalTracks"));
+	  pdesc.add<unsigned int>("minHits",8);
+	  pdesc.add<double>("maximumLongitudinalImpactParameter",0.3);
+	  pdesc.add<double>("maximumTimeSignificance",3.0);
+	  pdesc.add<double>("minPt",0.8);
+	  pdesc.add<unsigned int>("maxNTracks",30);
+	  //clusterizer pset
+	  edm::ParameterSetDescription clusterizer;
+	  clusterizer.add<double>("seedMax3DIPSignificance",9999.0);
+	  clusterizer.add<double>("seedMax3DIPValue",9999.0);
+	  clusterizer.add<double>("seedMin3DIPSignificance",1.2);
+	  clusterizer.add<double>("seedMin3DIPValue",0.005);
+	  clusterizer.add<double>("clusterMaxDistance",0.05);
+	  clusterizer.add<double>("clusterMaxSignificance",4.5);
+	  clusterizer.add<double>("distanceRatio",20.0);
+	  clusterizer.add<double>("clusterMinAngleCosine",0.5);
+	  pdesc.add<edm::ParameterSetDescription>("clusterizer", clusterizer);
+	  // vertex and fitter config
+	  pdesc.add<double>("vertexMinAngleCosine",0.95);
+	  pdesc.add<double>("vertexMinDLen2DSig",2.5);
+	  pdesc.add<double>("vertexMinDLenSig",0.5);
+	  pdesc.add<double>("fitterSigmacut",3.0);
+	  pdesc.add<double>("fitterTini",256.0);
+	  pdesc.add<double>("fitterRatio",0.25);
+	  pdesc.add<bool>("useDirectVertexFitter",true);
+	  pdesc.add<bool>("useVertexReco",true);
+	  // vertexReco pset
+	  edm::ParameterSetDescription vertexReco;
+	  vertexReco.add<std::string>("finder", std::string("avr"));
+	  vertexReco.add<double>("primcut",1.0);
+	  vertexReco.add<double>("seccut",3.0);
+	  vertexReco.add<bool>("smoothing",true);
+          pdesc.add<edm::ParameterSetDescription>("vertexReco", vertexReco);
+	  cdesc.addDefault(pdesc);
+	}
+
 	virtual void produce(edm::Event &event, const edm::EventSetup &es) override;
 
     private:
