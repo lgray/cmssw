@@ -103,7 +103,7 @@ TrackVertexArbitration<VTX>::TrackVertexArbitration(const edm::ParameterSet &par
 	trackMinLayers            (params.getParameter<int32_t>("trackMinLayers")),
 	trackMinPt                (params.getParameter<double>("trackMinPt")),
 	trackMinPixels            (params.getParameter<int32_t>("trackMinPixels")),
-	maxTimeSignificance       (params.getParameter<double>("maxTimeSigificance"))
+	maxTimeSignificance       (params.getParameter<double>("maxTimeSignificance"))
 {
 	dRCut*=dRCut;
 }

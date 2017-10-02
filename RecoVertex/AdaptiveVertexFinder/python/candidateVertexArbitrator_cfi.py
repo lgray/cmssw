@@ -16,7 +16,6 @@ candidateVertexArbitrator = cms.EDProducer("CandidateVertexArbitrator",
        trackMinPt = cms.double(0.4),
        trackMinPixels = cms.int32(1),
        maxTimeSignificance = cms.double(3.5)
-
 )
 
 
