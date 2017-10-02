@@ -19,6 +19,7 @@ inclusiveVertexFinder  = cms.EDProducer("InclusiveVertexFinder",
            clusterMaxSignificance = cms.double(4.5), #4.5 sigma
            distanceRatio = cms.double(20), # was cluster scale = 1 / density factor =0.05 
            clusterMinAngleCosine = cms.double(0.5), # only forward decays
+           maxTimeSignificance = cms.double(3.5) #3.5 sigma, since the time cut is track-to-track
        ),
 
        vertexMinAngleCosine = cms.double(0.95), # scalar prod direction of tracks and flight dir

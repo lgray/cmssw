@@ -61,6 +61,7 @@ class TemplatedInclusiveVertexFinder : public edm::stream::EDProducer<> {
 	  clusterizer.add<double>("clusterMaxSignificance",4.5);
 	  clusterizer.add<double>("distanceRatio",20.0);
 	  clusterizer.add<double>("clusterMinAngleCosine",0.5);
+	  clusterizer.add<double>("maxTimeSignificance",3.5);
 	  pdesc.add<edm::ParameterSetDescription>("clusterizer", clusterizer);
 	  // vertex and fitter config
 	  pdesc.add<double>("vertexMinAngleCosine",0.95);
@@ -235,6 +236,31 @@ void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &eve
 			if(singleFitVertex.isValid())
 				vertices.push_back(singleFitVertex);
 		}
+		
+		// for each transient vertex state determine if a time can be measured and fill covariance
+		for(auto& vtx : vertices) {
+		  const auto& trks = vtx.originalTracks();
+		  double meantime = 0., expv_x2 = 0., normw = 0., timecov = 0.;		  
+		  for( const auto& trk : trks ) {
+		    if( edm::isFinite(trk.timeExt()) ) {
+		      const double time = trk.timeExt();
+		      const double inverr = 1.0/trk.dtErrorExt();
+		      const double w = inverr*inverr;
+		      meantime += time*w;
+		      expv_x2  += time*time*w;
+		      normw    += w;
+		    }
+		  }
+		  if( normw > 0. ) {
+		    meantime = meantime/normw;
+		    expv_x2 = expv_x2/normw;
+		    timecov = expv_x2 - meantime*meantime;
+		    auto err = vtx.positionError().matrix4D();
+		    err(3,3) = timecov/(double)trks.size();  
+		    vtx = TransientVertex(vtx.position(),meantime,err,vtx.originalTracks(),vtx.totalChiSquared());
+		  }
+		}
+
 		for(std::vector<TransientVertex>::const_iterator v = vertices.begin();
 		    v != vertices.end(); ++v) {
 			Measurement1D dlen= vdist.distance(pv,*v);
@@ -245,6 +271,7 @@ void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &eve
 			std::cout << " dlen: " << dlen.value() << " error: " << dlen.error() << " signif: " << dlen.significance();
 			std::cout << " dlen2: " << dlen2.value() << " error2: " << dlen2.error() << " signif2: " << dlen2.significance();
 			std::cout << " pos: " << vv.position() << " error: " <<vv.xError() << " " << vv.yError() << " " << vv.zError() << std::endl;
+			std::cout << " time: " << vv.time() << " error: " << vv.tError() << std::endl;
 #endif
 			GlobalVector dir;  
 			std::vector<reco::TransientTrack> ts = v->originalTracks();
