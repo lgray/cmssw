@@ -31,6 +31,8 @@
 #include "RecoVertex/MultiVertexFit/interface/MultiVertexFitter.h"
 
 #include "RecoVertex/AdaptiveVertexFinder/interface/TTHelpers.h"
+#include "FWCore/Utilities/interface/isFinite.h"
+
 //#define VTXDEBUG 1
 template <class InputContainer, class VTX>
 class TemplatedInclusiveVertexFinder : public edm::stream::EDProducer<> {
@@ -38,6 +40,47 @@ class TemplatedInclusiveVertexFinder : public edm::stream::EDProducer<> {
 	typedef std::vector<VTX> Product;
 	typedef typename InputContainer::value_type TRK;
 	TemplatedInclusiveVertexFinder(const edm::ParameterSet &params);
+
+	static void fillDescriptions(edm::ConfigurationDescriptions & cdesc) {
+	  edm::ParameterSetDescription pdesc;
+	  pdesc.add<edm::InputTag>("beamSpot",edm::InputTag("offlineBeamSpot"));
+	  pdesc.add<edm::InputTag>("primaryVertices",edm::InputTag("offlinePrimaryVertices"));
+	  pdesc.add<edm::InputTag>("tracks",edm::InputTag("generalTracks"));
+	  pdesc.add<unsigned int>("minHits",8);
+	  pdesc.add<double>("maximumLongitudinalImpactParameter",0.3);
+	  pdesc.add<double>("maximumTimeSignificance",3.0);
+	  pdesc.add<double>("minPt",0.8);
+	  pdesc.add<unsigned int>("maxNTracks",30);
+	  //clusterizer pset
+	  edm::ParameterSetDescription clusterizer;
+	  clusterizer.add<double>("seedMax3DIPSignificance",9999.0);
+	  clusterizer.add<double>("seedMax3DIPValue",9999.0);
+	  clusterizer.add<double>("seedMin3DIPSignificance",1.2);
+	  clusterizer.add<double>("seedMin3DIPValue",0.005);
+	  clusterizer.add<double>("clusterMaxDistance",0.05);
+	  clusterizer.add<double>("clusterMaxSignificance",4.5);
+	  clusterizer.add<double>("distanceRatio",20.0);
+	  clusterizer.add<double>("clusterMinAngleCosine",0.5);
+	  clusterizer.add<double>("maxTimeSignificance",3.5);
+	  pdesc.add<edm::ParameterSetDescription>("clusterizer", clusterizer);
+	  // vertex and fitter config
+	  pdesc.add<double>("vertexMinAngleCosine",0.95);
+	  pdesc.add<double>("vertexMinDLen2DSig",2.5);
+	  pdesc.add<double>("vertexMinDLenSig",0.5);
+	  pdesc.add<double>("fitterSigmacut",3.0);
+	  pdesc.add<double>("fitterTini",256.0);
+	  pdesc.add<double>("fitterRatio",0.25);
+	  pdesc.add<bool>("useDirectVertexFitter",true);
+	  pdesc.add<bool>("useVertexReco",true);
+	  // vertexReco pset
+	  edm::ParameterSetDescription vertexReco;
+	  vertexReco.add<std::string>("finder", std::string("avr"));
+	  vertexReco.add<double>("primcut",1.0);
+	  vertexReco.add<double>("seccut",3.0);
+	  vertexReco.add<bool>("smoothing",true);
+          pdesc.add<edm::ParameterSetDescription>("vertexReco", vertexReco);
+	  cdesc.addDefault(pdesc);
+	}
 
 	virtual void produce(edm::Event &event, const edm::EventSetup &es) override;
 
@@ -51,6 +94,7 @@ class TemplatedInclusiveVertexFinder : public edm::stream::EDProducer<> {
 	unsigned int				minHits;
 	unsigned int				maxNTracks;
 	double					maxLIP;
+	double                                  maxTimeSig;
         double 					minPt;
         double 					vertexMinAngleCosine;
         double 					vertexMinDLen2DSig;
@@ -69,6 +113,7 @@ TemplatedInclusiveVertexFinder<InputContainer,VTX>::TemplatedInclusiveVertexFind
 	minHits(params.getParameter<unsigned int>("minHits")),
 	maxNTracks(params.getParameter<unsigned int>("maxNTracks")),
        	maxLIP(params.getParameter<double>("maximumLongitudinalImpactParameter")),
+	maxTimeSig(params.getParameter<double>("maximumTimeSignificance")),
  	minPt(params.getParameter<double>("minPt")), //0.8
         vertexMinAngleCosine(params.getParameter<double>("vertexMinAngleCosine")), //0.98
         vertexMinDLen2DSig(params.getParameter<double>("vertexMinDLen2DSig")), //2.5
@@ -147,6 +192,11 @@ void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &eve
 			continue;
                 if( std::abs(tt.track().dz(pv.position())) > maxLIP)
 			continue;
+		if( edm::isFinite(tt.timeExt()) && pv.covariance(3,3) > 0. ) { // only apply if time available
+		  auto tError = std::sqrt( std::pow(tt.dtErrorExt(),2) + pv.covariance(3,3) );
+		  auto dtSig = std::abs(tt.timeExt() - pv.t())/tError;
+		  if( dtSig > maxTimeSig ) continue;
+		}
 		tt.setBeamSpot(*beamSpot);
 		tts.push_back(tt);
 	}
@@ -186,6 +236,31 @@ void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &eve
 			if(singleFitVertex.isValid())
 				vertices.push_back(singleFitVertex);
 		}
+		
+		// for each transient vertex state determine if a time can be measured and fill covariance
+		for(auto& vtx : vertices) {
+		  const auto& trks = vtx.originalTracks();
+		  double meantime = 0., expv_x2 = 0., normw = 0., timecov = 0.;		  
+		  for( const auto& trk : trks ) {
+		    if( edm::isFinite(trk.timeExt()) ) {
+		      const double time = trk.timeExt();
+		      const double inverr = 1.0/trk.dtErrorExt();
+		      const double w = inverr*inverr;
+		      meantime += time*w;
+		      expv_x2  += time*time*w;
+		      normw    += w;
+		    }
+		  }
+		  if( normw > 0. ) {
+		    meantime = meantime/normw;
+		    expv_x2 = expv_x2/normw;
+		    timecov = expv_x2 - meantime*meantime;
+		    auto err = vtx.positionError().matrix4D();
+		    err(3,3) = timecov/(double)trks.size();  
+		    vtx = TransientVertex(vtx.position(),meantime,err,vtx.originalTracks(),vtx.totalChiSquared());
+		  }
+		}
+
 		for(std::vector<TransientVertex>::const_iterator v = vertices.begin();
 		    v != vertices.end(); ++v) {
 			Measurement1D dlen= vdist.distance(pv,*v);
@@ -196,6 +271,7 @@ void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &eve
 			std::cout << " dlen: " << dlen.value() << " error: " << dlen.error() << " signif: " << dlen.significance();
 			std::cout << " dlen2: " << dlen2.value() << " error2: " << dlen2.error() << " signif2: " << dlen2.significance();
 			std::cout << " pos: " << vv.position() << " error: " <<vv.xError() << " " << vv.yError() << " " << vv.zError() << std::endl;
+			std::cout << " time: " << vv.time() << " error: " << vv.tError() << std::endl;
 #endif
 			GlobalVector dir;  
 			std::vector<reco::TransientTrack> ts = v->originalTracks();
