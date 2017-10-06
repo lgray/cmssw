@@ -62,6 +62,19 @@ _phase2_tktiming_vertexreco = cms.Sequence( vertexreco.copy() *
                                             offlinePrimaryVertices4DWithBS 
                                             )
 
+_phase2_tktiminglayer_vertexreco = cms.Sequence( vertexreco.copy() )
+
+
+
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toReplaceWith(vertexreco, _phase2_tktiming_vertexreco)
+
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toReplaceWith(vertexreco, _phase2_tktiminglayer_vertexreco)
+phase2_timing_layer.toReplaceWith(unsortedOfflinePrimaryVertices, unsortedOfflinePrimaryVertices4D)
+phase2_timing_layer.toReplaceWith(offlinePrimaryVertices, offlinePrimaryVertices4D)
+phase2_timing_layer.toReplaceWith(offlinePrimaryVerticesWithBS, offlinePrimaryVertices4DWithBS)
+phase2_timing_layer.toModify(offlinePrimaryVertices, vertices = cms.InputTag("unsortedOfflinePrimaryVertices"), particles = cms.InputTag("trackRefsForJetsBeforeSorting") )
+phase2_timing_layer.toModify(offlinePrimaryVerticesWithBS, vertices = cms.InputTag("unsortedOfflinePrimaryVertices","WithBS"), particles = cms.InputTag("trackRefsForJetsBeforeSorting") )
+
 
