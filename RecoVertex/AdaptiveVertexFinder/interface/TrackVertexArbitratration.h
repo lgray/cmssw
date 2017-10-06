@@ -40,6 +40,8 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "RecoVertex/AdaptiveVertexFinder/interface/SVTimeHelpers.h"
+
 #include "FWCore/Utilities/interface/isFinite.h"
 //#include "DataFormats/Math/interface/deltaR.h"
 
@@ -267,7 +269,11 @@ std::vector<VTX> TrackVertexArbitration<VTX>::trackVertexArbitrator(
               { 
              	 TransientVertex singleFitVertex;
              	 singleFitVertex = theAdaptiveFitter.vertex(selTracks,ssv);
-              	if(singleFitVertex.isValid())  { recoVertices.push_back(VTX(singleFitVertex));
+		 
+              	if(singleFitVertex.isValid())  { 
+		  svtime::updateVertexTime(singleFitVertex);
+		  recoVertices.push_back(VTX(singleFitVertex));
+		  
 
 #ifdef VTXDEBUG
                 const VTX & extVertex = recoVertices.back();
