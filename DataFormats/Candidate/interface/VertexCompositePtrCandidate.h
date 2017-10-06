@@ -26,7 +26,12 @@ namespace reco {
     VertexCompositePtrCandidate(Charge q, const LorentzVector & p4, const Point & vtx,
 				int pdgId = 0, int status = 0, bool integerCharge = true) :
       CompositePtrCandidate(q, p4, vtx, pdgId, status, integerCharge),
-      chi2_(0), ndof_(0) { }
+	chi2_(0), ndof_(0), time_(0) { }
+    VertexCompositePtrCandidate(Charge q, const LorentzVector & p4, const Point & vtx,
+				double time, int pdgId = 0, int status = 0, 
+				bool integerCharge = true) :
+      CompositePtrCandidate(q, p4, vtx, pdgId, status, integerCharge),
+	chi2_(0), ndof_(0), time_(time) { }
     /// constructor from values
     VertexCompositePtrCandidate(Charge q, const LorentzVector & p4, const Point & vtx,
 				const CovarianceMatrix & err, double chi2, double ndof,
@@ -77,6 +82,9 @@ namespace reco {
     void setCovariance(const CovarianceMatrix &m);
     /// set covariance matrix
     void setCovariance(const CovarianceMatrix4D &m);
+
+    // set time
+    void setTime(double time) { time_ = time; }
 
     /// the following functions are implemented to have a more consistent interface with the one of reco::Vertex
     typedef math::Error<dimension>::type Error;
