@@ -11,7 +11,7 @@
 #include "vdt/vdtMath.h"
 
 using namespace std;
-#define VI_DEBUG
+//#define VI_DEBUG
 
 DAClusterizerInZT_vect::DAClusterizerInZT_vect(const edm::ParameterSet& conf) {
 

@@ -228,3 +228,6 @@ reconstruction_woCosmicMuons = cms.Sequence(localreco*globalreco*highlevelreco*l
 # modules instead of sequences
 #
 reconstruction_standard_candle = cms.Sequence(localreco*globalreco*vertexreco*recoJetAssociations*btagging*electronSequence*photonSequence)
+
+### reconstruction sequence for timing miniaod reprocessing
+reconstruction_vtx_btag = cms.Sequence(vertexreco + btagging) #+PFTau
