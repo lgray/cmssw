@@ -9,5 +9,5 @@ pfNoPileUp = cms.EDProducer(
     bottomCollection = cms.InputTag("particleFlowTmpPtrs"),
 )
 
-from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
-phase2_timing_layer.toModify(pfNoPileUp, bottomCollection = cms.InputTag("particleFlowPtrs") )
+from Configuration.Eras.Modifier_phase2_timing_miniaod_cff import phase2_timing_miniaod
+phase2_timing_miniaod.toModify(pfNoPileUp, bottomCollection = cms.InputTag("particleFlowPtrs") )
