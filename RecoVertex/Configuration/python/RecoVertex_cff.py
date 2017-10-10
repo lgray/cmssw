@@ -55,9 +55,9 @@ _phase2_tktiming_vertexreco = cms.Sequence( vertexreco.copy() *
                                             tpClusterProducer *
                                             quickTrackAssociatorByHits *
                                             trackTimeValueMapProducer *
+                                            unsortedOfflinePrimaryVertices4D *
                                             trackWithVertexRefSelectorBeforeSorting4D *
                                             trackRefsForJetsBeforeSorting4D *
-                                            unsortedOfflinePrimaryVertices4D *
                                             offlinePrimaryVertices4D *
                                             offlinePrimaryVertices4DWithBS 
                                             )
