@@ -50,6 +50,7 @@ namespace reco {
     ~VertexCompositePtrCandidate() override;
     /// returns a clone of the candidate
     VertexCompositePtrCandidate * clone() const override;
+
     /// chi-squares
     double vertexChi2() const override { return chi2_; }
     /** Number of degrees of freedom
