@@ -92,9 +92,10 @@ void print(TrajectoryStateOnSurface const & ts) {
 
   cout << "transverseCurvature  " << ts.transverseCurvature() << endl;
   cout << "globalMomentum       " << ts.globalMomentum() << endl;
+  cout << "transverseMomentum     " << ts.globalMomentum().perp() << endl;
   cout << "localMomentum        " << ts.localMomentum() << endl;
   cout << "localPosition        " << ts.localPosition() << endl;
-  cout << "localError           " << ts.localError().matrix() << endl;
+  cout << "localError           \n" << ts.localError().matrix() << endl;
   cout << endl;
 }
 
@@ -123,7 +124,10 @@ struct KFUTest {
 
   void print(const TrajectoryStateOnSurface& tsos,
 	     const TrackingRecHit& hit) const {
+    std::cout << "before" << std::endl;
+    ::print(tsos);
     TrajectoryStateOnSurface tsn =  tsu.update(tsos, hit);
+    std::cout << "after" << std::endl;
     ::print (tsn);
   }
   
@@ -191,8 +195,8 @@ int main() {
   print (ts2);
 
 
-  LocalPoint m(0.1,0.1,0);
-  LocalError e(0.2,-0.05,0.1);
+  LocalPoint m(30,-30,0);
+  LocalError e(0.1,-0.05,0.1);
     
   OmniClusterRef cref;
   SiPixelRecHit::ClusterRef pref;
@@ -209,19 +213,21 @@ int main() {
 
   std::cout << "\n** KFU ** \n" << std::endl;
   
+  /*
   kt.print(ts,*thit);
   kt.print(ts2,*thit);
+ 
 
   kt.time(ts,*thit);
   kt.time(ts2,*thit);
 
   kt.print(ts,hit2d);
   kt.print(ts2,hit2d);
-
+  */
   kt.print(ts,hitpx);
   kt.print(ts2,hitpx);
-
- kt.print(ts,hitpj);
+  /*
+  kt.print(ts,hitpj);
   kt.print(ts2,hitpj);
 
 
@@ -232,7 +238,7 @@ int main() {
   kt.time(ts,*thit);
   kt.time(ts2,*thit);
 
-
+  */
 
   std::cout << "\n** Chi2 ** \n" << std::endl;
   

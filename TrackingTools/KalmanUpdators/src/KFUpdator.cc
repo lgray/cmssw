@@ -25,7 +25,7 @@ TrajectoryStateOnSurface lupdate(const TrajectoryStateOnSurface& tsos,
 
   // projection matrix (assume element of "H" to be just 0 or 1)
   ProjectMatrix<double,5,D>  pf;
- 
+
   // Measurement matrix
   VecD r, rMeas; 
   SMatDD V(SMatrixNoInit{}), VMeas(SMatrixNoInit{});
@@ -33,17 +33,28 @@ TrajectoryStateOnSurface lupdate(const TrajectoryStateOnSurface& tsos,
   KfComponentsHolder holder; 
   holder.template setup<D>(&r, &V, &pf, &rMeas, &VMeas, x, C);
   aRecHit.getKfComponents(holder);
+
+  std::cout << "projection function: \n" << pf.matrix() << std::endl;
+  std::cout << std::endl << r << std::endl;
+  std::cout << std::endl << rMeas << std::endl;
+  std::cout << std::endl << V << std::endl;
+  std::cout << std::endl << VMeas << std::endl;
   
   r -= rMeas;
 
   // and covariance matrix of residuals
   SMatDD R = V + VMeas;
+
   bool ok = invertPosDefMatrix(R);
 
   // Compute Kalman gain matrix
   AlgebraicMatrix55 M = AlgebraicMatrixID();
+  std::cout << "M \n" << M << std::endl;
   Mat5D K = C*pf.project(R);
+  std::cout << "kalman gain: \n" << std::endl << K << std::endl;
   pf.projectAndSubtractFrom(M,K);
+  std::cout << "M' \n" << M << std::endl;
+  std::cout << "K' \n" << K << std::endl;
  
 
   // Compute local filtered state vector
