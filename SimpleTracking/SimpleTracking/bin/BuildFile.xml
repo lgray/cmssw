@@ -1,0 +1,3 @@
+<use   name="SimpleTracking/SimpleTracking"/>
+<use   name="root"/>
+<bin   name="simpleTrackingTest" file="simpleTrackingTest.cc"/>
