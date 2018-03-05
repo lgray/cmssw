@@ -45,12 +45,12 @@ int main() {
   SMatrixSym66 genErrors;// = ROOT::Math::SMatrixIdentity();
   TrackState genTrack(genCharge,genPos,genMom,genErrors);
   
-  SVector3 r0, p0; // the seed guess
   SVector3 rkf, pkf; // from the kalman filter
 
   std::array<bool, nLayers> layerHasMeasurement;
   std::array<SVector3, nLayers> measurements;
 
+  // generate a track
   for( unsigned iTrk = 0; iTrk < nTracks; ++iTrk ) {
     layerHasMeasurement.fill(false);
     std::cout << "generating track: " << iTrk+1 << " with " << nLayers << " layers!" << std::endl;
@@ -67,6 +67,18 @@ int main() {
       std::cout << genState.valid << ' ' << genState.parameters << std::endl;
     }
   }
+
+  // simplified seeding
+  SVector3 r0, p0(1.0,1.0,0.15); // the seed guess 
+  SMatrixSym66 seedErrors;// = ROOT::Math::SMatrixIdentity();
+  TrackState seedTrack(genCharge,r0,p0,seedErrors);
+  for( unsigned iLay = 0; iLay < nLayers; ++iLay ) {
+    if( seedingLayers.count(iLay) ) {
+    } else {
+    }
+  }
+
+  // trackfinding
 
   return 0;
 }
