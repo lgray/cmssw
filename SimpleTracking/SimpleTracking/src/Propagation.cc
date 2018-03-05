@@ -134,13 +134,20 @@ void HelixState::propagateErrors(const HelixState& in, float totalDistance, bool
   const float cosTP  = cos(TP);
   const float sinTP  = sin(TP);
 
+  // beta_perp = dphi/dt * curvature
+  // beta_x = beta_xin*cosTP - beta_yin*sinTP
+  // beta_y = beta_yin*cosTP - beta_xin*sinTP
+  // beta_z = 
+
   //derive these to compute jacobian
   //x = xin + k*(pxin*sinTP-pyin*(1-cosTP));
   //y = yin + k*(pyin*sinTP+pxin*(1-cosTP));
   //z = zin + TD*ctgTheta;
+  //t = tin + (TD/c)*sqrt( 1 + ctgTheta**2 );
   //px = pxin*cosTP-pyin*sinTP;
   //py = pyin*cosTP+pxin*sinTP;
   //pz = pzin;
+  //beta_perp = beta_perpin;
 
   //jacobian
   SMatrix66 errorProp = ROOT::Math::SMatrixIdentity(); //what is not explicitly set below is 1 (0) on (off) diagonal
