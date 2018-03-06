@@ -1,5 +1,7 @@
 #include "SimpleTracking/SimpleTracking/interface/KalmanUtils.h"
 
+#define DEBUG
+
 static const SMatrix36 projMatrix  = ROOT::Math::SMatrixIdentity();
 static const SMatrix63 projMatrixT = ROOT::Math::Transpose(projMatrix);
 
@@ -84,7 +86,7 @@ TrackState updateParameters(const TrackState& propagatedState, const Measurement
 
 #ifdef DEBUG
   {
-    dmutex_guard;
+    //dmutex_guard;
     std::cout << "\n updateParameters \n" << std::endl << "propErr" << std::endl;
     dumpMatrix(propagatedState.errors);
     std::cout << "residual: " << res[0] << " " << res[1] << std::endl
