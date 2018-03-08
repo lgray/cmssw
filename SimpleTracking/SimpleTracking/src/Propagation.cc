@@ -1,6 +1,6 @@
 #include "SimpleTracking/SimpleTracking/interface/Propagation.h"
 
-constexpr double tolerance = 0.001;
+constexpr double tolerance = 0.0001;
 
 struct HelixState
 {
@@ -15,9 +15,9 @@ struct HelixState
     x = par.At(0);
     y = par.At(1);
     z = par.At(2);
-    px = par.At(3);
-    py = par.At(4);
-    pz = par.At(5);
+    px = std::cos(par.At(4))*std::abs(1.f/par.At(3)); //par.At(3); 
+    py = std::sin(par.At(4))*std::abs(1.f/par.At(3)); //par.At(4);
+    pz = std::abs(1.f/par.At(3))/std::tan(par.At(5)); //par.At(5);
     r0 = getHypot(x,y);
   }
 
@@ -67,9 +67,15 @@ void HelixState::updateHelix(float distance, bool updateDeriv, bool debug)
   par.At(0) = x + k*(px*sinAP-py*(1-cosAP));
   par.At(1) = y + k*(py*sinAP+px*(1-cosAP));
   par.At(2) = z + distance*ctgTheta;
-  par.At(3) = px*cosAP-py*sinAP;
-  par.At(4) = py*cosAP+px*sinAP;
-  par.At(5) = pz;
+  SVector3 local_p;
+
+  local_p[0] = px*cosAP-py*sinAP;
+  local_p[1] = py*cosAP+px*sinAP;
+  local_p[2] = pz;
+
+  par.At(3) = charge*1.0/std::hypot(local_p[0],local_p[1]);
+  par.At(4) = std::atan2(local_p[0],local_p[1]);
+  par.At(5) = std::atan2(std::hypot(local_p[0],local_p[1]),local_p[2]);
 
   dprint("x + " << k*(px*sinAP-py*(1-cosAP)) << std::endl
       << "y + " << k*(py*sinAP+px*(1-cosAP)) << std::endl

@@ -8,7 +8,7 @@
 constexpr unsigned nTracks = 1;
 constexpr unsigned nLayers = 16;
 // position units are cm
-constexpr double distanceBetweenLayers[nLayers] = {1.0, 1.0, 1.0, 1.0,
+constexpr double distanceBetweenLayers[nLayers] = {1.0, 1.0, 2.0, 2.0,
 						   5.0, 5.0, 5.0, 5.0,
 						   5.0, 5.0, 10.0, 10.0,
 						   10.0, 10.0, 10.0, 10.0};
@@ -40,9 +40,15 @@ int main() {
   const std::unordered_set<unsigned> seedingLayers = {0,1,2,3};
   
   const int genCharge = -1;
-  SVector3 genPos(0,0,0), genMom(std::sqrt(0.5),std::sqrt(0.5),0.1); // momentum to generate from, momentum units are GeV
+  SVector3 genPos(0,0,0), genMom(std::sqrt(0.5),std::sqrt(0.5),0.1);
+  SVector3 genMomRPT(genCharge*1.0/std::hypot(genMom[0],genMom[1]),
+		     std::atan2(genMom[0],genMom[1]),
+		     std::atan2(std::hypot(genMom[0],genMom[1]),genMom[2])); // momentum to generate from, momentum units are GeV
+
+  std::cout << "pT = " << std::abs(1.0/genMomRPT[0]) << " pZ = " << std::abs(1.f/genMomRPT[0])/std::tan(genMomRPT[2]) << std::endl;
+
   SMatrixSym66 genErrors;// = ROOT::Math::SMatrixIdentity();
-  TrackState genTrack(genCharge,genPos,genMom,genErrors);
+  TrackState genTrack(genCharge,genPos,genMomRPT,genErrors);
   
   
   std::array<bool, nLayers> layerHasMeasurement;
@@ -54,7 +60,7 @@ int main() {
     std::cout << "generating track: " << iTrk+1 << " with " << nLayers << " layers!" << std::endl;
     float total_r = 0.f;
     TrackState genState = genTrack;
-    for( unsigned iLay = 0; iLay < 1; ++iLay ) {
+    for( unsigned iLay = 0; iLay < nLayers; ++iLay ) {
       std::cout << "layer: " << iLay+1;
       total_r += distanceBetweenLayers[iLay];
       if( eff(gen) > layerEfficiency) { std::cout << std::endl; continue; } // apply efficiency
@@ -62,6 +68,7 @@ int main() {
       std::cout << " has a measurement!" << std::endl;
       PropagationFlags pflags;      
       genState = propagateHelixToR(genState,total_r, pflags);
+      std::cout << "gen pT: " << genState.pT() << std::endl;
       std::cout << genState.valid << ' ' << genState.parameters << std::endl;
       if( genState.valid ) {
 	// calculate the local -> global rotation matrix 
@@ -104,13 +111,14 @@ int main() {
   }
 
   std::cout << "done generating hits" << std::endl;
-
-  return 0;
+  
+  //return 0;
 
   // simplified seeding
   unsigned max_seed_layer = 0;
-  SVector3 r0(0,0,0), p0(std::sqrt(0.5),std::sqrt(0.5),0.1); // the seed guess 
+  SVector3 r0(0,0,0), p0(genMomRPT); // the seed guess 
   SMatrixSym66 seedErrors = ROOT::Math::SMatrixIdentity();
+  //seedErrors *= 10;
   TrackState seedTrack(genCharge,r0,p0,seedErrors);
   for( unsigned iTrk = 0; iTrk < nTracks; ++iTrk ) {
     float total_r = 0.f;
@@ -122,28 +130,37 @@ int main() {
 	PropagationFlags pflags;      
 	seedState = propagateHelixToR(seedState,total_r, pflags);
 	seedState = updateParameters(seedState,measurements[iLay].measurementState());
+	updateParametersWithTime(seedState,measurements[iLay].measurementState());
+	std::cout << "new pT = " << seedState.pT() << " +/- " << seedState.epT() << std::endl
+		  << "new pZ = " << seedState.pz() << " +/- " << std::sqrt(seedState.epzpz()) << std::endl;
       }
     }
     seedTrack = seedState;
   }
   
+  return 0;
+
   // trackfinding
   TrackState kfTrack = seedTrack;
   for( unsigned iTrk = 0; iTrk < nTracks; ++iTrk ) {
     float total_r = 0.f;
     TrackState kfState = kfTrack;
-    for( unsigned iLay = 0; iLay <= max_seed_layer; ++iLay ) {
+    for( unsigned iLay =0 ; iLay <= max_seed_layer ; ++iLay ) {
       total_r += distanceBetweenLayers[iLay]; 
     }
-    for( unsigned iLay = max_seed_layer; iLay < nLayers; ++iLay ) {
+    for( unsigned iLay = max_seed_layer+1; iLay < nLayers; ++iLay ) {
       total_r += distanceBetweenLayers[iLay];      
       if( layerHasMeasurement[iLay] ) {
 	PropagationFlags pflags;      
 	kfState = propagateHelixToR(kfState,total_r, pflags);
 	kfState = updateParameters(kfState,measurements[iLay].measurementState());
+	std::cout << "new pT = " << kfState.pT() << " +/- " << kfState.epT() << std::endl
+		  << "new pZ = " << kfState.pz() << " +/- " << std::sqrt(kfState.epzpz()) << std::endl;
       }
     }
   }
+
+  
   
   return 0;
 }

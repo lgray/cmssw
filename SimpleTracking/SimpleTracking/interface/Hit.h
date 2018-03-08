@@ -158,19 +158,32 @@ struct MeasurementState
 {
 public:
   MeasurementState() {}
-  MeasurementState(const SVector3& p, const SVector6& e)
-    : pos_(p), err_(e) {}
-  MeasurementState(const SVector3& p, const SMatrixSym33& e)
-    : pos_(p) {
-      for (int i=0;i<6;++i) err_[i] = e.Array()[i];
-    }
-  const SVector3& parameters() const { return pos_; }
+  MeasurementState(const SVector3& p, const SVector6& e) {
+    pos_.Sub<SVector3>(0) = p;
+    err_.Sub<SVector6>(0) = e;
+  }
+    
+  MeasurementState(const SVector3& p, const SMatrixSym33& e) {
+    pos_.Sub<SVector3>(0) = p;
+    for (int i=0;i<6;++i) err_[i] = e.Array()[i];
+  }
+  MeasurementState(const SVector4& p, const SVector7& e) 
+  : pos_(p), err_(e) {}
+  
+  MeasurementState(const SVector4& p, const SMatrixSym44& e)
+  : pos_(p)
+  {   
+    for (int i=0;i<7;++i) err_[i] = e.Array()[i];
+  }
+
+  const SVector3& parameters() const { return pos_.Sub<SVector3>(0); }
+  const SVector4& parametersWithTime() const { return pos_; }
   SMatrixSym33 errors() const { 
     SMatrixSym33 result;
     for (int i=0;i<6;++i) result.Array()[i]=err_[i];
     return result; 
   }
-  SVector3 pos_;
+  SVector4 pos_;
   SVector6 err_;
 };
 
