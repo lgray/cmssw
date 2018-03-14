@@ -13,11 +13,23 @@ public:
   
   TrackState() : valid(true) {}
   TrackState(int charge, const SVector3& pos, const SVector3& mom, const SMatrixSym66& err) :
-    parameters(SVector6(pos.At(0),pos.At(1),pos.At(2),mom.At(0),mom.At(1),mom.At(2))),
+    parameters(SVector8(pos.At(0),pos.At(1),pos.At(2),0.0,mom.At(0),mom.At(1),mom.At(2),0.0)),
+    charge(charge), valid(true) {
+      for(unsigned i = 0; i < 6; ++i) {
+	for(unsigned j = 0; j < 6; ++j) {
+	  errors[i > 2 ? i+1 : i][j > 2 ? j+1 : j] = err[i][j];
+	}
+      }
+    }
+  TrackState(int charge, const SVector4& pos, const SVector3& mom,const double mass, const SMatrixSym88& err) :
+  parameters(SVector8(pos.At(0),pos.At(1),pos.At(2),pos.At(3),mom.At(0),mom.At(1),mom.At(2), std::sqrt(mom[0]*mom[0]+mom[1]*mom[1]+mom[2]*mom[2])/mass)),
     errors(err), charge(charge), valid(true) {}
-  SVector3 position() const {return SVector3(parameters[0],parameters[1],parameters[2]);}
-  SVector6 parameters;
-  SMatrixSym66 errors;
+  
+  SVector3 position() const {return parameters.Sub<SVector3>(0);}
+  SVector4 positionWithTime() const {return parameters.Sub<SVector4>(0);}
+  
+  SVector8 parameters;
+  SMatrixSym88 errors;
   short charge;
   bool valid;
 
@@ -25,6 +37,7 @@ public:
   float x()      const {return parameters.At(0);}
   float y()      const {return parameters.At(1);}
   float z()      const {return parameters.At(2);}
+  float t()      const {return parameters.At(3);}
   float posR()   const {return getHypot(x(),y());}
   float posPhi() const {return getPhi  (x(),y());}
   float posEta() const {return getEta  (posR(),z());}
@@ -36,6 +49,7 @@ public:
   float exy()    const {return std::sqrt(errors.At(0,1));}
   float exz()    const {return std::sqrt(errors.At(0,2));}
   float eyz()    const {return std::sqrt(errors.At(1,2));}
+  float ett()    const {return std::sqrt(errors.At(3,3));}
 
   float eposR()   const {return std::sqrt(getRadErr2(x(),y(),errors.At(0,0),errors.At(1,1),errors.At(0,1)));}
   float eposPhi() const {return std::sqrt(getPhiErr2(x(),y(),errors.At(0,0),errors.At(1,1),errors.At(0,1)));}
@@ -43,29 +57,38 @@ public:
 						     errors.At(0,1),errors.At(0,2),errors.At(1,2)));}
 
   // track state momentum
-  float invpT()  const {return parameters.At(3);}
-  float momPhi() const {return parameters.At(4);}
-  float theta()  const {return parameters.At(5);}
-  float pT()     const {return std::abs(1.f/parameters.At(3));}
-  float px()     const {return pT()*std::cos(parameters.At(4));}
-  float py()     const {return pT()*std::sin(parameters.At(4));}
-  float pz()     const {return pT()/std::tan(parameters.At(5));}
+  float invpT()  const {return parameters.At(4);}
+  float momPhi() const {return parameters.At(5);}
+  float theta()  const {return parameters.At(6);}
+  float pT()     const {return std::abs(1.f/parameters.At(4));}
+  float px()     const {return pT()*std::cos(parameters.At(5));}
+  float py()     const {return pT()*std::sin(parameters.At(6));}
+  float pz()     const {return pT()/std::tan(parameters.At(6));}
   float momEta() const {return getEta (theta());}
-  float p()      const {return pT()/std::sin(parameters.At(5));}
+  float p()      const {return pT()/std::sin(parameters.At(6));}
 
-  float einvpT()  const {return std::sqrt(errors.At(3,3));}
-  float emomPhi() const {return std::sqrt(errors.At(4,4));}
-  float etheta()  const {return std::sqrt(errors.At(5,5));}
-  float epT()     const {return std::sqrt(errors.At(3,3))/(parameters.At(3)*parameters.At(3));}
-  float emomEta() const {return std::sqrt(errors.At(5,5))/std::sin(parameters.At(5));}
-  float epxpx()   const {return std::sqrt(getPxPxErr2(invpT(),momPhi(),errors.At(3,3),errors.At(4,4)));}
-  float epypy()   const {return std::sqrt(getPyPyErr2(invpT(),momPhi(),errors.At(3,3),errors.At(4,4)));}
-  float epzpz()   const {return std::sqrt(getPyPyErr2(invpT(),theta(),errors.At(3,3),errors.At(5,5)));}
+  float einvpT()  const {return std::sqrt(errors.At(4,4));}
+  float emomPhi() const {return std::sqrt(errors.At(5,5));}
+  float etheta()  const {return std::sqrt(errors.At(6,6));}
+  float epT()     const {return std::sqrt(errors.At(4,4))/(parameters.At(4)*parameters.At(4));}
+  float emomEta() const {return std::sqrt(errors.At(6,6))/std::sin(parameters.At(6));}
+  float epxpx()   const {return std::sqrt(getPxPxErr2(invpT(),momPhi(),errors.At(4,4),errors.At(5,5)));}
+  float epypy()   const {return std::sqrt(getPyPyErr2(invpT(),momPhi(),errors.At(4,4),errors.At(5,5)));}
+  float epzpz()   const {return std::sqrt(getPyPyErr2(invpT(),theta(),errors.At(4,4),errors.At(6,6)));}
+
+  //track state betagamma
+  float betagamma() const {return parameters.At(7);}
+  float ebetagamma() const { return std::sqrt(errors.At(7,7)); }
+  float beta() const {return parameters.At(7)/std::sqrt(std::pow(parameters.At(7),2)+1); }
+  float ebeta() const { 
+    const float denom = 1.f/std::sqrt(std::pow(parameters.At(7),2)+1); 
+    return std::sqrt(errors.At(7,7))*denom*( 1.f - beta()*denom ); 
+  }
 
   void convertFromCartesianToCCS();
   void convertFromCCSToCartesian();
-  SMatrix66 jacobianCCSToCartesian(float invpt,float phi,float theta) const;
-  SMatrix66 jacobianCartesianToCCS(float px,float py,float pz) const;
+  SMatrix88 jacobianCCSToCartesian(float invpt,float phi,float theta) const;
+  SMatrix88 jacobianCartesianToCCS(float px,float py,float pz) const;
 };
 
 
@@ -90,19 +113,39 @@ public:
   Track(int charge, const SVector3& position, const SVector3& momentum, const SMatrixSym66& errors, float chi2) :
     state_(charge, position, momentum, errors), chi2_(chi2) {}
 
+ Track(int charge, const SVector4& position, const SVector3& momentum, const float mass, const SMatrixSym88& errors, float chi2) :
+    state_(charge, position, momentum, mass, errors), chi2_(chi2) {}
+
   
   ~Track(){}
 
-  const SVector6&     parameters() const {return state_.parameters;}
-  const SMatrixSym66& errors()     const {return state_.errors;}
+  SVector6     parameters() const {return SVector6(state_.parameters[0],
+						   state_.parameters[1],
+						   state_.parameters[2],
+						   state_.parameters[4],
+						   state_.parameters[5],
+						   state_.parameters[6]);}
+  SMatrixSym66 errors()     const {
+    SMatrixSym66 result;
+    for(unsigned i = 0; i < 6; ++i) {
+      for(unsigned j = 0; j < 6; ++j) {
+	result[i][j] = state_.errors[(i > 2 ? i+1 : i)][(j > 2? j+1 : j)];
+      }
+    }
+    return result;
+  }
+  SVector8     parametersWithTime() const {return state_.parameters;}
+  SMatrixSym88 errorsWithTime()     const {return state_.errors;}
   const TrackState&   state()      const {return state_;}
+
+
 
   const float* posArray() const {return state_.parameters.Array();}
   const float* errArray() const {return state_.errors.Array();}
 
   // Non-const versions needed for CopyOut of Matriplex.
-  SVector6&     parameters_nc() {return state_.parameters;}
-  SMatrixSym66& errors_nc()     {return state_.errors;}
+  //SVector6&     parameters_nc() {return state_.parameters;}
+  //SMatrixSym66& errors_nc()     {return state_.errors;}
   TrackState&   state_nc()      {return state_;}
 
   SVector3 position() const {return SVector3(state_.parameters[0],state_.parameters[1],state_.parameters[2]);}

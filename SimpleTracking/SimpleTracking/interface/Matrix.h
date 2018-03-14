@@ -19,21 +19,33 @@ typedef ROOT::Math::SVector<float,2> SVector2;
 typedef ROOT::Math::SMatrix<float,3,6> SMatrix36;
 typedef ROOT::Math::SMatrix<float,6,3> SMatrix63;
 
+typedef ROOT::Math::SMatrix<float,3,7> SMatrix37;
+typedef ROOT::Math::SMatrix<float,7,3> SMatrix73;
+
 typedef ROOT::Math::SMatrix<float,2,6> SMatrix26;
 typedef ROOT::Math::SMatrix<float,6,2> SMatrix62;
+
+typedef ROOT::Math::SMatrix<float,2,8> SMatrix28;
+typedef ROOT::Math::SMatrix<float,8,2> SMatrix82;
 
 //4D extensions
 typedef ROOT::Math::SMatrix<float,8,8,ROOT::Math::MatRepSym<float,8> >    SMatrixSym88;
 typedef ROOT::Math::SMatrix<float,8> SMatrix88;
 typedef ROOT::Math::SVector<float,7> SVector7;
 typedef ROOT::Math::SVector<float,8> SVector8;
+typedef ROOT::Math::SVector<float,10> SVector10;
 
 typedef ROOT::Math::SMatrix<float,4> SMatrix44;
+typedef ROOT::Math::SMatrix<float,7> SMatrix77;
 typedef ROOT::Math::SMatrix<float,4,4,ROOT::Math::MatRepSym<float,4> >    SMatrixSym44;
+typedef ROOT::Math::SMatrix<float,7,7,ROOT::Math::MatRepSym<float,7> >    SMatrixSym77;
 typedef ROOT::Math::SVector<float,4> SVector4;
 
 typedef ROOT::Math::SMatrix<float,4,8> SMatrix48;
 typedef ROOT::Math::SMatrix<float,8,4> SMatrix84;
+
+typedef ROOT::Math::SMatrix<float,4,7> SMatrix47;
+typedef ROOT::Math::SMatrix<float,7,4> SMatrix74;
 
 typedef ROOT::Math::SMatrix<float,3,8> SMatrix38;
 typedef ROOT::Math::SMatrix<float,8,3> SMatrix83;

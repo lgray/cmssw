@@ -159,32 +159,44 @@ struct MeasurementState
 public:
   MeasurementState() {}
   MeasurementState(const SVector3& p, const SVector6& e) {
-    pos_.Sub<SVector3>(0) = p;
-    err_.Sub<SVector6>(0) = e;
+    for(unsigned i = 0; i < 3; ++i) {
+      pos_[i] = p[i];
+      for(unsigned j = i; j < 3; ++j ) {
+	err_[i][j] = e[i*4+j];
+      }
+    }
   }
     
   MeasurementState(const SVector3& p, const SMatrixSym33& e) {
-    pos_.Sub<SVector3>(0) = p;
-    for (int i=0;i<6;++i) err_[i] = e.Array()[i];
+    for(unsigned i = 0; i < 3; ++i) {
+      pos_[i] = p[i];
+      for(unsigned j = i; j < 3; ++j ) {
+	err_[i][j] = e[i][j];
+      }
+    }
   }
-  MeasurementState(const SVector4& p, const SVector7& e) 
-  : pos_(p), err_(e) {}
+  MeasurementState(const SVector4& p, const SVector10& e) 
+  : pos_(p) {
+    err_ = SMatrixSym44(e);
+  }
   
   MeasurementState(const SVector4& p, const SMatrixSym44& e)
-  : pos_(p)
+  : pos_(p), err_(e)
   {   
-    for (int i=0;i<7;++i) err_[i] = e.Array()[i];
   }
 
-  const SVector3& parameters() const { return pos_.Sub<SVector3>(0); }
+  SVector3 parameters() const { return pos_.Sub<SVector3>(0); }
   const SVector4& parametersWithTime() const { return pos_; }
-  SMatrixSym33 errors() const { 
-    SMatrixSym33 result;
-    for (int i=0;i<6;++i) result.Array()[i]=err_[i];
-    return result; 
+  SMatrixSym33 errors() const {     
+    return err_.Sub<SMatrixSym33>(0,0); 
   }
+
+  const SMatrixSym44& errorsWithTime() const {     
+    return err_; 
+  }
+
   SVector4 pos_;
-  SVector6 err_;
+  SMatrixSym44 err_;
 };
 
 class Hit
@@ -194,18 +206,21 @@ public:
   Hit(const SVector3& position, const SMatrixSym33& error, int mcHitID = -1)
     : state_(position, error), mcHitID_(mcHitID) {}
 
+  Hit(const SVector4& position, const SMatrixSym44& error, int mcHitID = -1)
+    : state_(position, error), mcHitID_(mcHitID) {}
+
   ~Hit(){}
 
-  const SVector3&  position()  const {return state_.parameters();}
-  const SVector3& parameters() const {return state_.parameters();}
+  SVector3  position()  const {return state_.parameters();}
+  SVector3  parameters() const {return state_.parameters();}
   const SMatrixSym33 error()  const {return state_.errors();}
 
   const float* posArray() const {return state_.pos_.Array();}
   const float* errArray() const {return state_.err_.Array();}
 
   // Non-const versions needed for CopyOut of Matriplex.
-  SVector3&     parameters_nc() {return state_.pos_;}
-  SVector6&     error_nc()      {return state_.err_;}
+  //SVector3&     parameters_nc() {return state_.pos_;}
+  //SVector6&     error_nc()      {return state_.err_;}
 
   float r() const {
     return sqrtf(state_.parameters().At(0)*state_.parameters().At(0) +
@@ -220,6 +235,9 @@ public:
   float z() const {
     return state_.parameters().At(2);
   }
+  float t() const {
+    return state_.parameters().At(3);
+  }  
   float exx() const {
     return state_.errors().At(0,0);
   }
@@ -228,6 +246,9 @@ public:
   }
   float ezz() const {
     return state_.errors().At(2,2);
+  }
+  float ett() const {
+    return state_.errors().At(3,3);
   }
   float phi() const {
     return getPhi(state_.parameters().At(0), state_.parameters().At(1));

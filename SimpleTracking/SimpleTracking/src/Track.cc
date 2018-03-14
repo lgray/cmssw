@@ -6,65 +6,65 @@
 
 void TrackState::convertFromCartesianToCCS() {
   //assume we are currently in cartesian coordinates and want to move to ccs
-  const float px = parameters.At(3);
-  const float py = parameters.At(4);
-  const float pz = parameters.At(5);
+  const float px = parameters.At(4);
+  const float py = parameters.At(5);
+  const float pz = parameters.At(6);
   const float pt = std::sqrt(px*px+py*py);
   const float phi = getPhi(px,py);
   const float theta = getTheta(pt,pz);
-  parameters.At(3) = 1.f/pt;
-  parameters.At(4) = phi;
-  parameters.At(5) = theta;
-  SMatrix66 jac = jacobianCartesianToCCS(px,py,pz);
+  parameters.At(4) = 1.f/pt;
+  parameters.At(5) = phi;
+  parameters.At(6) = theta;
+  SMatrix88 jac = jacobianCartesianToCCS(px,py,pz);
   errors = ROOT::Math::Similarity(jac,errors);
 }
 
 void TrackState::convertFromCCSToCartesian() {
   //assume we are currently in ccs coordinates and want to move to cartesian
-  const float invpt = parameters.At(3);
-  const float phi   = parameters.At(4);
-  const float theta = parameters.At(5);
+  const float invpt = parameters.At(4);
+  const float phi   = parameters.At(5);
+  const float theta = parameters.At(6);
   const float pt = 1.f/invpt;
   float cosP = std::cos(phi);
   float sinP = std::sin(phi);
   float cosT = std::cos(theta);
   float sinT = std::sin(theta);
-  parameters.At(3) = cosP*pt;
-  parameters.At(4) = sinP*pt;
-  parameters.At(5) = cosT*pt/sinT;
-  SMatrix66 jac = jacobianCCSToCartesian(invpt, phi, theta);
+  parameters.At(4) = cosP*pt;
+  parameters.At(5) = sinP*pt;
+  parameters.At(6) = cosT*pt/sinT;
+  SMatrix88 jac = jacobianCCSToCartesian(invpt, phi, theta);
   errors = ROOT::Math::Similarity(jac,errors);
 }
 
-SMatrix66 TrackState::jacobianCCSToCartesian(float invpt,float phi,float theta) const {
+SMatrix88 TrackState::jacobianCCSToCartesian(float invpt,float phi,float theta) const {
   //arguments are passed so that the function can be used both starting from ccs and from cartesian
-  SMatrix66 jac = ROOT::Math::SMatrixIdentity();
+  SMatrix88 jac = ROOT::Math::SMatrixIdentity();
   float cosP = std::cos(phi);
   float sinP = std::sin(phi);
   float cosT = std::cos(theta);
   float sinT = std::sin(theta);
   const float pt = 1.f/invpt;
-  jac(3,3) = -cosP*pt*pt;
-  jac(3,4) = -sinP*pt;
-  jac(4,3) = -sinP*pt*pt;
-  jac(4,4) =  cosP*pt;
-  jac(5,3) = -cosT*pt*pt/sinT;
-  jac(5,5) = -pt/(sinT*sinT);
+  jac(4,4) = -cosP*pt*pt;
+  jac(4,5) = -sinP*pt;
+  jac(5,4) = -sinP*pt*pt;
+  jac(5,5) =  cosP*pt;
+  jac(6,4) = -cosT*pt*pt/sinT;
+  jac(6,6) = -pt/(sinT*sinT);
   return jac;
 }
 
-SMatrix66 TrackState::jacobianCartesianToCCS(float px,float py,float pz) const {
+SMatrix88 TrackState::jacobianCartesianToCCS(float px,float py,float pz) const {
   //arguments are passed so that the function can be used both starting from ccs and from cartesian
-  SMatrix66 jac = ROOT::Math::SMatrixIdentity();
+  SMatrix88 jac = ROOT::Math::SMatrixIdentity();
   const float pt = std::sqrt(px*px+py*py);
   const float p2 = px*px+py*py+pz*pz;
-  jac(3,3) = -px/(pt*pt*pt);
-  jac(3,4) = -py/(pt*pt*pt);
-  jac(4,3) = -py/(pt*pt);
-  jac(4,4) =  px/(pt*pt);
-  jac(5,3) =  px*pz/(pt*p2);
-  jac(5,4) =  py*pz/(pt*p2);
-  jac(5,5) = -pt/p2;
+  jac(4,4) = -px/(pt*pt*pt);
+  jac(4,5) = -py/(pt*pt*pt);
+  jac(5,4) = -py/(pt*pt);
+  jac(5,5) =  px/(pt*pt);
+  jac(6,4) =  px*pz/(pt*p2);
+  jac(6,5) =  py*pz/(pt*p2);
+  jac(6,6) = -pt/p2;
   return jac;
 }
 

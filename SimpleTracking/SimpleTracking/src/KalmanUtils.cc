@@ -2,8 +2,12 @@
 
 #define DEBUG
 
-static const SMatrix36 projMatrix  = ROOT::Math::SMatrixIdentity();
-static const SMatrix63 projMatrixT = ROOT::Math::Transpose(projMatrix);
+static const SMatrix38 projMatrix  = ROOT::Math::SMatrixIdentity();
+static const SMatrix83 projMatrixT = ROOT::Math::Transpose(projMatrix);
+
+static const SMatrix48 projMatrixTime  = ROOT::Math::SMatrixIdentity();
+static const SMatrix84 projMatrixTimeT = ROOT::Math::Transpose(projMatrixTime);
+
 
 TrackState updateParameters(const TrackState& propagatedState, const MeasurementState& measurementState)
 {
@@ -37,45 +41,45 @@ TrackState updateParameters(const TrackState& propagatedState, const Measurement
   resErrInv[1][1] = resErrInv22[1][1];
   resErrInv[1][0] = resErrInv22[1][0];
 
-  SVector6 pred_ccs = propagatedState.parameters;
-  pred_ccs[3] = 1./propagatedState.pT();
-  pred_ccs[4] = propagatedState.momPhi();
-  pred_ccs[5] = propagatedState.theta();
-  SMatrix66 jac_ccs = ROOT::Math::SMatrixIdentity();
-  jac_ccs[3][3] = -propagatedState.px()/pow(propagatedState.pT(),3);
-  jac_ccs[3][4] = -propagatedState.py()/pow(propagatedState.pT(),3);
-  jac_ccs[4][3] = -propagatedState.py()/pow(propagatedState.pT(),2);
-  jac_ccs[4][4] =  propagatedState.px()/pow(propagatedState.pT(),2);
-  jac_ccs[5][3] =  propagatedState.px()*propagatedState.pz()/(propagatedState.pT()*pow(propagatedState.p(),2));
-  jac_ccs[5][4] =  propagatedState.py()*propagatedState.pz()/(propagatedState.pT()*pow(propagatedState.p(),2));
-  jac_ccs[5][5] = -propagatedState.pT()/pow(propagatedState.p(),2);
-  SMatrixSym66 pred_err_ccs = ROOT::Math::Similarity(jac_ccs,propagatedState.errors);
-  SVector6 up_pars_ccs =  pred_ccs + pred_err_ccs*projMatrixT*rot*resErrInv*res;
+  SVector8 pred_ccs = propagatedState.parameters;
+  pred_ccs[4] = 1./propagatedState.pT();
+  pred_ccs[5] = propagatedState.momPhi();
+  pred_ccs[6] = propagatedState.theta();
+  SMatrix88 jac_ccs = ROOT::Math::SMatrixIdentity();
+  jac_ccs[4][4] = -propagatedState.px()/pow(propagatedState.pT(),3);
+  jac_ccs[4][5] = -propagatedState.py()/pow(propagatedState.pT(),3);
+  jac_ccs[5][4] = -propagatedState.py()/pow(propagatedState.pT(),2);
+  jac_ccs[5][5] =  propagatedState.px()/pow(propagatedState.pT(),2);
+  jac_ccs[6][4] =  propagatedState.px()*propagatedState.pz()/(propagatedState.pT()*pow(propagatedState.p(),2));
+  jac_ccs[6][5] =  propagatedState.py()*propagatedState.pz()/(propagatedState.pT()*pow(propagatedState.p(),2));
+  jac_ccs[6][6] = -propagatedState.pT()/pow(propagatedState.p(),2);
+  SMatrixSym88 pred_err_ccs = ROOT::Math::Similarity(jac_ccs,propagatedState.errors);
+  SVector8 up_pars_ccs =  pred_ccs + pred_err_ccs*projMatrixT*rot*resErrInv*res;
 
-  SMatrixSym66 I66 = ROOT::Math::SMatrixIdentity();
-  SMatrix36 H = rotT*projMatrix;
-  SMatrix63 K = pred_err_ccs*ROOT::Math::Transpose(H)*resErrInv;
+  SMatrixSym88 I88 = ROOT::Math::SMatrixIdentity();
+  SMatrix38 H = rotT*projMatrix;
+  SMatrix83 K = pred_err_ccs*ROOT::Math::Transpose(H)*resErrInv;
   SMatrixSym33 locErrMeas = ROOT::Math::SimilarityT(rot,measurementState.errors());
   locErrMeas[2][0] = 0;
   locErrMeas[2][1] = 0;
   locErrMeas[2][2] = 0;
   locErrMeas[1][2] = 0;
   locErrMeas[0][2] = 0;
-  SMatrixSym66 up_errs_ccs = ROOT::Math::Similarity(I66-K*H,pred_err_ccs) + ROOT::Math::Similarity(K,locErrMeas);
-  SMatrix66 jac_back_ccs = ROOT::Math::SMatrixIdentity();
-  jac_back_ccs[3][3] = -cos(up_pars_ccs[4])/pow(up_pars_ccs[3],2);
-  jac_back_ccs[3][4] = -sin(up_pars_ccs[4])/up_pars_ccs[3];
-  jac_back_ccs[4][3] = -sin(up_pars_ccs[4])/pow(up_pars_ccs[3],2);
-  jac_back_ccs[4][4] =  cos(up_pars_ccs[4])/up_pars_ccs[3];
-  jac_back_ccs[5][3] = -cos(up_pars_ccs[5])/(sin(up_pars_ccs[5])*pow(up_pars_ccs[3],2));
-  jac_back_ccs[5][5] = -1./(pow(sin(up_pars_ccs[5]),2)*up_pars_ccs[3]);
+  SMatrixSym88 up_errs_ccs = ROOT::Math::Similarity(I88-K*H,pred_err_ccs) + ROOT::Math::Similarity(K,locErrMeas);
+  SMatrix88 jac_back_ccs = ROOT::Math::SMatrixIdentity();
+  jac_back_ccs[4][4] = -cos(up_pars_ccs[5])/pow(up_pars_ccs[4],2);
+  jac_back_ccs[4][5] = -sin(up_pars_ccs[5])/up_pars_ccs[4];
+  jac_back_ccs[5][4] = -sin(up_pars_ccs[5])/pow(up_pars_ccs[4],2);
+  jac_back_ccs[5][5] =  cos(up_pars_ccs[5])/up_pars_ccs[4];
+  jac_back_ccs[6][4] = -cos(up_pars_ccs[6])/(sin(up_pars_ccs[6])*pow(up_pars_ccs[4],2));
+  jac_back_ccs[6][6] = -1./(pow(sin(up_pars_ccs[6]),2)*up_pars_ccs[4]);
 
   TrackState result;
   result.parameters = up_pars_ccs;
-  //result.parameters[3] = cos(up_pars_ccs[4])/up_pars_ccs[3];
-  //result.parameters[4] = sin(up_pars_ccs[4])/up_pars_ccs[3];
-  //result.parameters[5] = cos(up_pars_ccs[5])/(sin(up_pars_ccs[5])*up_pars_ccs[3]);
-  result.errors = ROOT::Math::Similarity(jac_back_ccs,up_errs_ccs);
+  //result.parameters[4] = cos(up_pars_ccs[5])/up_pars_ccs[4];
+  //result.parameters[5] = sin(up_pars_ccs[5])/up_pars_ccs[4];
+  //result.parameters[6] = cos(up_pars_ccs[6])/(sin(up_pars_ccs[6])*up_pars_ccs[4]);
+  result.errors = up_errs_ccs; //ROOT::Math::Similarity(jac_back_ccs,up_errs_ccs);
   result.charge = propagatedState.charge;
   result.valid = propagatedState.valid;
 
@@ -132,24 +136,21 @@ TrackState updateParametersWithTime(const TrackState& propagatedState, const Mea
 
   std::cout << "4D rotation:\n" << rot << std::endl;
   
-  const SMatrix44 rotT = ROOT::Math::Transpose(rot);
-  SVector4 measuredState,propState;
-  // setup propagated 4D state
-  propState.Sub<SVector3>(0) = propagatedState.parameters.Sub<SVector3>(0);
-  propState[3] = 0.0;
-  // setup measured 4D state;
-  measuredState.Sub<SVector3>(0) = measurementState.parameters();
-  measuredState[3] = 0.0;
-  const SVector4 res_glo = measurementState.parameters()-propState;
+  const SMatrix44 rotT = ROOT::Math::Transpose(rot); 
+  const SVector4 res_glo = measurementState.parametersWithTime()-propagatedState.parameters.Sub<SVector4>(0);
   const SVector4 res_loc4 = rotT * res_glo;
   const SVector4 res(res_loc4[0],res_loc4[1],0,res_loc4[3]);
-  const SMatrixSym44 resErr_glo = measurementState.errors() + propagatedState.errors.Sub<SMatrixSym44>(0,0);
+  const SMatrixSym44 resErr_glo = measurementState.errorsWithTime() + propagatedState.errors.Sub<SMatrixSym44>(0,0);
   //the matrix to invert has to be 3x3
   int invFail(0);
-  const SMatrixSym33 resErr33;
-  
-  resErr33 +=  ROOT::Math::SimilarityT(rot,resErr_glo).Sub<SMatrixSym22>(0,0);
-  const SMatrixSym33 resErrInv33 = resErr22.InverseFast(invFail);
+  SMatrixSym33 resErr33;  
+  SMatrixSym44 resErr_loc = ROOT::Math::SimilarityT(rot,resErr_glo);
+  resErr33[0][0] = resErr_loc[0][0];
+  resErr33[0][1] = resErr_loc[0][1];
+  resErr33[1][1] = resErr_loc[1][1];
+  resErr33[2][2] = resErr_loc[3][3];
+  std::cout << "resErr33:\n" << resErr33 << std::endl;
+  const SMatrixSym33 resErrInv33 = resErr33.InverseFast(invFail);
   if (0 != invFail) {
     dprint(__FILE__ << ":" << __LINE__ << ": FAILED INVERSION");
     return propagatedState;
@@ -160,49 +161,60 @@ TrackState updateParametersWithTime(const TrackState& propagatedState, const Mea
   resErrInv[1][1] = resErrInv33[1][1];
   resErrInv[1][0] = resErrInv33[1][0];
   resErrInv[3][3] = resErrInv33[2][2];
+    
+  SVector8 pred_ccs = propagatedState.parameters;
+  pred_ccs[4] = 1./propagatedState.pT();
+  pred_ccs[5] = propagatedState.momPhi();
+  pred_ccs[6] = propagatedState.theta();
+  pred_ccs[7] = propagatedState.betagamma();
+  SMatrix88 jac_ccs = ROOT::Math::SMatrixIdentity();
+  jac_ccs[4][4] = -propagatedState.px()/pow(propagatedState.pT(),3);
+  jac_ccs[4][5] = -propagatedState.py()/pow(propagatedState.pT(),3);
+  jac_ccs[5][4] = -propagatedState.py()/pow(propagatedState.pT(),2);
+  jac_ccs[5][5] =  propagatedState.px()/pow(propagatedState.pT(),2);
+  jac_ccs[6][4] =  propagatedState.px()*propagatedState.pz()/(propagatedState.pT()*pow(propagatedState.p(),2));
+  jac_ccs[6][5] =  propagatedState.py()*propagatedState.pz()/(propagatedState.pT()*pow(propagatedState.p(),2));
+  jac_ccs[6][6] = -propagatedState.pT()/pow(propagatedState.p(),2);
+  // time / betagamma
+  const float mass = propagatedState.p()/propagatedState.betagamma();
+  std::cout << " mass = " << mass << std::endl;
+  jac_ccs[7][4] = propagatedState.px()/(propagatedState.p()*mass);
+  jac_ccs[7][5] = propagatedState.py()/(propagatedState.p()*mass);
+  jac_ccs[7][6] = propagatedState.pz()/(propagatedState.p()*mass);
 
   
+  SMatrixSym88 pred_err_ccs = ROOT::Math::Similarity(jac_ccs,propagatedState.errors);
+  SVector8 up_pars_ccs =  pred_ccs + pred_err_ccs*projMatrixTimeT*rot*resErrInv*res;
 
-  /*
-  SVector6 pred_ccs = propagatedState.parameters;
-  pred_ccs[3] = 1./propagatedState.pT();
-  pred_ccs[4] = propagatedState.momPhi();
-  pred_ccs[5] = propagatedState.theta();
-  SMatrix66 jac_ccs = ROOT::Math::SMatrixIdentity();
-  jac_ccs[3][3] = -propagatedState.px()/pow(propagatedState.pT(),3);
-  jac_ccs[3][4] = -propagatedState.py()/pow(propagatedState.pT(),3);
-  jac_ccs[4][3] = -propagatedState.py()/pow(propagatedState.pT(),2);
-  jac_ccs[4][4] =  propagatedState.px()/pow(propagatedState.pT(),2);
-  jac_ccs[5][3] =  propagatedState.px()*propagatedState.pz()/(propagatedState.pT()*pow(propagatedState.p(),2));
-  jac_ccs[5][4] =  propagatedState.py()*propagatedState.pz()/(propagatedState.pT()*pow(propagatedState.p(),2));
-  jac_ccs[5][5] = -propagatedState.pT()/pow(propagatedState.p(),2);
-  SMatrixSym66 pred_err_ccs = ROOT::Math::Similarity(jac_ccs,propagatedState.errors);
-  SVector6 up_pars_ccs =  pred_ccs + pred_err_ccs*projMatrixT*rot*resErrInv*res;
-
-  SMatrixSym66 I66 = ROOT::Math::SMatrixIdentity();
-  SMatrix36 H = rotT*projMatrix;
-  SMatrix63 K = pred_err_ccs*ROOT::Math::Transpose(H)*resErrInv;
-  SMatrixSym33 locErrMeas = ROOT::Math::SimilarityT(rot,measurementState.errors());
+  SMatrixSym88 I88 = ROOT::Math::SMatrixIdentity();
+  SMatrix48 H = rotT*projMatrixTime;
+  SMatrix84 K = pred_err_ccs*ROOT::Math::Transpose(H)*resErrInv;
+  SMatrixSym44 locErrMeas = ROOT::Math::SimilarityT(rot,measurementState.errorsWithTime());
+  locErrMeas[3][0] = 0;
+  locErrMeas[3][1] = 0;
+  locErrMeas[3][2] = 0;
   locErrMeas[2][0] = 0;
   locErrMeas[2][1] = 0;
   locErrMeas[2][2] = 0;
   locErrMeas[1][2] = 0;
   locErrMeas[0][2] = 0;
-  SMatrixSym66 up_errs_ccs = ROOT::Math::Similarity(I66-K*H,pred_err_ccs) + ROOT::Math::Similarity(K,locErrMeas);
-  SMatrix66 jac_back_ccs = ROOT::Math::SMatrixIdentity();
-  jac_back_ccs[3][3] = -cos(up_pars_ccs[4])/pow(up_pars_ccs[3],2);
-  jac_back_ccs[3][4] = -sin(up_pars_ccs[4])/up_pars_ccs[3];
-  jac_back_ccs[4][3] = -sin(up_pars_ccs[4])/pow(up_pars_ccs[3],2);
-  jac_back_ccs[4][4] =  cos(up_pars_ccs[4])/up_pars_ccs[3];
-  jac_back_ccs[5][3] = -cos(up_pars_ccs[5])/(sin(up_pars_ccs[5])*pow(up_pars_ccs[3],2));
-  jac_back_ccs[5][5] = -1./(pow(sin(up_pars_ccs[5]),2)*up_pars_ccs[3]);
+  SMatrixSym88 up_errs_ccs = ROOT::Math::Similarity(I88-K*H,pred_err_ccs) + ROOT::Math::Similarity(K,locErrMeas);
+  /*
+  SMatrix88 jac_back_ccs = ROOT::Math::SMatrixIdentity();
+  jac_back_ccs[4][4] = -cos(up_pars_ccs[4])/pow(up_pars_ccs[3],2);
+  jac_back_ccs[4][5] = -sin(up_pars_ccs[4])/up_pars_ccs[3];
+  jac_back_ccs[5][4] = -sin(up_pars_ccs[4])/pow(up_pars_ccs[3],2);
+  jac_back_ccs[5][5] =  cos(up_pars_ccs[4])/up_pars_ccs[3];
+  jac_back_ccs[6][4] = -cos(up_pars_ccs[5])/(sin(up_pars_ccs[5])*pow(up_pars_ccs[3],2));
+  jac_back_ccs[6][6] = -1./(pow(sin(up_pars_ccs[5]),2)*up_pars_ccs[3]);
+  */
   
   TrackState result;
   result.parameters = up_pars_ccs;
   //result.parameters[3] = cos(up_pars_ccs[4])/up_pars_ccs[3];
   //result.parameters[4] = sin(up_pars_ccs[4])/up_pars_ccs[3];
   //result.parameters[5] = cos(up_pars_ccs[5])/(sin(up_pars_ccs[5])*up_pars_ccs[3]);
-  result.errors = ROOT::Math::Similarity(jac_back_ccs,up_errs_ccs);
+  result.errors = up_errs_ccs;//ROOT::Math::Similarity(jac_back_ccs,up_errs_ccs);
   result.charge = propagatedState.charge;
   result.valid = propagatedState.valid;
 
@@ -216,11 +228,11 @@ TrackState updateParametersWithTime(const TrackState& propagatedState, const Mea
     //dmutex_guard;
     std::cout << "\n updateParameters \n" << std::endl << "propErr" << std::endl;
     dumpMatrix(propagatedState.errors);
-    std::cout << "residual: " << res[0] << " " << res[1] << std::endl
-              << "resErr22" << std::endl;
-    dumpMatrix(resErr22);
-    std::cout << "resErrInv22" << std::endl;
-    dumpMatrix(resErrInv22);
+    std::cout << "residual: " << res[0] << " " << res[1] << " " << res[3]<< std::endl
+              << "resErr33" << std::endl;
+    dumpMatrix(resErr33);
+    std::cout << "resErrInv33" << std::endl;
+    dumpMatrix(resErrInv33);
     std::cout << "jac_ccs" << std::endl;
     dumpMatrix(jac_ccs);
     std::cout << "pred_err_ccs" << std::endl;
@@ -238,10 +250,7 @@ TrackState updateParametersWithTime(const TrackState& propagatedState, const Mea
     std::cout << std::endl;
   }
 #endif
-
-  */
-
-  return TrackState(); //result;
+  return result;
 }
 
 float computeChi2(const TrackState& propagatedState, const MeasurementState& measurementState)
@@ -278,7 +287,7 @@ TrackState updateParametersEndcap(const TrackState& propagatedState, const Measu
 {
   TrackState result = propagatedState;
 
-  const SMatrixSym66& propErr = propagatedState.errors;
+  const SMatrixSym88& propErr = propagatedState.errors;
   const SMatrixSym33 herr = measurementState.errors();
   const SVector3& hpos = measurementState.parameters();
 
@@ -294,11 +303,11 @@ TrackState updateParametersEndcap(const TrackState& propagatedState, const Measu
   SVector2 res2 = SVector2(hpos.At(0)-propagatedState.x(),
 			   hpos.At(1)-propagatedState.y());
     
-  SMatrix62 projMatrixT_zp;
+  SMatrix82 projMatrixT_zp;
   projMatrixT_zp(0,0) = 1.;
   projMatrixT_zp(1,1) = 1.;
 
-  SMatrix62 K = propErr*projMatrixT_zp*resErrInv22;
+  SMatrix82 K = propErr*projMatrixT_zp*resErrInv22;
 
   result.parameters = propagatedState.parameters + K*res2;
 
@@ -310,7 +319,7 @@ TrackState updateParametersEndcap(const TrackState& propagatedState, const Measu
 float computeChi2Endcap(const TrackState& propagatedState, const MeasurementState& measurementState)
 {
 
-  const SMatrixSym66& propErr = propagatedState.errors;
+  const SMatrixSym88& propErr = propagatedState.errors;
   const SMatrixSym33 herr = measurementState.errors();
   const SVector3& hpos = measurementState.parameters();
 

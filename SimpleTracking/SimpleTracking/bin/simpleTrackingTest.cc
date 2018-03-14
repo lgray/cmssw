@@ -41,14 +41,15 @@ int main() {
   
   const int genCharge = -1;
   SVector3 genPos(0,0,0), genMom(std::sqrt(0.5),std::sqrt(0.5),0.1);
+  SVector4 genPos4(0,0,0,0);
   SVector3 genMomRPT(genCharge*1.0/std::hypot(genMom[0],genMom[1]),
 		     std::atan2(genMom[0],genMom[1]),
 		     std::atan2(std::hypot(genMom[0],genMom[1]),genMom[2])); // momentum to generate from, momentum units are GeV
 
   std::cout << "pT = " << std::abs(1.0/genMomRPT[0]) << " pZ = " << std::abs(1.f/genMomRPT[0])/std::tan(genMomRPT[2]) << std::endl;
 
-  SMatrixSym66 genErrors;// = ROOT::Math::SMatrixIdentity();
-  TrackState genTrack(genCharge,genPos,genMomRPT,genErrors);
+  SMatrixSym88 genErrors;// = ROOT::Math::SMatrixIdentity();
+  TrackState genTrack(genCharge,genPos4,genMomRPT,m_pion,genErrors);
   
   
   std::array<bool, nLayers> layerHasMeasurement;
@@ -74,7 +75,7 @@ int main() {
 	// calculate the local -> global rotation matrix 
 	// (here from a tangent plane at radius r)
 	const float r = getHypot(genState.parameters[0],genState.parameters[1]);
-	SMatrix33 rot;
+	SMatrix44 rot; // SO+(1,3) rotation
 	rot[0][0] = -(genState.parameters[1])/(r);
 	rot[0][1] = 0;
 	rot[0][2] =  (genState.parameters[0])/(r);
@@ -84,25 +85,28 @@ int main() {
 	rot[2][0] = 0;
 	rot[2][1] = 1;
 	rot[2][2] = 0;
-	const SMatrix33 rotT = ROOT::Math::Transpose(rot);
+	rot[3][3] = 1;
+	const SMatrix44 rotT = ROOT::Math::Transpose(rot);
 
 	// now construct the local errors and transform to global
-	SMatrixSym33 localErr;
+	SMatrixSym44 localErr;
 	localErr[0][0] = positionResolution*positionResolution;
 	localErr[1][1] = positionResolution*positionResolution;
-	SMatrixSym33 globalErr = ROOT::Math::SimilarityT(rotT,localErr);
+	localErr[3][3] = timingResolution*timingResolution;
+	SMatrixSym44 globalErr = ROOT::Math::SimilarityT(rotT,localErr);
 
 	std::cout << "local:\n" << localErr << std::endl << "global:\n" << globalErr << std::endl; 
-	SVector3 pos_glo3(genState.x(),genState.y(),genState.z());
-	SVector3 pos_loc3 = rotT*pos_glo3;
-	std::cout << pos_glo3 << ' ' << pos_loc3 << std::endl;
+	SVector4 pos_glo4(genState.x(),genState.y(),genState.z(),genState.t());
+	SVector4 pos_loc4 = rotT*pos_glo4;
+	std::cout << pos_glo4 << ' ' << pos_loc4 << std::endl;
 	//smear hit coordinate in local x/y plane
-	pos_loc3[0] = pos_loc3[0] + positionReso(gen);
-	pos_loc3[1] = pos_loc3[1] + positionReso(gen);
-	pos_glo3 = rot*pos_loc3;
-	std::cout << pos_glo3 << ' ' << pos_loc3 << std::endl;
+	pos_loc4[0] = pos_loc4[0] + positionReso(gen);
+	pos_loc4[1] = pos_loc4[1] + positionReso(gen);
+	pos_loc4[3] = pos_loc4[3] + timingReso(gen);
+	pos_glo4 = rot*pos_loc4;
+	std::cout << pos_glo4 << ' ' << pos_loc4 << std::endl;
 
-	Hit temp(pos_glo3,globalErr);	
+	Hit temp(pos_glo4,globalErr);	
 	measurements[iLay] = std::move(temp);
       } else {
 	layerHasMeasurement[iLay] = false;
@@ -116,10 +120,11 @@ int main() {
 
   // simplified seeding
   unsigned max_seed_layer = 0;
-  SVector3 r0(0,0,0), p0(genMomRPT); // the seed guess 
-  SMatrixSym66 seedErrors = ROOT::Math::SMatrixIdentity();
+  SVector3 r0(0.0,0,0.0), p0(1.0*genMomRPT); // the seed guess 
+  SVector4 r04(0,0,0,0);
+  SMatrixSym88 seedErrors = ROOT::Math::SMatrixIdentity();
   //seedErrors *= 10;
-  TrackState seedTrack(genCharge,r0,p0,seedErrors);
+  TrackState seedTrack(genCharge,r04,p0,m_pion,seedErrors);
   for( unsigned iTrk = 0; iTrk < nTracks; ++iTrk ) {
     float total_r = 0.f;
     TrackState seedState = seedTrack;
@@ -129,10 +134,12 @@ int main() {
 	if( iLay > max_seed_layer ) max_seed_layer = iLay;
 	PropagationFlags pflags;      
 	seedState = propagateHelixToR(seedState,total_r, pflags);
-	seedState = updateParameters(seedState,measurements[iLay].measurementState());
-	updateParametersWithTime(seedState,measurements[iLay].measurementState());
+	//updateParametersWithTime(seedState,measurements[iLay].measurementState());
+	seedState = updateParametersWithTime(seedState,measurements[iLay].measurementState());
+	
 	std::cout << "new pT = " << seedState.pT() << " +/- " << seedState.epT() << std::endl
-		  << "new pZ = " << seedState.pz() << " +/- " << std::sqrt(seedState.epzpz()) << std::endl;
+		  << "new pZ = " << seedState.pz() << " +/- " << std::sqrt(seedState.epzpz()) << std::endl
+		  << "new betagamma = " << seedState.betagamma() << " +/- " << seedState.ebetagamma() << std::endl;
       }
     }
     seedTrack = seedState;
