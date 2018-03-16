@@ -76,6 +76,7 @@ TrackState updateParameters(const TrackState& propagatedState, const Measurement
 
   TrackState result;
   result.parameters = up_pars_ccs;
+  result.parameters.At(7) = std::max(0.0000001f,std::min(result.parameters.At(7),1.f-0.0000001f));
   //result.parameters[4] = cos(up_pars_ccs[5])/up_pars_ccs[4];
   //result.parameters[5] = sin(up_pars_ccs[5])/up_pars_ccs[4];
   //result.parameters[6] = cos(up_pars_ccs[6])/(sin(up_pars_ccs[6])*up_pars_ccs[4]);
@@ -138,6 +139,7 @@ TrackState updateParametersWithTime(const TrackState& propagatedState, const Mea
   
   const SMatrix44 rotT = ROOT::Math::Transpose(rot); 
   const SVector4 res_glo = measurementState.parametersWithTime()-propagatedState.parameters.Sub<SVector4>(0);
+  std::cout << "res_glo :" << res_glo << std::endl;
   const SVector4 res_loc4 = rotT * res_glo;
   const SVector4 res(res_loc4[0],res_loc4[1],0,res_loc4[3]);
   const SMatrixSym44 resErr_glo = measurementState.errorsWithTime() + propagatedState.errors.Sub<SMatrixSym44>(0,0);
@@ -166,7 +168,7 @@ TrackState updateParametersWithTime(const TrackState& propagatedState, const Mea
   pred_ccs[4] = 1./propagatedState.pT();
   pred_ccs[5] = propagatedState.momPhi();
   pred_ccs[6] = propagatedState.theta();
-  pred_ccs[7] = propagatedState.betagamma();
+  pred_ccs[7] = propagatedState.beta();
   SMatrix88 jac_ccs = ROOT::Math::SMatrixIdentity();
   jac_ccs[4][4] = -propagatedState.px()/pow(propagatedState.pT(),3);
   jac_ccs[4][5] = -propagatedState.py()/pow(propagatedState.pT(),3);
@@ -174,15 +176,8 @@ TrackState updateParametersWithTime(const TrackState& propagatedState, const Mea
   jac_ccs[5][5] =  propagatedState.px()/pow(propagatedState.pT(),2);
   jac_ccs[6][4] =  propagatedState.px()*propagatedState.pz()/(propagatedState.pT()*pow(propagatedState.p(),2));
   jac_ccs[6][5] =  propagatedState.py()*propagatedState.pz()/(propagatedState.pT()*pow(propagatedState.p(),2));
-  jac_ccs[6][6] = -propagatedState.pT()/pow(propagatedState.p(),2);
-  // time / betagamma
-  const float mass = propagatedState.p()/propagatedState.betagamma();
-  std::cout << " mass = " << mass << std::endl;
-  jac_ccs[7][4] = propagatedState.px()/(propagatedState.p()*mass);
-  jac_ccs[7][5] = propagatedState.py()/(propagatedState.p()*mass);
-  jac_ccs[7][6] = propagatedState.pz()/(propagatedState.p()*mass);
-
-  
+  jac_ccs[6][6] = -propagatedState.pT()/pow(propagatedState.p(),2);  
+    
   SMatrixSym88 pred_err_ccs = ROOT::Math::Similarity(jac_ccs,propagatedState.errors);
   SVector8 up_pars_ccs =  pred_ccs + pred_err_ccs*projMatrixTimeT*rot*resErrInv*res;
 
@@ -199,22 +194,10 @@ TrackState updateParametersWithTime(const TrackState& propagatedState, const Mea
   locErrMeas[1][2] = 0;
   locErrMeas[0][2] = 0;
   SMatrixSym88 up_errs_ccs = ROOT::Math::Similarity(I88-K*H,pred_err_ccs) + ROOT::Math::Similarity(K,locErrMeas);
-  /*
-  SMatrix88 jac_back_ccs = ROOT::Math::SMatrixIdentity();
-  jac_back_ccs[4][4] = -cos(up_pars_ccs[4])/pow(up_pars_ccs[3],2);
-  jac_back_ccs[4][5] = -sin(up_pars_ccs[4])/up_pars_ccs[3];
-  jac_back_ccs[5][4] = -sin(up_pars_ccs[4])/pow(up_pars_ccs[3],2);
-  jac_back_ccs[5][5] =  cos(up_pars_ccs[4])/up_pars_ccs[3];
-  jac_back_ccs[6][4] = -cos(up_pars_ccs[5])/(sin(up_pars_ccs[5])*pow(up_pars_ccs[3],2));
-  jac_back_ccs[6][6] = -1./(pow(sin(up_pars_ccs[5]),2)*up_pars_ccs[3]);
-  */
-  
+    
   TrackState result;
   result.parameters = up_pars_ccs;
-  //result.parameters[3] = cos(up_pars_ccs[4])/up_pars_ccs[3];
-  //result.parameters[4] = sin(up_pars_ccs[4])/up_pars_ccs[3];
-  //result.parameters[5] = cos(up_pars_ccs[5])/(sin(up_pars_ccs[5])*up_pars_ccs[3]);
-  result.errors = up_errs_ccs;//ROOT::Math::Similarity(jac_back_ccs,up_errs_ccs);
+  result.errors = up_errs_ccs;
   result.charge = propagatedState.charge;
   result.valid = propagatedState.valid;
 

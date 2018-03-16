@@ -1,7 +1,11 @@
 #include "SimpleTracking/SimpleTracking/interface/Propagation.h"
 
-constexpr double tolerance = 0.0001;
-constexpr double c_cm_ns = 29.9792; // c in cm/ns
+namespace {
+
+  constexpr double tolerance = 0.0001;
+  constexpr double c_cm_ns = 29.9792; // c in cm/ns
+
+}
 
 struct HelixState
 {
@@ -20,8 +24,8 @@ struct HelixState
     px = std::cos(par.At(5))*std::abs(1.f/par.At(4)); //par.At(3); 
     py = std::sin(par.At(5))*std::abs(1.f/par.At(4)); //par.At(4);
     pz = std::abs(1.f/par.At(4))/std::tan(par.At(6)); //par.At(5);
-    betagamma = par.At(7);
-    beta = betagamma/std::sqrt(1+betagamma*betagamma);
+    beta = std::max(0.0000001f,std::min(par.At(7),1.f-0.0000001f));
+    betagamma = beta/std::sqrt(1-beta*beta);
     r0 = getHypot(x,y);
   }
 
@@ -32,6 +36,7 @@ struct HelixState
     pt2 = pt*pt;
     pt3 = pt*pt2;
     pt4 = pt*pt3;
+    p = std::hypot(pt,pz);
 
     //p=0.3Br => r=p/(0.3*B)
     k = charge*100./(-Config::sol*(useParamBfield?Config::BfieldFromZR(z,r0):Config::Bfield));
@@ -49,9 +54,9 @@ struct HelixState
   void updateHelix(float distance, bool updateDeriv, bool debug = false);
   void propagateErrors(const HelixState& in, float totalDistance, bool debug = false);
 
-  float x, y, z, t, px, py, pz, betagamma, beta;
+  float x, y, z, t, p, px, py, pz, betagamma, beta;
   float k, pt, pt2, pt3, pt4, r0, curvature, ctgTheta;
-  float dTDdx, dTDdy, dTDdpx, dTDdpy;
+  float dTDdx, dTDdy, dTDdpx, dTDdpy, dTDdt; // dTDdt = beta_perp
   int charge;
   TrackState& state;
 };
@@ -61,8 +66,7 @@ void HelixState::updateHelix(float distance, bool updateDeriv, bool debug)
   // NOTE: Distance is sort-of radial distance (cord length, not curve).
 
   const float angPath = distance/curvature;
-
-
+  
   dprint("angPath=" << angPath);
   const float cosAP = cos(angPath);
   const float sinAP = sin(angPath);
@@ -73,12 +77,19 @@ void HelixState::updateHelix(float distance, bool updateDeriv, bool debug)
   par.At(0) = x + k*(px*sinAP-py*(1-cosAP));
   par.At(1) = y + k*(py*sinAP+px*(1-cosAP));
   par.At(2) = z + distance*ctgTheta;
-  // this is ~the path length from previous layer
+  // this is ~the path length from previous layer (we'll figure out how to use this later)
   par.At(3) = t + std::hypot(distance,distance*ctgTheta)/(c_cm_ns*beta);
   SVector3 local_p;
 
-  std::cout << "betagamma = "<< par.At(7) << " +/- " << state.ebetagamma() 
-	    << " beta = " << state.beta() << " +/- " << state.ebeta()<< std::endl;
+  float delta_x = k*(px*sinAP-py*(1-cosAP));
+  float delta_y = k*(py*sinAP+px*(1-cosAP));
+  float delta_z = distance*ctgTheta;
+  float delta_t =  std::hypot(distance,distance*ctgTheta)/(c_cm_ns*beta);
+  
+
+  std::cout << "delta T = " <<  std::hypot(distance,distance*ctgTheta)/(c_cm_ns*beta) << std::endl;
+  std::cout << "beta = "<< par.At(7) << " +/- " << state.ebeta()<< std::endl;
+  std::cout << "dBeta/dBeta = " << std::sqrt(delta_x*delta_x+delta_y*delta_y+delta_z*delta_z)/std::hypot(distance,distance*ctgTheta) << std::endl;
 
   local_p[0] = px*cosAP-py*sinAP;
   local_p[1] = py*cosAP+px*sinAP;
@@ -87,6 +98,9 @@ void HelixState::updateHelix(float distance, bool updateDeriv, bool debug)
   par.At(4) = charge*1.0/std::hypot(local_p[0],local_p[1]);
   par.At(5) = std::atan2(local_p[0],local_p[1]);
   par.At(6) = std::atan2(std::hypot(local_p[0],local_p[1]),local_p[2]);
+  // but what's important there is that we've written beta in terms of nearly everything else
+  // including the current beta estimate :D
+  par.At(7) = std::max(0.,std::min(1.,std::sqrt(delta_x*delta_x+delta_y*delta_y+delta_z*delta_z)/(c_cm_ns*delta_t)));
 
   dprint("x + " << k*(px*sinAP-py*(1-cosAP)) << std::endl
       << "y + " << k*(py*sinAP+px*(1-cosAP)) << std::endl
@@ -95,11 +109,10 @@ void HelixState::updateHelix(float distance, bool updateDeriv, bool debug)
       <<  "px: " << px*cosAP-py*sinAP
       << " py: " << py*cosAP+px*sinAP
       << " pz: " << pz
-      << " betagamma: " << betagamma);
+      << " beta: " << beta);
   
   if (updateDeriv)
-  {
-    // don't need timing information here, all the magic happens in the error prop
+  {    
     //update derivatives on total distance for next step, where totalDistance+=r-r0
     //now r0 depends on px and py
     const float r0inv = 1./r0;
@@ -127,7 +140,7 @@ void HelixState::updateHelix(float distance, bool updateDeriv, bool debug)
   }
 
   dprint(par.At(0) << " " << par.At(1) << " " << par.At(2) << "; r = " << std::hypot(par.At(0), par.At(1)) << std::endl
-      << par.At(4) << " " << par.At(5) << " " << par.At(6));
+	 << par.At(4) << " " << par.At(5) << " " << par.At(6) << " " << par.At(7));
 }
 
 void HelixState::propagateErrors(const HelixState& in, float totalDistance, bool debug)
@@ -154,16 +167,20 @@ void HelixState::propagateErrors(const HelixState& in, float totalDistance, bool
   const float cosTP  = cos(TP);
   const float sinTP  = sin(TP);
   
+  //const double in_mom = std::sqrt(in.px*in.px+in.py*in.py+in.pz*in.pz);
+
   //jacobian
   SMatrix88 errorProp = ROOT::Math::SMatrixIdentity(); //what is not explicitly set below is 1 (0) on (off) diagonal
 
   errorProp(0,0) = 1 + k*dTPdx*(in.px*cosTP - in.py*sinTP);                   //dxdx;
   errorProp(0,1) = k*dTPdy*(in.px*cosTP - in.py*sinTP);                       //dxdy;
+  //errorProp(0,3) = c_cm_ns*in.px*beta/in_mom;
   errorProp(0,4) = k*(sinTP + in.px*cosTP*dTPdpx - in.py*sinTP*dTPdpx);       //dxdpx;
   errorProp(0,5) = k*(in.px*cosTP*dTPdpy - 1. + cosTP - in.py*sinTP*dTPdpy);  //dxdpy;
 
   errorProp(1,0) = k*dTPdx*(in.py*cosTP + in.px*sinTP);                       //dydx;
   errorProp(1,1) = 1 + k*dTPdy*(in.py*cosTP + in.px*sinTP);                   //dydy;
+  //errorProp(1,3) = c_cm_ns*in.py*beta/in_mom;
   errorProp(1,4) = k*(in.py*cosTP*dTPdpx + 1. - cosTP + in.px*sinTP*dTPdpx);  //dydpx;
   errorProp(1,5) = k*(sinTP + in.py*cosTP*dTPdpy + in.px*sinTP*dTPdpy);       //dydpy;
 
@@ -171,19 +188,27 @@ void HelixState::propagateErrors(const HelixState& in, float totalDistance, bool
 
   errorProp(2,0) = dTDdx*ctgTheta;                                            //dzdx;
   errorProp(2,1) = dTDdy*ctgTheta;                                            //dzdy;
+  //errorProp(2,3) = c_cm_ns*in.pz*beta/in_mom;
   errorProp(2,4) = dTDdpx*ctgTheta - TD*in.pz*in.px/pt3;                      //dzdpx;
   errorProp(2,5) = dTDdpy*ctgTheta - TD*in.pz*in.py/pt3;                      //dzdpy;
   errorProp(2,6) = TD/pt;                                                     //dzdpz;
-
+  
   //par.At(3) = t + std::hypot(distance,distance*ctgTheta)/(c_cm_ns*beta);
-
+  /*
   errorProp(3,0) = dTDdx*std::sqrt(1+ctgTheta*ctgTheta)/(c_cm_ns*beta);       //dtdx;
   errorProp(3,1) = dTDdy*std::sqrt(1+ctgTheta*ctgTheta)/(c_cm_ns*beta);       //dtdy;
   errorProp(3,4) = ( dTDdpx*std::sqrt(1+ctgTheta*ctgTheta)/(c_cm_ns*beta) 
 		     - 2*TD/(c_cm_ns*beta)*in.pz*in.pz*in.px/(pt4*std::sqrt(1+ctgTheta*ctgTheta)) ); //dtdpx;
   errorProp(3,5) = ( dTDdpy*std::sqrt(1+ctgTheta*ctgTheta)/(c_cm_ns*beta) 
 		     - 2*TD/(c_cm_ns*beta)*in.pz*in.pz*in.py/(pt4*std::sqrt(1+ctgTheta*ctgTheta)) ); //dtdpy                     //dtdpy;
-  errorProp(3,6) = TD*pz/(c_cm_ns*beta*pt2*std::sqrt(1+ctgTheta*ctgTheta));                                                     //dtdpz;
+  errorProp(3,6) = TD*pz/(c_cm_ns*beta*pt2*std::sqrt(1+ctgTheta*ctgTheta)); 
+  */
+
+  /* no timing
+     new pT = 9.98962 +/- 0.000144906
+     new pZ = 0.103895 +/- 0.0120426
+     new betagamma = 71.6522 +/- 1
+   */
 
   errorProp(4,0) = -dTPdx*(in.px*sinTP + in.py*cosTP);                        //dpxdx;
   errorProp(4,1) = -dTPdy*(in.px*sinTP + in.py*cosTP);                        //dpxdy;
@@ -194,6 +219,32 @@ void HelixState::propagateErrors(const HelixState& in, float totalDistance, bool
   errorProp(5,1) = -dTPdy*(in.py*sinTP - in.px*cosTP);                        //dpydy;
   errorProp(5,4) = +sinTP - dTPdpx*(in.py*sinTP - in.px*cosTP);               //dpydpx;
   errorProp(5,5) = +cosTP - dTPdpy*(in.py*sinTP - in.px*cosTP);               //dpydpy;
+  
+  /* beta
+     float delta_x = k*(px*sinAP-py*(1-cosAP));
+     float delta_y = k*(py*sinAP+px*(1-cosAP));
+     float delta_z = distance*ctgTheta;
+     float delta_t = std::hypot(distance,distance*ctgTheta)/(c_cm_ns*beta);
+     
+     beta = deltaS/deltaT/c = std::sqrt(delta_x*delta_x+delta_y*delta_y+delta_z*delta_z)/(c_cm_ns*delta_t);
+  */
+
+  // overconstrain beta and see what happens!
+  
+  const double delta_x = k*(px*sinTP-py*(1-cosTP));
+  const double delta_y = k*(py*sinTP+px*(1-cosTP));
+  const double delta_z = TD*ctgTheta;
+  const double delta_t = std::hypot(TD,TD*ctgTheta)/(c_cm_ns*beta);
+  const double delta_s = std::sqrt(delta_x*delta_x+delta_y*delta_y+delta_z*delta_z);
+  
+  errorProp(7,0) = (1./c_cm_ns)*delta_x/delta_s/delta_t;
+  errorProp(7,1) = (1./c_cm_ns)*delta_y/delta_s/delta_t;
+  errorProp(7,2) = (1./c_cm_ns)*delta_z/delta_s/delta_t;
+  errorProp(7,3) = (1./c_cm_ns)*(1./c_cm_ns)*(-delta_s/(delta_t*delta_t));
+  errorProp(7,4) = 0.;
+  errorProp(7,5) = 0.;
+  errorProp(7,6) = 0.;
+  errorProp(7,7) = 0.;//std::sqrt(delta_x*delta_x+delta_y*delta_y+delta_z*delta_z)/std::hypot(TD,TD*ctgTheta);
 
   state.errors=ROOT::Math::Similarity(errorProp,state.errors);
 

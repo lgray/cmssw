@@ -40,7 +40,8 @@ int main() {
   const std::unordered_set<unsigned> seedingLayers = {0,1,2,3};
   
   const int genCharge = -1;
-  SVector3 genPos(0,0,0), genMom(std::sqrt(0.5),std::sqrt(0.5),0.1);
+  const double m_gen = m_pion;
+  SVector3 genPos(0,0,0), genMom(1.0/std::sqrt(2),1.0/std::sqrt(2),0.1);
   SVector4 genPos4(0,0,0,0);
   SVector3 genMomRPT(genCharge*1.0/std::hypot(genMom[0],genMom[1]),
 		     std::atan2(genMom[0],genMom[1]),
@@ -49,7 +50,7 @@ int main() {
   std::cout << "pT = " << std::abs(1.0/genMomRPT[0]) << " pZ = " << std::abs(1.f/genMomRPT[0])/std::tan(genMomRPT[2]) << std::endl;
 
   SMatrixSym88 genErrors;// = ROOT::Math::SMatrixIdentity();
-  TrackState genTrack(genCharge,genPos4,genMomRPT,m_pion,genErrors);
+  TrackState genTrack(genCharge,genPos4,genMomRPT,m_gen,genErrors);
   
   
   std::array<bool, nLayers> layerHasMeasurement;
@@ -124,7 +125,7 @@ int main() {
   SVector4 r04(0,0,0,0);
   SMatrixSym88 seedErrors = ROOT::Math::SMatrixIdentity();
   //seedErrors *= 10;
-  TrackState seedTrack(genCharge,r04,p0,m_pion,seedErrors);
+  TrackState seedTrack(genCharge,r04,p0,m_gen,seedErrors);
   for( unsigned iTrk = 0; iTrk < nTracks; ++iTrk ) {
     float total_r = 0.f;
     TrackState seedState = seedTrack;
@@ -136,10 +137,11 @@ int main() {
 	seedState = propagateHelixToR(seedState,total_r, pflags);
 	//updateParametersWithTime(seedState,measurements[iLay].measurementState());
 	seedState = updateParametersWithTime(seedState,measurements[iLay].measurementState());
-	
+
+	std::cout << measurements[iLay].measurementState().parametersWithTime() << std::endl;
 	std::cout << "new pT = " << seedState.pT() << " +/- " << seedState.epT() << std::endl
 		  << "new pZ = " << seedState.pz() << " +/- " << std::sqrt(seedState.epzpz()) << std::endl
-		  << "new betagamma = " << seedState.betagamma() << " +/- " << seedState.ebetagamma() << std::endl;
+		  << "new beta = " << seedState.beta() << " +/- " << seedState.ebeta() << std::endl;
       }
     }
     seedTrack = seedState;
@@ -161,6 +163,8 @@ int main() {
 	PropagationFlags pflags;      
 	kfState = propagateHelixToR(kfState,total_r, pflags);
 	kfState = updateParameters(kfState,measurements[iLay].measurementState());
+
+	std::cout << measurements[iLay].measurementState().parametersWithTime() << std::endl;
 	std::cout << "new pT = " << kfState.pT() << " +/- " << kfState.epT() << std::endl
 		  << "new pZ = " << kfState.pz() << " +/- " << std::sqrt(kfState.epzpz()) << std::endl;
       }

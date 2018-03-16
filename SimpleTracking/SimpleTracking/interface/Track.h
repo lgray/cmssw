@@ -22,8 +22,10 @@ public:
       }
     }
   TrackState(int charge, const SVector4& pos, const SVector3& mom,const double mass, const SMatrixSym88& err) :
-  parameters(SVector8(pos.At(0),pos.At(1),pos.At(2),pos.At(3),mom.At(0),mom.At(1),mom.At(2), std::sqrt(mom[0]*mom[0]+mom[1]*mom[1]+mom[2]*mom[2])/mass)),
-    errors(err), charge(charge), valid(true) {}
+  parameters(SVector8(pos.At(0),pos.At(1),pos.At(2),pos.At(3),mom.At(0),mom.At(1),mom.At(2), std::sqrt(mom[0]*mom[0]+mom[1]*mom[1]+mom[2]*mom[2])/std::sqrt(mom[0]*mom[0]+mom[1]*mom[1]+mom[2]*mom[2]+mass*mass))),
+    errors(err), charge(charge), valid(true) {
+    std::cout << "beta = " << parameters.At(7) << std::endl;
+  }
   
   SVector3 position() const {return parameters.Sub<SVector3>(0);}
   SVector4 positionWithTime() const {return parameters.Sub<SVector4>(0);}
@@ -77,12 +79,11 @@ public:
   float epzpz()   const {return std::sqrt(getPyPyErr2(invpT(),theta(),errors.At(4,4),errors.At(6,6)));}
 
   //track state betagamma
-  float betagamma() const {return parameters.At(7);}
-  float ebetagamma() const { return std::sqrt(errors.At(7,7)); }
-  float beta() const {return parameters.At(7)/std::sqrt(std::pow(parameters.At(7),2)+1); }
-  float ebeta() const { 
-    const float denom = 1.f/std::sqrt(std::pow(parameters.At(7),2)+1); 
-    return std::sqrt(errors.At(7,7))*denom*( 1.f - beta()*denom ); 
+  float beta() const {return parameters.At(7);}
+  float ebeta() const { return std::sqrt(errors.At(7,7)); }
+  float betagamma() const {return parameters.At(7)/std::sqrt(std::pow(parameters.At(7),2)-1); }
+  float ebetagamma() const {     
+    return std::sqrt(errors.At(7,7))/std::pow(1-parameters.At(7)*parameters.At(7),1.5); 
   }
 
   void convertFromCartesianToCCS();
