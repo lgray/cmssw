@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/PMTDRcd.h"
+#include "Geometry/Records/interface/PFastTimeRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "boost/mpl/vector.hpp"
 
@@ -13,7 +13,8 @@ class MTDGeometryRecord :
    MTDGeometryRecord,
      boost::mpl::vector<
      IdealGeometryRecord,
-     GlobalPositionRcd               > > {};
+     GlobalPositionRcd,
+     PFastTimeRcd                 > > {};
 
 #endif /* RECORDS_MTDGEOMETRYRECORD_H */
 
