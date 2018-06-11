@@ -1,30 +1,30 @@
-#ifndef DetLayers_MuonDeLayerGeometryESProducer_h
-#define DetLayers_MuonDeLayerGeometryESProducer_h
+#ifndef RecoMTD_DetLayers_MTDDetLayerGeometryESProducer_h
+#define RecoMTD_DetLayers_MTDDetLayerGeometryESProducer_h
 
-/** \class MuonDeLayerGeometryESProducer
+/** \class MTDDetLayerGeometryESProducer
  *
- *  ESProducer for MuonDeLayerGeometry in MuonRecoGeometryRecord.
+ *  ESProducer for MTDDetLayerGeometry in RecoMTD/DetLayers
  *
- *  \author N. Amapane - CERN
+ *  \author L. Gray - FNAL
  */
 
 #include <FWCore/Framework/interface/ESProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <RecoMuon/Records/interface/MuonRecoGeometryRecord.h>
-#include <RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h>
+#include <RecoMTD/Records/interface/MTDRecoGeometryRecord.h>
+#include <RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h>
 #include <memory>
 
 
-class  MuonDetLayerGeometryESProducer: public edm::ESProducer{
+class  MTDDetLayerGeometryESProducer: public edm::ESProducer{
  public:
   /// Constructor
-  MuonDetLayerGeometryESProducer(const edm::ParameterSet & p);
+  MTDDetLayerGeometryESProducer(const edm::ParameterSet & p);
 
   /// Destructor
-  ~MuonDetLayerGeometryESProducer() override; 
+  ~MTDDetLayerGeometryESProducer() override; 
 
   /// Produce MuonDeLayerGeometry.
-  std::unique_ptr<MuonDetLayerGeometry> produce(const MuonRecoGeometryRecord & record);
+  std::unique_ptr<MTDDetLayerGeometry> produce(const MTDRecoGeometryRecord & record);
 
  private:
 };
