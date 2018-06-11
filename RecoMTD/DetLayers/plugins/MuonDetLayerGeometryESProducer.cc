@@ -1,25 +1,16 @@
 /** \file
  *
- *  \author N. Amapane - CERN
+ *  \author L. Gray - FNAL
  *
- *  \modified by R. Radogna & C. Calabria & A. Sharma
- *  \modified by D. Nash
  */
 
-#include <RecoMuon/DetLayers/plugins/MuonDetLayerGeometryESProducer.h>
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
+#include <RecoMTD/DetLayers/plugins/MTDDetLayerGeometryESProducer.h>
+#include <Geometry/Records/interface/MTDGeometryRecord.h>
 
-#include <Geometry/DTGeometry/interface/DTGeometry.h>
-#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
-#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
-#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
-#include <Geometry/GEMGeometry/interface/ME0Geometry.h>
+#include <Geometry/HGCalGeometry/interface/FastTimeGeometry.h>
 
-#include <RecoMuon/DetLayers/src/MuonCSCDetLayerGeometryBuilder.h>
-#include <RecoMuon/DetLayers/src/MuonRPCDetLayerGeometryBuilder.h>
-#include <RecoMuon/DetLayers/src/MuonDTDetLayerGeometryBuilder.h>
-#include <RecoMuon/DetLayers/src/MuonGEMDetLayerGeometryBuilder.h>
-#include <RecoMuon/DetLayers/src/MuonME0DetLayerGeometryBuilder.h>
+#include <RecoMTD/DetLayers/src/ETLDetLayerGeometryBuilder.h>
+#include <RecoMTD/DetLayers/src/BTLDetLayerGeometryBuilder.h>
 
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -31,69 +22,43 @@
 
 using namespace edm;
 
-MuonDetLayerGeometryESProducer::MuonDetLayerGeometryESProducer(const edm::ParameterSet & p){
+MTDDetLayerGeometryESProducer::MTDDetLayerGeometryESProducer(const edm::ParameterSet & p){
   setWhatProduced(this);
 }
 
 
-MuonDetLayerGeometryESProducer::~MuonDetLayerGeometryESProducer(){}
+MTDDetLayerGeometryESProducer::~MTDDetLayerGeometryESProducer(){}
 
 
-std::unique_ptr<MuonDetLayerGeometry>
-MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
+std::unique_ptr<MTDDetLayerGeometry>
+MTDDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
 
-  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonDetLayerGeometryESProducer";
-  auto muonDetLayerGeometry = std::make_unique<MuonDetLayerGeometry>();
+  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDDetLayerGeometryESProducer";
+  auto mtdDetLayerGeometry = std::make_unique<MTDDetLayerGeometry>();
   
   // Build DT layers  
   edm::ESHandle<DTGeometry> dt;
-  record.getRecord<MuonGeometryRecord>().get(dt);
+  record.getRecord<MTDGeometryRecord>().get(dt);
   if (dt.isValid()) {
-    muonDetLayerGeometry->addDTLayers(MuonDTDetLayerGeometryBuilder::buildLayers(*dt));
+    mtdDetLayerGeometry->addDTLayers(MuonDTDetLayerGeometryBuilder::buildLayers(*dt));
   } else {
-    LogInfo(metname) << "No DT geometry is available."; 
+    LogInfo(metname) << "No BTL geometry is available."; 
   }
 
   // Build CSC layers
   edm::ESHandle<CSCGeometry> csc;
-  record.getRecord<MuonGeometryRecord>().get(csc);
+  record.getRecord<MTDGeometryRecord>().get(csc);
   if (csc.isValid()) {
-    muonDetLayerGeometry->addCSCLayers(MuonCSCDetLayerGeometryBuilder::buildLayers(*csc));
+    mtdDetLayerGeometry->addCSCLayers(MuonCSCDetLayerGeometryBuilder::buildLayers(*csc));
   } else {
-    LogInfo(metname) << "No CSC geometry is available.";
+    LogInfo(metname) << "No ETL geometry is available.";
   }
 
-  // Build GEM layers
-  edm::ESHandle<GEMGeometry> gem;
-  record.getRecord<MuonGeometryRecord>().get(gem);
-  if (gem.isValid()) {
-      muonDetLayerGeometry->addGEMLayers(MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(*gem));
-  } else {
-    LogInfo(metname) << "No GEM geometry is available.";
-  }
-    
-  // Build ME0 layers
-  edm::ESHandle<ME0Geometry> me0;
-  record.getRecord<MuonGeometryRecord>().get(me0);
-  if (me0.isValid()) {
-    muonDetLayerGeometry->addME0Layers(MuonME0DetLayerGeometryBuilder::buildEndcapLayers(*me0));
-  } else {
-    LogDebug(metname) << "No ME0 geometry is available.";
-  }
-
-
-  // Build RPC layers
-  edm::ESHandle<RPCGeometry> rpc;
-  record.getRecord<MuonGeometryRecord>().get(rpc);
-  if (rpc.isValid()) {
-    muonDetLayerGeometry->addRPCLayers(MuonRPCDetLayerGeometryBuilder::buildBarrelLayers(*rpc),MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(*rpc));
-  } else {
-    LogInfo(metname) << "No RPC geometry is available.";
-  }  
+  
   
 
   // Sort layers properly
-  muonDetLayerGeometry->sortLayers();
+  mtdDetLayerGeometry->sortLayers();
 
-  return muonDetLayerGeometry;
+  return mtdDetLayerGeometry;
 }
