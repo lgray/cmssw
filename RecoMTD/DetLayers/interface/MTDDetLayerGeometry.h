@@ -40,7 +40,7 @@ class MTDDetLayerGeometry : public DetLayerGeometry{
   /// Add ETL layers 
   /// etllayers.first=forward (+Z), etllayers.second=backward (-Z)
   /// both vectors are ASSUMED to be sorted inside-out
-  void addCSCLayers(const std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> >& etllayers);
+  void addETLLayers(const std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> >& etllayers);
 
   //. Add BTL layers; dtlayers is ASSUMED to be sorted inside-out
   void addBTLLayers(const std::vector<DetLayer*>& btllayers);
