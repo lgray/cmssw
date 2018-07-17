@@ -1,5 +1,5 @@
-<use   name="RecoMuon/DetLayers"/>
-<use   name="RecoMuon/Records"/>
+<use   name="RecoMTD/DetLayers"/>
+<use   name="RecoMTD/Records"/>
 <use   name="FWCore/Framework"/>
 <flags   EDM_PLUGIN="1"/>
 <library   file="MTDRecoGeometryAnalyzer.cc" name="testMTDRecoGeometry">

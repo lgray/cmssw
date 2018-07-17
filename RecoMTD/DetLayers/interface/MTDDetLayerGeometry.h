@@ -33,6 +33,9 @@ class MTDDetLayerGeometry : public DetLayerGeometry{
   /// return the ETL DetLayers (endcap), -Z to +Z
   const std::vector<const DetLayer*>& allETLLayers() const;
 
+  /// return all DetLayers (barrel + endcap), -Z to +Z
+  const std::vector<const DetLayer*>& allLayers() const;
+
   /// return the DetLayer which correspond to a certain DetId
   const DetLayer* idToLayer(const DetId& detId) const override;
 

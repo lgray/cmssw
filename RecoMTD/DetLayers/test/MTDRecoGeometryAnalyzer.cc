@@ -71,98 +71,20 @@ void MTDRecoGeometryAnalyzer::analyze( const Event& ev,
   es.get<IdealMagneticFieldRecord>().get(magfield);
   // Some printouts
 
-  cout << "*** allDTLayers(): " << geo->allDTLayers().size() << endl;
-  for (auto dl = geo->allDTLayers().begin();
-       dl != geo->allDTLayers().end(); ++dl) {
-    cout << "  " << (int) (dl-geo->allDTLayers().begin()) << " " << dumpLayer(*dl);
+  cout << "*** allBTLLayers(): " << geo->allBTLLayers().size() << endl;
+  for (auto dl = geo->allBTLLayers().begin();
+       dl != geo->allBTLLayers().end(); ++dl) {
+    cout << "  " << (int) (dl-geo->allBTLLayers().begin()) << " " << dumpLayer(*dl);
   }
   cout << endl << endl;
 
-  cout << "*** allCSCLayers(): " << geo->allCSCLayers().size() << endl;
-  for (auto dl = geo->allCSCLayers().begin();
-       dl != geo->allCSCLayers().end(); ++dl) {
-    cout << "  " << (int) (dl-geo->allCSCLayers().begin()) << " " << dumpLayer(*dl);
+  cout << "*** allETLLayers(): " << geo->allETLLayers().size() << endl;
+  for (auto dl = geo->allETLLayers().begin();
+       dl != geo->allETLLayers().end(); ++dl) {
+    cout << "  " << (int) (dl-geo->allETLLayers().begin()) << " " << dumpLayer(*dl);
   }
   cout << endl << endl;
-
-  cout << "*** forwardCSCLayers(): " << geo->forwardCSCLayers().size() << endl;
-  for (auto dl = geo->forwardCSCLayers().begin();
-       dl != geo->forwardCSCLayers().end(); ++dl) {
-    cout << "  " << (int) (dl-geo->forwardCSCLayers().begin()) << " " << dumpLayer(*dl);
-  }
-  cout << endl << endl;
-
-  cout << "*** backwardCSCLayers(): " << geo->backwardCSCLayers().size() << endl;
-  for (auto dl = geo->backwardCSCLayers().begin();
-       dl != geo->backwardCSCLayers().end(); ++dl) {
-    cout << "  " << (int) (dl-geo->backwardCSCLayers().begin()) << " " << dumpLayer(*dl);
-  }
-  cout << endl << endl;
-
-  cout << "*** allRPCLayers(): " << geo->allRPCLayers().size() << endl;
-  for (auto dl = geo->allRPCLayers().begin();
-       dl != geo->allRPCLayers().end(); ++dl) {
-    cout << "  " << (int) (dl-geo->allRPCLayers().begin()) << " " << dumpLayer(*dl);
-  }
-  cout << endl << endl;
-
-  cout << "*** endcapRPCLayers(): " << geo->endcapRPCLayers().size() << endl;
-  for (auto dl = geo->endcapRPCLayers().begin();
-       dl != geo->endcapRPCLayers().end(); ++dl) {
-    cout << "  " << (int) (dl-geo->endcapRPCLayers().begin()) << " " << dumpLayer(*dl);
-  }
-  cout << endl << endl;
-
-  cout << "*** barrelRPCLayers(): " << geo->barrelRPCLayers().size() << endl;
-  for (auto dl = geo->barrelRPCLayers().begin();
-       dl != geo->barrelRPCLayers().end(); ++dl) {
-    cout << "  " << (int) (dl-geo->barrelRPCLayers().begin()) << " " << dumpLayer(*dl);
-  }
-  cout << endl << endl;
-
-  cout << "*** forwardRPCLayers(): " << geo->forwardRPCLayers().size() << endl;
-  for (auto dl = geo->forwardRPCLayers().begin();
-       dl != geo->forwardRPCLayers().end(); ++dl) {
-    cout << "  " << (int) (dl-geo->forwardRPCLayers().begin()) << " " << dumpLayer(*dl);
-  }
-  cout << endl << endl;
-
-  cout << "*** backwardRPCLayers(): " << geo->backwardRPCLayers().size() << endl;
-  for (auto dl = geo->backwardRPCLayers().begin();
-       dl != geo->backwardRPCLayers().end(); ++dl) {
-    cout << "  " << (int) (dl-geo->backwardRPCLayers().begin()) << " " << dumpLayer(*dl);
-  }
-  cout << endl << endl;
-
-  cout << "*** allBarrelLayers(): " << geo->allBarrelLayers().size() << endl;
-  for (auto dl = geo->allBarrelLayers().begin();
-       dl != geo->allBarrelLayers().end(); ++dl) {
-    cout << "  " << (int) (dl-geo->allBarrelLayers().begin()) << " " << dumpLayer(*dl);
-  }
-  cout << endl << endl;
-
-  cout << "*** allEndcapLayers(): " << geo->allEndcapLayers().size() << endl;
-  for (auto dl = geo->allEndcapLayers().begin();
-       dl != geo->allEndcapLayers().end(); ++dl) {
-    cout << "  " << (int) (dl-geo->allEndcapLayers().begin()) << " " << dumpLayer(*dl);
-  }
-  cout << endl << endl;
-
-  cout << "*** allForwardLayers(): " << geo->allForwardLayers().size() << endl;
-  for (auto dl = geo->allForwardLayers().begin();
-       dl != geo->allForwardLayers().end(); ++dl) {
-    cout << "  " << (int) (dl-geo->allForwardLayers().begin()) << " " << dumpLayer(*dl);
-  }
-  cout << endl << endl;
-
-  cout << "*** allBackwardLayers(): " << geo->allBackwardLayers().size() << endl;
-  for (auto dl = geo->allBackwardLayers().begin();
-       dl != geo->allBackwardLayers().end(); ++dl) {
-    cout << "  " << (int) (dl-geo->allBackwardLayers().begin()) << " " << dumpLayer(*dl);
-  }
-  cout << endl << endl;
-
-
+    
   cout << "*** allLayers(): " << geo->allLayers().size() << endl;
   for (auto dl = geo->allLayers().begin();
        dl != geo->allLayers().end(); ++dl) {
@@ -174,8 +96,8 @@ void MTDRecoGeometryAnalyzer::analyze( const Event& ev,
 
 
 
-  testDTLayers(geo.product(),magfield.product());
-  testCSCLayers(geo.product(),magfield.product());
+  testBTLLayers(geo.product(),magfield.product());
+  testETLLayers(geo.product(),magfield.product());
 }
 
 
@@ -184,7 +106,7 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo,const
   const vector<const DetLayer*>& layers = geo->allBTLLayers();
 
   for (auto ilay = layers.begin(); ilay!=layers.end(); ++ilay) {
-    const MuRodBarrelLayer* layer = (const MuRodBarrelLayer*) (*ilay);
+    const MTDTrayBarrelLayer* layer = (const MTDTrayBarrelLayer*) (*ilay);
   
     const BoundCylinder& cyl = layer->specificSurface();  
 
@@ -238,10 +160,10 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo,const
 }
 
 void MTDRecoGeometryAnalyzer::testETLLayers(const MTDDetLayerGeometry* geo,const MagneticField* field) {
-  const vector<const DetLayer*>& layers = geo->allCSCLayers();
+  const vector<const DetLayer*>& layers = geo->allETLLayers();
 
   for (auto ilay = layers.begin(); ilay!=layers.end(); ++ilay) {
-    const MuRingForwardDoubleLayer* layer = (const MuRingForwardDoubleLayer*) (*ilay);
+    const MTDRingForwardDoubleLayer* layer = (const MTDRingForwardDoubleLayer*) (*ilay);
   
     const BoundDisk& disk = layer->specificSurface();
 

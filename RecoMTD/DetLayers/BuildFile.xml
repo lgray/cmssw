@@ -6,7 +6,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="TrackingTools/DetLayers"/>
 <use   name="Utilities/BinningTools"/>
-<use   name="Geometry/HGCalGeometry"/>
+<use   name="Geometry/MTDGeometry"/>
 <export>
   <lib   name="1"/>
 </export>

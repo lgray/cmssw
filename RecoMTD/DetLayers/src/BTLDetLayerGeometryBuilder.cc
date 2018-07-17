@@ -21,7 +21,7 @@ BTLDetLayerGeometryBuilder::~BTLDetLayerGeometryBuilder() {
 }
 
 vector<DetLayer*> 
-BTLDetLayerGeometryBuilder::buildLayers(const DTGeometry& geo) {
+BTLDetLayerGeometryBuilder::buildLayers(const BTLGeometry& geo) {
         
   const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|BTLDetLayerGeometryBuilder";
 

@@ -15,7 +15,7 @@
 using namespace std;
 
 pair<vector<DetLayer*>, vector<DetLayer*> > 
-ETLDetLayerGeometryBuilder::buildLayers(const CSCGeometry& geo) {
+ETLDetLayerGeometryBuilder::buildLayers(const ETLGeometry& geo) {
 
   vector<DetLayer*> result[2]; // one for each endcap
   
@@ -60,7 +60,7 @@ ETLDetLayerGeometryBuilder::buildLayers(const CSCGeometry& geo) {
 MTDRingForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayer(int endcap,
                                                                   int station,
                                                                   vector<int>& rings,
-                                                                  const CSCGeometry& geo) {
+                                                                  const ETLGeometry& geo) {
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|ETLDetLayerGeometryBuilder";
   MTDRingForwardDoubleLayer* result=nullptr;
   

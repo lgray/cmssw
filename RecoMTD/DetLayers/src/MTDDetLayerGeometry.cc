@@ -75,6 +75,11 @@ MTDDetLayerGeometry::allETLLayers() const {
     return etlLayers_all;
 }
 
+const vector<const DetLayer*>&
+MTDDetLayerGeometry::allLayers() const {
+    return allDetLayers;
+}
+
 
 ////////////////////////////////////////////////////
 
