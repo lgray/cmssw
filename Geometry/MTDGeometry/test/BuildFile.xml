@@ -1,0 +1,36 @@
+<use   name="Geometry/MTDGeometry"/>
+<use   name="Geometry/Records"/>
+<use   name="DataFormats/GeometryVector"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="root"/>
+<use   name="CondFormats/DataRecord"/>
+<library   file="DTGeometryAnalyzer.cc" name="testBTLGeometry">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<bin   name="testBTLTopology" file="testDTTopology.cpp">
+  <use   name="cppunit"/>
+</bin>
+
+<library   file="stubs/CSCGeometryAnalyzer.cc" name="testETLGeometry">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="stubs/CSCGeometryAsChambers.cc" name="testETLGeometryAsChambers">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="stubs/CSCGeometryAsLayers.cc" name="testETLGeometryAsLayers">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="stubs/CSCGeometryOfWires.cc" name="testETLGeometryOfWires">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="stubs/CSCGeometryOfStrips.cc" name="testETLGeometryOfStrips">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="stubs/CSCLayerGeometryInside.cc" name="testETLLayerGeometryInside">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+
