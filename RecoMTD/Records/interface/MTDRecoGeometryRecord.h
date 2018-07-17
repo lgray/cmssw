@@ -1,7 +1,7 @@
 #ifndef RecoMTD_Record_MTDRecoGeometryRecord_h
 #define RecoMTD_Record_MTDRecoGeometryRecord_h
 
-/** \class MuonRecoGeometryRecord
+/** \class MTDRecoGeometryRecord
  *
  *  Record to hold mtd reconstruction geometries.
  *
