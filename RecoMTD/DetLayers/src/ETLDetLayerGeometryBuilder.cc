@@ -1,7 +1,7 @@
-#include <RecoMuon/DetLayers/src/MuonCSCDetLayerGeometryBuilder.h>
+#include <RecoMTD/DetLayers/src/ETLDetLayerGeometryBuilder.h>
 
-#include <RecoMuon/DetLayers/interface/MuRingForwardDoubleLayer.h>
-#include <RecoMuon/DetLayers/interface/MuDetRing.h>
+#include <RecoMTD/DetLayers/interface/MTDRingForwardDoubleLayer.h>
+#include <RecoMTD/DetLayers/interface/MTDDetRing.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 
@@ -15,7 +15,7 @@
 using namespace std;
 
 pair<vector<DetLayer*>, vector<DetLayer*> > 
-MuonCSCDetLayerGeometryBuilder::buildLayers(const CSCGeometry& geo) {
+ETLDetLayerGeometryBuilder::buildLayers(const CSCGeometry& geo) {
 
   vector<DetLayer*> result[2]; // one for each endcap
   
@@ -29,7 +29,7 @@ MuonCSCDetLayerGeometryBuilder::buildLayers(const CSCGeometry& geo) {
       rings.push_back(4);
       rings.push_back(1);
       
-      MuRingForwardDoubleLayer* layer = buildLayer(endcap, 1, rings, geo);          
+      MTDRingForwardDoubleLayer* layer = buildLayer(endcap, 1, rings, geo);          
       if (layer) result[i].push_back(layer);  
     }
     
@@ -39,7 +39,7 @@ MuonCSCDetLayerGeometryBuilder::buildLayers(const CSCGeometry& geo) {
       rings.push_back(2);
       rings.push_back(3);
       
-      MuRingForwardDoubleLayer* layer = buildLayer(endcap, 1, rings, geo);          
+      MTDRingForwardDoubleLayer* layer = buildLayer(endcap, 1, rings, geo);          
       if (layer) result[i].push_back(layer);  
     }    
     
@@ -49,7 +49,7 @@ MuonCSCDetLayerGeometryBuilder::buildLayers(const CSCGeometry& geo) {
       for(int ring = CSCDetId::minRingId(); ring <= CSCDetId::maxRingId(); ring++) {
         rings.push_back(ring);
       }
-      MuRingForwardDoubleLayer* layer = buildLayer(endcap, station, rings, geo);          
+      MTDRingForwardDoubleLayer* layer = buildLayer(endcap, station, rings, geo);          
       if (layer) result[i].push_back(layer);
     }
   }
@@ -57,12 +57,12 @@ MuonCSCDetLayerGeometryBuilder::buildLayers(const CSCGeometry& geo) {
   return res_pair;
 }
 
-MuRingForwardDoubleLayer* MuonCSCDetLayerGeometryBuilder::buildLayer(int endcap,
-                                                               int station,
-                                                               vector<int>& rings,
-                                                               const CSCGeometry& geo) {
-  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonCSCDetLayerGeometryBuilder";
-  MuRingForwardDoubleLayer* result=nullptr;
+MTDRingForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayer(int endcap,
+                                                                  int station,
+                                                                  vector<int>& rings,
+                                                                  const CSCGeometry& geo) {
+  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|ETLDetLayerGeometryBuilder";
+  MTDRingForwardDoubleLayer* result=nullptr;
   
   vector<const ForwardDetRing*> frontRings, backRings;
   
@@ -109,8 +109,8 @@ MuRingForwardDoubleLayer* MuonCSCDetLayerGeometryBuilder::buildLayer(int endcap,
   
   // How should they be sorted?
   //    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractZ<GeometricSearchDet,float>());
-  result = new MuRingForwardDoubleLayer(frontRings, backRings);  
-  LogTrace(metname) << "New MuRingForwardLayer with " << frontRings.size() 
+  result = new MTDRingForwardDoubleLayer(frontRings, backRings);  
+  LogTrace(metname) << "New MTDRingForwardLayer with " << frontRings.size() 
                     << " and " << backRings.size()
                     << " rings, at Z " << result->position().z()
                     << " R1: " << result->specificSurface().innerRadius()
@@ -119,7 +119,7 @@ MuRingForwardDoubleLayer* MuonCSCDetLayerGeometryBuilder::buildLayer(int endcap,
 }
 
 
-bool MuonCSCDetLayerGeometryBuilder::isFront(int station, int ring, int chamber)
+bool ETLDetLayerGeometryBuilder::isFront(int station, int ring, int chamber)
 {
   bool result = false;
   
@@ -137,14 +137,14 @@ bool MuonCSCDetLayerGeometryBuilder::isFront(int station, int ring, int chamber)
 
 
 
-MuDetRing * MuonCSCDetLayerGeometryBuilder::makeDetRing(vector<const GeomDet*> & geomDets)
+MTDDetRing * ETLDetLayerGeometryBuilder::makeDetRing(vector<const GeomDet*> & geomDets)
 {
-    const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonCSCDetLayerGeometryBuilder";
+    const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|ETLDetLayerGeometryBuilder";
 
 
     precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetPhi());
-    MuDetRing * result = new MuDetRing(geomDets);
-    LogTrace(metname) << "New MuDetRing with " << geomDets.size()
+    MTDDetRing * result = new MTDDetRing(geomDets);
+    LogTrace(metname) << "New MTDDetRing with " << geomDets.size()
                         << " chambers at z="<< result->position().z()
                         << " R1: " << result->specificSurface().innerRadius()
                         << " R2: " << result->specificSurface().outerRadius();

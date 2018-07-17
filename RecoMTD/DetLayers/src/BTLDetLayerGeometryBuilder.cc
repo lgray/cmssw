@@ -1,9 +1,9 @@
-#include <RecoMuon/DetLayers/src/MuonDTDetLayerGeometryBuilder.h>
+#include <RecoMTD/DetLayers/src/BTLDetLayerGeometryBuilder.h>
 
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
-#include <RecoMuon/DetLayers/interface/MuRodBarrelLayer.h>
-#include <RecoMuon/DetLayers/interface/MuDetRod.h>
+#include <RecoMTD/DetLayers/interface/MTDTrayBarrelLayer.h>
+#include <RecoMTD/DetLayers/interface/MTDDetTray.h>
 
 #include <Utilities/General/interface/precomputed_value_sort.h>
 #include <Geometry/CommonDetUnit/interface/DetSorting.h>
@@ -14,19 +14,19 @@
 
 using namespace std;
 
-MuonDTDetLayerGeometryBuilder::MuonDTDetLayerGeometryBuilder() {
+BTLDetLayerGeometryBuilder::BTLDetLayerGeometryBuilder() {
 }
 
-MuonDTDetLayerGeometryBuilder::~MuonDTDetLayerGeometryBuilder() {
+BTLDetLayerGeometryBuilder::~BTLDetLayerGeometryBuilder() {
 }
 
 vector<DetLayer*> 
-MuonDTDetLayerGeometryBuilder::buildLayers(const DTGeometry& geo) {
+BTLDetLayerGeometryBuilder::buildLayers(const DTGeometry& geo) {
         
-  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonDTDetLayerGeometryBuilder";
+  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|BTLDetLayerGeometryBuilder";
 
   vector<DetLayer*> detlayers;
-  vector<MuRodBarrelLayer*> result;
+  vector<MTDTrayBarrelLayer*> result;
             
   for(int station = DTChamberId::minStationId; station <= DTChamberId::maxStationId; station++) {
     
@@ -46,19 +46,19 @@ MuonDTDetLayerGeometryBuilder::buildLayers(const DTGeometry& geo) {
       
       if (!geomDets.empty()) {
         precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetZ());
-        muDetRods.push_back(new MuDetRod(geomDets));
+        muDetRods.push_back(new MTDDetTray(geomDets));
         LogTrace(metname) << "  New MuDetRod with " << geomDets.size()
                           << " chambers at R=" << muDetRods.back()->position().perp()
                           << ", phi=" << muDetRods.back()->position().phi();
       }
     }
     precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractPhi<GeometricSearchDet,float>());
-    result.push_back(new MuRodBarrelLayer(muDetRods));  
+    result.push_back(new MTDTrayBarrelLayer(muDetRods));  
     LogDebug(metname) << "    New MuRodBarrelLayer with " << muDetRods.size()
                       << " rods, at R " << result.back()->specificSurface().radius();
   }
   
-  for(vector<MuRodBarrelLayer*>::const_iterator it = result.begin(); it != result.end(); it++)
+  for(vector<MTDTrayBarrelLayer*>::const_iterator it = result.begin(); it != result.end(); it++)
     detlayers.push_back((DetLayer*)(*it));
   
   return detlayers;

@@ -1,9 +1,9 @@
 /** \file
  *
- *  \author N. Amapane - CERN
+ *  \author L. Gray - FNAL
  */
 
-#include "RecoMuon/DetLayers/interface/MuDetRod.h"
+#include "RecoMTD/DetLayers/interface/MTDDetTray.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
@@ -14,36 +14,36 @@
 using namespace std;
 
 
-MuDetRod::MuDetRod(vector<const GeomDet*>::const_iterator first,
+MTDDetTray::MTDDetTray(vector<const GeomDet*>::const_iterator first,
                    vector<const GeomDet*>::const_iterator last)
   : DetRodOneR(first,last) {
   init();
 }
 
-MuDetRod::MuDetRod(const vector<const GeomDet*>& vdets)
+MTDDetTray::MTDDetTray(const vector<const GeomDet*>& vdets)
   : DetRodOneR(vdets) {
   init();
 }
 
 
-void MuDetRod::init() {
+void MTDDetTray::init() {
   theBinFinder = BinFinderType(basicComponents().begin(), basicComponents().end());
 }
 
 
-MuDetRod::~MuDetRod(){}
+MTDDetTray::~MTDDetTray(){}
 
 const vector<const GeometricSearchDet*>&
-MuDetRod::components() const {
+MTDDetTray::components() const {
 
   // FIXME dummy impl.
-  cout << "temporary dummy implementation of MuDetRod::components()!!" << endl;
+  cout << "temporary dummy implementation of MTDDetTray::components()!!" << endl;
   static const vector<const GeometricSearchDet*> result;
   return result;
 }
 
 pair<bool, TrajectoryStateOnSurface>
-MuDetRod::compatible(const TrajectoryStateOnSurface& ts, const Propagator& prop, 
+MTDDetTray::compatible(const TrajectoryStateOnSurface& ts, const Propagator& prop, 
                      const MeasurementEstimator& est) const {
   
   TrajectoryStateOnSurface ms = prop.propagate(ts,specificSurface());
@@ -53,12 +53,12 @@ MuDetRod::compatible(const TrajectoryStateOnSurface& ts, const Propagator& prop,
 
 
 vector<GeometricSearchDet::DetWithState> 
-MuDetRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
+MTDDetTray::compatibleDets( const TrajectoryStateOnSurface& startingState,
                           const Propagator& prop, 
                           const MeasurementEstimator& est) const {
-  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuDetRod";
+  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDDetTray";
   
-  LogTrace(metname) << "MuDetRod::compatibleDets, Surface at R,phi: " 
+  LogTrace(metname) << "MTDDetTray::compatibleDets, Surface at R,phi: " 
                     << surface().position().perp()  << ","
                     << surface().position().phi() << "     DetRod pos.";
     // FIXME	    << " TS at R,phi: " << startingState.position().perp() << ","
@@ -72,7 +72,7 @@ MuDetRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
     compatible(startingState, prop, est);
   
   if (!compat.first) {
-    LogTrace(metname) << "    MuDetRod::compatibleDets: not compatible"
+    LogTrace(metname) << "    MTDDetTray::compatibleDets: not compatible"
                       << "    (should not have been selected!)";
     return result;
   }
@@ -82,7 +82,7 @@ MuDetRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
   GlobalPoint startPos = tsos.globalPosition();
   int closest = theBinFinder.binIndex(startPos.z());
   const vector<const GeomDet*> dets = basicComponents();
-  LogTrace(metname) << "     MuDetRod::compatibleDets, closest det: " << closest 
+  LogTrace(metname) << "     MTDDetTray::compatibleDets, closest det: " << closest 
                     << " pos: " << dets[closest]->surface().position()
                     << " impact " << startPos;
   
@@ -129,7 +129,7 @@ MuDetRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
     }
   }
   
-  LogTrace(metname) << "     MuDetRod::compatibleDets, size: " << result.size()
+  LogTrace(metname) << "     MTDDetTray::compatibleDets, size: " << result.size()
                     << " on closest: " << nclosest
                     << " # checked dets: " << nnextdet+1;
   if (result.empty()) {
@@ -140,11 +140,11 @@ MuDetRod::compatibleDets( const TrajectoryStateOnSurface& startingState,
 
 
 vector<DetGroup> 
-MuDetRod::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
+MTDDetTray::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
                                  const Propagator& prop,
                                  const MeasurementEstimator& est) const {
   // FIXME should return only 1 group 
-  cout << "dummy implementation of MuDetRod::groupedCompatibleDets()" << endl;
+  cout << "dummy implementation of MTDDetTray::groupedCompatibleDets()" << endl;
   vector<DetGroup> result;
   return result;
 }

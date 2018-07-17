@@ -1,10 +1,10 @@
-#ifndef DetLayers_MuRingForwardLayer_H
-#define DetLayers_MuRingForwardLayer_H
+#ifndef DetLayers_MTDRingForwardLayer_H
+#define DetLayers_MTDRingForwardLayer_H
 
 /** \class MuRingForwardLayer
- *  A plane composed of disks (MuRingForwardDisk). Represents forward muon CSC/RPC stations.
+ *  A plane composed of disks (MTDRingForwardDisk). Represents ETL.
  *
- *  \author N. Amapane - INFN Torino
+ *  \author L. Gray - FNAL
  *
  */
 
@@ -15,14 +15,14 @@ class ForwardDetRing;
 class ForwardDetRingBuilder;
 class GeomDet;
 
-class MuRingForwardLayer : public RingedForwardLayer {
+class MTDRingForwardLayer : public RingedForwardLayer {
 
  public:  
 
   /// Constructor, takes ownership of pointers
-  MuRingForwardLayer(const std::vector<const ForwardDetRing*>& rings);
+  MTDRingForwardLayer(const std::vector<const ForwardDetRing*>& rings);
 
-  ~MuRingForwardLayer() override;
+  ~MTDRingForwardLayer() override;
 
 
   // GeometricSearchDet interface

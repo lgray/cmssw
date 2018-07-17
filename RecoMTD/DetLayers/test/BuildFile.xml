@@ -2,7 +2,7 @@
 <use   name="RecoMuon/Records"/>
 <use   name="FWCore/Framework"/>
 <flags   EDM_PLUGIN="1"/>
-<library   file="MuonRecoGeometryAnalyzer.cc" name="testMuonRecoGeometry">
+<library   file="MTDRecoGeometryAnalyzer.cc" name="testMTDRecoGeometry">
   <use   name="clhep"/>
   <use   name="TrackingTools/TrajectoryState"/>
   <use   name="TrackingTools/KalmanUpdators"/>

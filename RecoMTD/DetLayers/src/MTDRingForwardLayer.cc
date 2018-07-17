@@ -1,10 +1,10 @@
 /** \file
  *
- *  \author N. Amapane - CERN
+ *  \author L. Gray - FNAL
  */
 
-#include <RecoMuon/DetLayers/interface/MuRingForwardLayer.h>
-#include <RecoMuon/DetLayers/interface/MuDetRing.h>
+#include <RecoMTD/DetLayers/interface/MTDRingForwardLayer.h>
+#include <RecoMTD/DetLayers/interface/MTDDetRing.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <DataFormats/GeometrySurface/interface/SimpleDiskBounds.h>
 #include <TrackingTools/GeomPropagators/interface/Propagator.h>
@@ -21,7 +21,7 @@
 
 using namespace std;
 
-MuRingForwardLayer::MuRingForwardLayer(const vector<const ForwardDetRing*>& rings) :
+MTDRingForwardLayer::MTDRingForwardLayer(const vector<const ForwardDetRing*>& rings) :
   RingedForwardLayer(false),
   theRings(rings),
   theComponents(theRings.begin(),theRings.end()),
@@ -29,7 +29,7 @@ MuRingForwardLayer::MuRingForwardLayer(const vector<const ForwardDetRing*>& ring
   isOverlapping(false) 
 {
 
-  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardLayer";
+  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDRingForwardLayer";
 
   // Initial values for R and Z bounds
   float theRmin = rings.front()->basicComponents().front()->position().perp(); 
@@ -68,7 +68,7 @@ MuRingForwardLayer::MuRingForwardLayer(const vector<const ForwardDetRing*>& ring
 
 
    
-  LogTrace(metname) << "Constructing MuRingForwardLayer: "
+  LogTrace(metname) << "Constructing MTDRingForwardLayer: "
                     << basicComponents().size() << " Dets " 
                     << theRings.size() << " Rings "
                     << " Z: " << specificSurface().position().z()
@@ -79,7 +79,7 @@ MuRingForwardLayer::MuRingForwardLayer(const vector<const ForwardDetRing*>& ring
 }
 
 
-MuRingForwardLayer::~MuRingForwardLayer(){
+MTDRingForwardLayer::~MTDRingForwardLayer(){
   delete theBinFinder;
   for (vector <const ForwardDetRing*>::iterator i = theRings.begin();
        i<theRings.end(); i++) {delete *i;}
@@ -87,15 +87,15 @@ MuRingForwardLayer::~MuRingForwardLayer(){
 
 
 vector<GeometricSearchDet::DetWithState> 
-MuRingForwardLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
+MTDRingForwardLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
 				   const Propagator& prop, 
 				   const MeasurementEstimator& est) const {
   
-  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardLayer";
+  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDRingForwardLayer";
   vector<DetWithState> result; 
   
   
-  LogTrace(metname) << "MuRingForwardLayer::compatibleDets," 
+  LogTrace(metname) << "MTDRingForwardLayer::compatibleDets," 
                     << " R1 " << specificSurface().innerRadius()
                     << " R2: " << specificSurface().outerRadius()
                     << " FTS at R: " << startingState.globalPosition().perp();
@@ -105,7 +105,7 @@ MuRingForwardLayer::compatibleDets(const TrajectoryStateOnSurface& startingState
   
   if (!compat.first) {
     
-    LogTrace(metname) << "     MuRingForwardLayer::compatibleDets: not compatible"
+    LogTrace(metname) << "     MTDRingForwardLayer::compatibleDets: not compatible"
                       << " (should not have been selected!)";
     return result;
   }
@@ -118,7 +118,7 @@ MuRingForwardLayer::compatibleDets(const TrajectoryStateOnSurface& startingState
   
   // Check the closest ring
   
-  LogTrace(metname) << "     MuRingForwardLayer::fastCompatibleDets, closestRing: "
+  LogTrace(metname) << "     MTDRingForwardLayer::fastCompatibleDets, closestRing: "
 		    << closest
 		    << " R1 " << closestRing->specificSurface().innerRadius()
 		    << " R2: " << closestRing->specificSurface().outerRadius()
@@ -154,7 +154,7 @@ MuRingForwardLayer::compatibleDets(const TrajectoryStateOnSurface& startingState
       inside=theRings[idet]->specificSurface().bounds().inside(nextPos);
     }
     if (inside){
-      LogTrace(metname) << "     MuRingForwardLayer::fastCompatibleDets:NextRing" << idet
+      LogTrace(metname) << "     MTDRingForwardLayer::fastCompatibleDets:NextRing" << idet
 			<< " R1 " << theRings[idet]->specificSurface().innerRadius()
 			<< " R2: " << theRings[idet]->specificSurface().outerRadius()
 			<< " FTS R " << nextPos.perp();
@@ -178,7 +178,7 @@ MuRingForwardLayer::compatibleDets(const TrajectoryStateOnSurface& startingState
       inside=theRings[idet]->specificSurface().bounds().inside(nextPos);
     }
     if (inside){
-      LogTrace(metname) << "     MuRingForwardLayer::fastCompatibleDets:PreviousRing:" << idet
+      LogTrace(metname) << "     MTDRingForwardLayer::fastCompatibleDets:PreviousRing:" << idet
 			<< " R1 " << theRings[idet]->specificSurface().innerRadius()
 			<< " R2: " << theRings[idet]->specificSurface().outerRadius()
 			<< " FTS R " << nextPos.perp();
@@ -194,7 +194,7 @@ MuRingForwardLayer::compatibleDets(const TrajectoryStateOnSurface& startingState
     }
   }
    
-  LogTrace(metname) << "     MuRingForwardLayer::fastCompatibleDets: found: "
+  LogTrace(metname) << "     MTDRingForwardLayer::fastCompatibleDets: found: "
 		    << result.size()
 		    << " on closest: " << nclosest
 		    << " # checked rings: " << 1 + nnextdet;
@@ -204,21 +204,21 @@ MuRingForwardLayer::compatibleDets(const TrajectoryStateOnSurface& startingState
 
 
 vector<DetGroup> 
-MuRingForwardLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
+MTDRingForwardLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
                                            const Propagator& prop,
                                            const MeasurementEstimator& est) const {
   // FIXME should return only 1 group 
-  cout << "dummy implementation of MuRingForwardLayer::groupedCompatibleDets()" << endl;
+  cout << "dummy implementation of MTDRingForwardLayer::groupedCompatibleDets()" << endl;
   return vector<DetGroup>();
 }
 
 
 
-GeomDetEnumerators::SubDetector MuRingForwardLayer::subDetector() const {
+GeomDetEnumerators::SubDetector MTDRingForwardLayer::subDetector() const {
   return theBasicComps.front()->subDetector();
 }
 
 const vector<const GeometricSearchDet*> &
-MuRingForwardLayer::components() const {
+MTDRingForwardLayer::components() const {
   return theComponents;
 }

@@ -1,11 +1,11 @@
 /** \file
  *
- *  \author N. Amapane - CERN
+ *  \author L. Gray - FNAL
  */
 
 
-#include "RecoMuon/DetLayers/interface/MuRodBarrelLayer.h"
-#include "RecoMuon/DetLayers/interface/MuDetRod.h"
+#include "RecoMTD/DetLayers/interface/MTDTrayBarrelLayer.h"
+#include "RecoMTD/DetLayers/interface/MTDDetTray.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
@@ -23,7 +23,7 @@
 
 using namespace std;
 
-MuRodBarrelLayer::MuRodBarrelLayer(vector<const DetRod*>& rods) :
+MTDTrayBarrelLayer::MTDTrayBarrelLayer(vector<const DetRod*>& rods) :
   RodBarrelLayer(false),
   theRods(rods),
   theBinFinder(nullptr),
@@ -35,7 +35,7 @@ MuRodBarrelLayer::MuRodBarrelLayer(vector<const DetRod*>& rods) :
   theComponents.reserve(theRods.size());
   std::copy(theRods.begin(),theRods.end(),back_inserter(theComponents));
 
-  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRodBarrelLayer";
+  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDTrayBarrelLayer";
 
   // Cache chamber pointers (the basic components_)
   for (vector<const DetRod*>::const_iterator it=rods.begin();
@@ -58,7 +58,7 @@ MuRodBarrelLayer::MuRodBarrelLayer(vector<const DetRod*>& rods) :
   // Compute the layer's surface and bounds (from the components())
   BarrelDetLayer::initialize(); 
   
-  LogTrace(metname) << "Constructing MuRodBarrelLayer: "
+  LogTrace(metname) << "Constructing MTDTrayBarrelLayer: "
 		    << basicComponents().size() << " Dets " 
 		    << theRods.size() << " Rods "
 		    << " R: " << specificSurface().radius()
@@ -67,7 +67,7 @@ MuRodBarrelLayer::MuRodBarrelLayer(vector<const DetRod*>& rods) :
 }
 
 
-MuRodBarrelLayer::~MuRodBarrelLayer() {
+MTDTrayBarrelLayer::~MTDTrayBarrelLayer() {
   delete theBinFinder;
   for (vector <const DetRod*>::iterator i = theRods.begin();
        i<theRods.end(); i++) {delete *i;}
@@ -75,15 +75,15 @@ MuRodBarrelLayer::~MuRodBarrelLayer() {
 
 
 vector<GeometricSearchDet::DetWithState> 
-MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
+MTDTrayBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
 				 const Propagator& prop, 
 				 const MeasurementEstimator& est) const {
 
-  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRodBarrelLayer";
+  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDTrayBarrelLayer";
   vector<DetWithState> result; 
 
  
-  LogTrace(metname) << "MuRodBarrelLayer::compatibleDets, Cyl R: " 
+  LogTrace(metname) << "MTDTrayBarrelLayer::compatibleDets, Cyl R: " 
                     << specificSurface().radius()
                     << " TSOS at R= " << startingState.globalPosition().perp()
 		    << " phi= " << startingState.globalPosition().phi();
@@ -91,14 +91,14 @@ MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
   pair<bool, TrajectoryStateOnSurface> compat =
     compatible(startingState, prop, est);
   if (!compat.first) {
-    LogTrace(metname) << "     MuRodBarrelLayer::compatibleDets: not compatible"
+    LogTrace(metname) << "     MTDTrayBarrelLayer::compatibleDets: not compatible"
                       << " (should not have been selected!)";
     return vector<DetWithState>();
   } 
 
   TrajectoryStateOnSurface& tsos = compat.second;
 
-  LogTrace(metname) << "     MuRodBarrelLayer::compatibleDets, reached layer at: "
+  LogTrace(metname) << "     MTDTrayBarrelLayer::compatibleDets, reached layer at: "
 		    << tsos.globalPosition()
 		    << " R = " << tsos.globalPosition().perp()
 		    << " phi = " << tsos.globalPosition().phi();
@@ -107,7 +107,7 @@ MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
   const DetRod* closestRod = theRods[closest];
 
   // Check the closest rod
-  LogTrace(metname) << "     MuRodBarrelLayer::compatibleDets, closestRod: " << closest
+  LogTrace(metname) << "     MTDTrayBarrelLayer::compatibleDets, closestRod: " << closest
                     << " phi : " << closestRod->surface().position().phi()
                     << " FTS phi: " << tsos.globalPosition().phi();
   
@@ -149,7 +149,7 @@ MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
     }
 
     
-    LogTrace(metname) << "     MuRodBarrelLayer::fastCompatibleDets, none on closest rod!";
+    LogTrace(metname) << "     MTDTrayBarrelLayer::fastCompatibleDets, none on closest rod!";
   }
 
   if (checknext) {
@@ -161,7 +161,7 @@ MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
     const DetRod* nextRod = theRods[next];
 
   
-    LogTrace(metname) << "     MuRodBarrelLayer::fastCompatibleDets, next-to closest"
+    LogTrace(metname) << "     MTDTrayBarrelLayer::fastCompatibleDets, next-to closest"
                       << " rod: " << next << " dist " << dist
                       << " phi : " << nextRod->surface().position().phi()
                       << " FTS phi: " << tsos.globalPosition().phi();   
@@ -173,7 +173,7 @@ MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
   }
   
   
-   LogTrace(metname) << "     MuRodBarrelLayer::fastCompatibleDets: found: "
+   LogTrace(metname) << "     MTDTrayBarrelLayer::fastCompatibleDets: found: "
                      << result.size()
                      << " on closest: " << nclosest
                      << " # checked rods: " << 1 + int(checknext);
@@ -183,26 +183,26 @@ MuRodBarrelLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
 
 
 vector<DetGroup> 
-MuRodBarrelLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
+MTDTrayBarrelLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 					 const Propagator& prop,
 					 const MeasurementEstimator& est) const {
   // FIXME should return only 1 group 
-  cout << "dummy implementation of MuRodBarrelLayer::groupedCompatibleDets()" << endl;
+  cout << "dummy implementation of MTDTrayBarrelLayer::groupedCompatibleDets()" << endl;
   return vector<DetGroup>();
 }
 
 
 
-GeomDetEnumerators::SubDetector MuRodBarrelLayer::subDetector() const {
+GeomDetEnumerators::SubDetector MTDTrayBarrelLayer::subDetector() const {
   return theBasicComps.front()->subDetector();
 }
 
 const vector<const GeometricSearchDet*>&
-MuRodBarrelLayer::components() const {
+MTDTrayBarrelLayer::components() const {
   return theComponents;
 }
 
-float MuRodBarrelLayer::xError(const TrajectoryStateOnSurface& tsos,
+float MTDTrayBarrelLayer::xError(const TrajectoryStateOnSurface& tsos,
 			       const MeasurementEstimator& est) const {
   const float nSigmas = 3.f;
   if (tsos.hasError()) {

@@ -1,9 +1,9 @@
 /** \file
  *
- *  \author N. Amapane - CERN
+ *  \author L. Gray - FNAL
  */
 
-#include "RecoMuon/DetLayers/interface/MuDetRing.h"
+#include "RecoMTD/DetLayers/interface/MTDDetRing.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
@@ -14,7 +14,7 @@
 
 using namespace std;
 
-MuDetRing::MuDetRing(vector<const GeomDet*>::const_iterator first,
+MTDDetRing::MTDDetRing(vector<const GeomDet*>::const_iterator first,
 		     vector<const GeomDet*>::const_iterator last) : 
   ForwardDetRingOneZ(first,last) 
 {
@@ -22,39 +22,39 @@ MuDetRing::MuDetRing(vector<const GeomDet*>::const_iterator first,
 }
 
 
-MuDetRing::MuDetRing(const vector<const GeomDet*>& vdets) : 
+MTDDetRing::MTDDetRing(const vector<const GeomDet*>& vdets) : 
   ForwardDetRingOneZ(vdets) 
 {
   init();
 }
 
 
-void MuDetRing::init()
+void MTDDetRing::init()
 {
   theBinFinder = BinFinderType(basicComponents().front()->position().phi(),
 			       basicComponents().size());  
 }
 
-MuDetRing::~MuDetRing(){}
+MTDDetRing::~MTDDetRing(){}
 
 
 const vector<const GeometricSearchDet*>&
-MuDetRing::components() const {
+MTDDetRing::components() const {
   // FIXME dummy impl.
-  cout << "temporary dummy implementation of MuDetRing::components()!!" << endl;
+  cout << "temporary dummy implementation of MTDDetRing::components()!!" << endl;
   static const vector<const GeometricSearchDet*> result;
   return result;
 }
 
 
 pair<bool, TrajectoryStateOnSurface>
-MuDetRing::compatible(const TrajectoryStateOnSurface& ts, const Propagator& prop, 
+MTDDetRing::compatible(const TrajectoryStateOnSurface& ts, const Propagator& prop, 
 		      const MeasurementEstimator& est) const {
   
-  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuDetRing";
+  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDDetRing";
   TrajectoryStateOnSurface ms = prop.propagate(ts,specificSurface());
   
-  LogTrace(metname) << "MuDetRing::compatible, Surface at Z: " 
+  LogTrace(metname) << "MTDDetRing::compatible, Surface at Z: " 
                     << specificSurface().position().z()
                     << " R1: " << specificSurface().innerRadius()
                     << " R2: " << specificSurface().outerRadius()
@@ -75,13 +75,13 @@ MuDetRing::compatible(const TrajectoryStateOnSurface& ts, const Propagator& prop
 
 
 vector<GeometricSearchDet::DetWithState> 
-MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
+MTDDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
 			   const Propagator& prop, 
 			   const MeasurementEstimator& est) const {
 
-  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuDetRing";
+  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDDetRing";
 
-  LogTrace(metname) << "MuDetRing::compatibleDets, Surface at Z: " 
+  LogTrace(metname) << "MTDDetRing::compatibleDets, Surface at Z: " 
                     << surface().position().z()
                     << " R1: " << specificSurface().innerRadius()
                     << " R2: " << specificSurface().outerRadius()
@@ -94,7 +94,7 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
   pair<bool, TrajectoryStateOnSurface> compat =
     compatible(startingState, prop, est);
   if (!compat.first) {
-    LogTrace(metname) << "    MuDetRing::compatibleDets: not compatible"
+    LogTrace(metname) << "    MTDDetRing::compatibleDets: not compatible"
                       << "    (should not have been selected!)";
     return result;
   }
@@ -104,7 +104,7 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
   GlobalPoint startPos = tsos.globalPosition();  
   int closest = theBinFinder.binIndex(startPos.phi());
   const vector<const GeomDet*> dets = basicComponents();
-  LogTrace(metname) << "     MuDetRing::compatibleDets, closest det: " << closest 
+  LogTrace(metname) << "     MTDDetRing::compatibleDets, closest det: " << closest 
                     << " Phi: " << dets[closest]->surface().position().phi()
                     << " impactPhi " << startPos.phi();
 
@@ -124,7 +124,7 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
              result.back().second.globalPosition().perp());
     }  
   } else {
-    LogTrace(metname) << "     MuDetRing::compatibleDets, closest not compatible!";
+    LogTrace(metname) << "     MTDDetRing::compatibleDets, closest not compatible!";
     //FIXME:  if closest is not compatible the next cannot be either
   }
   
@@ -158,7 +158,7 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
     }
   }
   
-  LogTrace(metname) << "     MuDetRing::compatibleDets, size: " << result.size()
+  LogTrace(metname) << "     MTDDetRing::compatibleDets, size: " << result.size()
                     << " on closest: " << nclosest << " # checked dets: " << nnextdet+1;
 
   if (result.empty()) {
@@ -170,12 +170,12 @@ MuDetRing::compatibleDets( const TrajectoryStateOnSurface& startingState,
 
 
 vector<DetGroup> 
-MuDetRing::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
+MTDDetRing::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
 				  const Propagator& prop,
 				  const MeasurementEstimator& est) const {
   // FIXME should be implemented to allow returning  overlapping chambers
   // as separate groups!
-  cout << "dummy implementation of MuDetRod::groupedCompatibleDets()" << endl;
+  cout << "dummy implementation of MTDDetRod::groupedCompatibleDets()" << endl;
   vector<DetGroup> result;
   return result;
 }

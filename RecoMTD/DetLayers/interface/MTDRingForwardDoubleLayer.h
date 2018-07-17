@@ -1,30 +1,30 @@
-#ifndef DetLayers_MuRingForwardDoubleLayer_H
-#define DetLayers_MuRingForwardDoubleLayer_H
+#ifndef DetLayers_MTDRingForwardDoubleLayer_H
+#define DetLayers_MTDRingForwardDoubleLayer_H
 
-/** \class MuRingForwardDoubleLayer
- *  A plane composed two layers of disks. Represents forward muon CSC stations.
+/** \class MTDRingForwardDoubleLayer
+ *  A plane composed two layers of disks. The Endcap Timing Layer.
  *
- *  \author R. Wilkinson
+ *  \author L. Gray
  *
  */
 
 #include "TrackingTools/DetLayers/interface/RingedForwardLayer.h"
 #include "Utilities/BinningTools/interface/BaseBinFinder.h"
-#include "RecoMuon/DetLayers/interface/MuRingForwardLayer.h"
+#include "RecoMTD/DetLayers/interface/MTDRingForwardLayer.h"
 
 class ForwardDetRing;
 class ForwardDetRingBuilder;
 class GeomDet;
 
-class MuRingForwardDoubleLayer : public RingedForwardLayer {
+class MTDRingForwardDoubleLayer : public RingedForwardLayer {
 
  public:  
 
   /// Constructor, takes ownership of pointers
-  MuRingForwardDoubleLayer(const std::vector<const ForwardDetRing*>& frontRings,  
+  MTDRingForwardDoubleLayer(const std::vector<const ForwardDetRing*>& frontRings,  
                            const std::vector<const ForwardDetRing*>& backRings);
 
-  ~MuRingForwardDoubleLayer() override {}
+  ~MTDRingForwardDoubleLayer() override {}
 
 
   // GeometricSearchDet interface
@@ -62,15 +62,15 @@ class MuRingForwardDoubleLayer : public RingedForwardLayer {
 
   bool isCrack(const GlobalPoint & gp) const;
 
-  const MuRingForwardLayer * frontLayer() const {return &theFrontLayer;}
-  const MuRingForwardLayer * backLayer() const {return &theBackLayer;}
+  const MTDRingForwardLayer * frontLayer() const {return &theFrontLayer;}
+  const MTDRingForwardLayer * backLayer() const {return &theBackLayer;}
 
   void selfTest() const;
  protected:
     BoundDisk * computeSurface() override;
  private:  
-  MuRingForwardLayer theFrontLayer;
-  MuRingForwardLayer theBackLayer;
+  MTDRingForwardLayer theFrontLayer;
+  MTDRingForwardLayer theBackLayer;
   std::vector<const ForwardDetRing*> theRings;
   std::vector <const GeometricSearchDet*> theComponents; // duplication of the above
   std::vector<const GeomDet*> theBasicComponents; // All chambers

@@ -1,4 +1,4 @@
-<library   name="RecoMuonDetLayersPlugins" file="*.cc">
+<library   name="RecoMTDDetLayersPlugins" file="*.cc">
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/ParameterSet"/>
@@ -7,7 +7,7 @@
   <use   name="Geometry/RPCGeometry"/>
   <use   name="Geometry/GEMGeometry"/>
   <use   name="Geometry/Records"/>
-  <use   name="RecoMuon/DetLayers"/>
-  <use   name="RecoMuon/Records"/>
+  <use   name="RecoMTD/DetLayers"/>
+  <use   name="RecoMTD/Records"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

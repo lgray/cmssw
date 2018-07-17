@@ -1,10 +1,10 @@
 /** \file
  *
- *  \author Rick Wilkinson
+ *  \author L. Gray
  */
 
-#include <RecoMuon/DetLayers/interface/MuRingForwardDoubleLayer.h>
-#include <RecoMuon/DetLayers/interface/MuDetRing.h>
+#include <RecoMTD/DetLayers/interface/MTDRingForwardDoubleLayer.h>
+#include <RecoMTD/DetLayers/interface/MTDDetRing.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <DataFormats/GeometrySurface/interface/SimpleDiskBounds.h>
 #include <TrackingTools/GeomPropagators/interface/Propagator.h>
@@ -18,7 +18,7 @@
 
 using namespace std;
 
-MuRingForwardDoubleLayer::MuRingForwardDoubleLayer(const vector<const ForwardDetRing*>& frontRings,
+MTDRingForwardDoubleLayer::MTDRingForwardDoubleLayer(const vector<const ForwardDetRing*>& frontRings,
                                        const vector<const ForwardDetRing*>& backRings) :
   RingedForwardLayer(true),
   theFrontLayer(frontRings),
@@ -28,7 +28,7 @@ MuRingForwardDoubleLayer::MuRingForwardDoubleLayer(const vector<const ForwardDet
   theBasicComponents()
 {
 
-  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardDoubleLayer";
+  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDRingForwardDoubleLayer";
 
   theRings.insert(theRings.end(), backRings.begin(), backRings.end());
   theComponents = std::vector <const GeometricSearchDet*>(theRings.begin(), theRings.end());
@@ -43,7 +43,7 @@ MuRingForwardDoubleLayer::MuRingForwardDoubleLayer(const vector<const ForwardDet
   
   setSurface(computeSurface());
    
-  LogTrace(metname) << "Constructing MuRingForwardDoubleLayer: "
+  LogTrace(metname) << "Constructing MTDRingForwardDoubleLayer: "
                     << basicComponents().size() << " Dets " 
                     << theRings.size() << " Rings "
                     << " Z: " << specificSurface().position().z()
@@ -54,7 +54,7 @@ MuRingForwardDoubleLayer::MuRingForwardDoubleLayer(const vector<const ForwardDet
 }
 
 
-BoundDisk * MuRingForwardDoubleLayer::computeSurface() 
+BoundDisk * MTDRingForwardDoubleLayer::computeSurface() 
 {
   const BoundDisk & frontDisk = theFrontLayer.specificSurface();
   const BoundDisk & backDisk  = theBackLayer.specificSurface();
@@ -77,7 +77,7 @@ BoundDisk * MuRingForwardDoubleLayer::computeSurface()
 }
 
 
-bool MuRingForwardDoubleLayer::isInsideOut(const TrajectoryStateOnSurface& tsos) const 
+bool MTDRingForwardDoubleLayer::isInsideOut(const TrajectoryStateOnSurface& tsos) const 
 {
   return tsos.globalPosition().basicVector().dot(tsos.globalMomentum().basicVector()) > 0;
 }
@@ -85,17 +85,17 @@ bool MuRingForwardDoubleLayer::isInsideOut(const TrajectoryStateOnSurface& tsos)
   
 
 std::pair<bool, TrajectoryStateOnSurface>
-MuRingForwardDoubleLayer::compatible(const TrajectoryStateOnSurface& startingState, const Propagator& prop,
+MTDRingForwardDoubleLayer::compatible(const TrajectoryStateOnSurface& startingState, const Propagator& prop,
                                      const MeasurementEstimator& est) const
 {
   // mostly copied from ForwardDetLayer, except propagates to closest surface,
   // not to center
-  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardDoubleLayer";
+  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDRingForwardDoubleLayer";
 
   bool insideOut = isInsideOut(startingState);
-  const MuRingForwardLayer & closerLayer = (insideOut) ? theFrontLayer : theBackLayer;
-  LogTrace("Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardDoubleLayer") 
-    << "MuRingForwardDoubleLayer::compatible is assuming inside-out direction: "<< insideOut;
+  const MTDRingForwardLayer & closerLayer = (insideOut) ? theFrontLayer : theBackLayer;
+  LogTrace(metname) 
+    << "MTDRingForwardDoubleLayer::compatible is assuming inside-out direction: "<< insideOut;
 
 
   //std::pair<bool, TrajectoryStateOnSurface> result 
@@ -130,17 +130,17 @@ MuRingForwardDoubleLayer::compatible(const TrajectoryStateOnSurface& startingSta
 
 
 vector<GeometricSearchDet::DetWithState> 
-MuRingForwardDoubleLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
+MTDRingForwardDoubleLayer::compatibleDets(const TrajectoryStateOnSurface& startingState,
 				   const Propagator& prop, 
 				   const MeasurementEstimator& est) const {
   vector<DetWithState> result;
-  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardDoubleLayer";
+  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDRingForwardDoubleLayer";
   pair<bool, TrajectoryStateOnSurface> compat =
     compatible(startingState, prop, est);
 
   if (!compat.first) {
 
-    LogTrace(metname) << "     MuRingForwardDoubleLayer::compatibleDets: not compatible"
+    LogTrace(metname) << "     MTDRingForwardDoubleLayer::compatibleDets: not compatible"
                       << " (should not have been selected!)";
     return result;
   }
@@ -165,17 +165,16 @@ MuRingForwardDoubleLayer::compatibleDets(const TrajectoryStateOnSurface& startin
 
 
 vector<DetGroup>
-MuRingForwardDoubleLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
+MTDRingForwardDoubleLayer::groupedCompatibleDets( const TrajectoryStateOnSurface& startingState,
                                            const Propagator& prop,
                                            const MeasurementEstimator& est) const {
 
-  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardDoubleLayer";
+  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDRingForwardDoubleLayer";
   vector<GeometricSearchDet::DetWithState> detWithStates1, detWithStates2;
   
   LogTrace(metname) << "groupedCompatibleDets are currently given always in inside-out order";
-  // this should be fixed either in RecoMuon/MeasurementDet/MuonDetLayerMeasurements or
-  // RecoMuon/DetLayers/MuRingForwardDoubleLayer
-  // and removed the reverse operation in StandAloneMuonFilter::findBestMeasurements
+  // this should be fixed either in RecoMTD/MeasurementDet/MTDDetLayerMeasurements or
+  // RecoMTD/DetLayers/MTDRingForwardDoubleLayer
 
   detWithStates1 = theFrontLayer.compatibleDets(startingState, prop, est);
   detWithStates2 = theBackLayer.compatibleDets(startingState, prop, est);    
@@ -188,17 +187,17 @@ MuRingForwardDoubleLayer::groupedCompatibleDets( const TrajectoryStateOnSurface&
 }
 
 
-bool MuRingForwardDoubleLayer::isCrack(const GlobalPoint & gp) const
+bool MTDRingForwardDoubleLayer::isCrack(const GlobalPoint & gp) const
 {
-  const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuRingForwardDoubleLayer";
+  const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDRingForwardDoubleLayer";
   // approximate
   bool result = false;
   double r = gp.perp();
   const std::vector<const ForwardDetRing*>& backRings = theBackLayer.rings(); 
   if(backRings.size() > 1)
   {
-    const MuDetRing * innerRing = dynamic_cast<const MuDetRing *>(backRings[0]);
-    const MuDetRing * outerRing = dynamic_cast<const MuDetRing *>(backRings[1]);
+    const MTDDetRing * innerRing = dynamic_cast<const MTDDetRing *>(backRings[0]);
+    const MTDDetRing * outerRing = dynamic_cast<const MTDDetRing *>(backRings[1]);
     assert(innerRing && outerRing);
     float crackInner = innerRing->specificSurface().outerRadius();
     float crackOuter = outerRing->specificSurface().innerRadius();
@@ -211,7 +210,7 @@ bool MuRingForwardDoubleLayer::isCrack(const GlobalPoint & gp) const
 }
 
 
-void MuRingForwardDoubleLayer::selfTest() const
+void MTDRingForwardDoubleLayer::selfTest() const
 {
   const std::vector<const GeomDet*>& frontDets = theFrontLayer.basicComponents();
   const std::vector<const GeomDet*>& backDets = theBackLayer.basicComponents();

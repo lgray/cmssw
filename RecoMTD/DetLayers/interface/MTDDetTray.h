@@ -1,11 +1,11 @@
-#ifndef DetLayers_MuDetRod_H
-#define DetLayers_MuDetRod_H
+#ifndef DetLayers_MTDDetTray_H
+#define DetLayers_MTDDetTray_H
 
-/** \class MuDetRod
- *  A rod of aligned equal-sized non-overlapping detectors.  
- *  Designed for barrel muon DT/RPC chambers.
+/** \class MTDDetTray
+ *  A tray of aligned equal-sized non-overlapping detectors.  
+ *  Designed for barrel timing layer.
  *
- *  \author N. Amapane - INFN Torino
+ *  \author L. Gray - FNAL
  *
  */
 
@@ -14,18 +14,18 @@
 #include "Utilities/BinningTools/interface/GenericBinFinderInZ.h"
 class GeomDet;
 
-class MuDetRod : public DetRodOneR {
+class MTDDetTray : public DetRodOneR {
  public:
 
   /// Construct from iterators on GeomDet*
-  MuDetRod(std::vector<const GeomDet*>::const_iterator first,
+  MTDDetTray(std::vector<const GeomDet*>::const_iterator first,
 	   std::vector<const GeomDet*>::const_iterator last);
 
   /// Construct from a std::vector of GeomDet*
-  MuDetRod(const std::vector<const GeomDet*>& dets);
+  MTDDetTray(const std::vector<const GeomDet*>& dets);
 
   /// Destructor
-  ~MuDetRod() override;
+  ~MTDDetTray() override;
 
 
   // GeometricSearchDet interface

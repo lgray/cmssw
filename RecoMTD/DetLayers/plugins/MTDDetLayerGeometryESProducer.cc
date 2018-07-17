@@ -31,25 +31,25 @@ MTDDetLayerGeometryESProducer::~MTDDetLayerGeometryESProducer(){}
 
 
 std::unique_ptr<MTDDetLayerGeometry>
-MTDDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
+MTDDetLayerGeometryESProducer::produce(const MTDRecoGeometryRecord & record) {
 
   const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDDetLayerGeometryESProducer";
   auto mtdDetLayerGeometry = std::make_unique<MTDDetLayerGeometry>();
   
   // Build DT layers  
-  edm::ESHandle<DTGeometry> dt;
-  record.getRecord<MTDGeometryRecord>().get(dt);
+  edm::ESHandle<MTDGeometry> btl;
+  record.getRecord<MTDGeometryRecord>().get("BTL",btl);
   if (dt.isValid()) {
-    mtdDetLayerGeometry->addDTLayers(MuonDTDetLayerGeometryBuilder::buildLayers(*dt));
+    mtdDetLayerGeometry->addBTLLayers(BTLDetLayerGeometryBuilder::buildLayers(*btl));
   } else {
     LogInfo(metname) << "No BTL geometry is available."; 
   }
 
   // Build CSC layers
-  edm::ESHandle<CSCGeometry> csc;
-  record.getRecord<MTDGeometryRecord>().get(csc);
+  edm::ESHandle<MTDGeometry> etl;
+  record.getRecord<MTDGeometryRecord>().get("ETL",etl);
   if (csc.isValid()) {
-    mtdDetLayerGeometry->addCSCLayers(MuonCSCDetLayerGeometryBuilder::buildLayers(*csc));
+    mtdDetLayerGeometry->addETLLayers(ETLDetLayerGeometryBuilder::buildLayers(*etl));
   } else {
     LogInfo(metname) << "No ETL geometry is available.";
   }

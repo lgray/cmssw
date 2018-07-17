@@ -1,6 +1,6 @@
-#include "RecoMuon/DetLayers/plugins/MuonDetLayerGeometryESProducer.h"
+#include "RecoMTD/DetLayers/plugins/MTDDetLayerGeometryESProducer.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
 
-DEFINE_FWK_EVENTSETUP_MODULE(MuonDetLayerGeometryESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(MTDDetLayerGeometryESProducer);

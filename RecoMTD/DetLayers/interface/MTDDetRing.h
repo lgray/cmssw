@@ -1,11 +1,11 @@
-#ifndef DetLayers_MuDetRing_H
-#define DetLayers_MuDetRing_H
+#ifndef DetLayers_MTDDetRing_H
+#define DetLayers_MTDDetRing_H
 
-/** \class MuDetRing
+/** \class MTDDetRing
  *  A ring of periodic, possibly overlapping vertical detectors.
- *  Designed for forward muon CSC/RPC chambers.
+ *  Designed for the endcap timing layer.
  *
- *  \author N. Amapane - INFN Torino
+ *  \author L. Gray - FNAL
  */
 
 #include "TrackingTools/DetLayers/interface/ForwardDetRingOneZ.h"
@@ -13,17 +13,17 @@
 
 class GeomDet;
 
-class MuDetRing : public ForwardDetRingOneZ {
+class MTDDetRing : public ForwardDetRingOneZ {
  public:
 
   /// Construct from iterators on GeomDet*
-  MuDetRing(std::vector<const GeomDet*>::const_iterator first,
+  MTDDetRing(std::vector<const GeomDet*>::const_iterator first,
 	    std::vector<const GeomDet*>::const_iterator last);
 
   /// Construct from a vector of GeomDet*
-  MuDetRing(const std::vector<const GeomDet*>& dets);
+  MTDDetRing(const std::vector<const GeomDet*>& dets);
 
-  ~MuDetRing() override;
+  ~MTDDetRing() override;
 
 
   // GeometricSearchDet interface

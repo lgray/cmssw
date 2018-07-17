@@ -1,10 +1,10 @@
-#ifndef DetLayers_MuRodBarrelLayer_H
-#define DetLayers_MuRodBarrelLayer_H
+#ifndef DetLayers_MTDTrayBarrelLayer_H
+#define DetLayers_MTDTrayBarrelLayer_H
 
-/** \class MuRodBarrelLayer
- *  A cylinder composed of rods. Represents barrel muon DT/RPC stations.
+/** \class MTDTrayBarrelLayer
+ *  A cylinder composed of half-trays. Represents Barrel Timing Layer.
  *
- *  \author N. Amapane - INFN Torino
+ *  \author L. Gray - FNAL
  *
  */
 #include "TrackingTools/DetLayers/interface/RodBarrelLayer.h"
@@ -14,13 +14,13 @@ class DetRod;
 class DetRodBuilder;
 class GeomDet;
 
-class MuRodBarrelLayer : public RodBarrelLayer {
+class MTDTrayBarrelLayer : public RodBarrelLayer {
 public:
 
   /// Constructor, takes ownership of pointers
-  MuRodBarrelLayer(std::vector<const DetRod*>& rods);
+  MTDTrayBarrelLayer(std::vector<const DetRod*>& rods);
 
-  ~MuRodBarrelLayer() override;
+  ~MTDTrayBarrelLayer() override;
 
   // GeometricSearchDet interface
 

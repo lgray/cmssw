@@ -9,8 +9,8 @@
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
+#include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
+#include "RecoMTD/Records/interface/MTDRecoGeometryRecord.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -19,10 +19,10 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
 
-#include "RecoMuon/DetLayers/interface/MuRodBarrelLayer.h"
-#include "RecoMuon/DetLayers/interface/MuDetRod.h"
-#include "RecoMuon/DetLayers/interface/MuRingForwardDoubleLayer.h"
-#include "RecoMuon/DetLayers/interface/MuDetRing.h"
+#include "RecoMTD/DetLayers/interface/MTDTrayBarrelLayer.h"
+#include "RecoMTD/DetLayers/interface/MTDDetTray.h"
+#include "RecoMTD/DetLayers/interface/MTDRingForwardDoubleLayer.h"
+#include "RecoMTD/DetLayers/interface/MTDDetRing.h"
 
 #include <DataFormats/MuonDetId/interface/DTWireId.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -34,15 +34,15 @@
 using namespace std;
 using namespace edm;
 
-class MuonRecoGeometryAnalyzer : public EDAnalyzer {
+class MTDRecoGeometryAnalyzer : public EDAnalyzer {
  public:
 
-  MuonRecoGeometryAnalyzer( const ParameterSet& pset);
+  MTDRecoGeometryAnalyzer( const ParameterSet& pset);
 
   virtual void analyze( const Event& ev, const EventSetup& es);
 
-  void testDTLayers(const MuonDetLayerGeometry*, const MagneticField* field);
-  void testCSCLayers(const MuonDetLayerGeometry*, const MagneticField* field);
+  void testBTLLayers(const MTDDetLayerGeometry*, const MagneticField* field);
+  void testETLLayers(const MTDDetLayerGeometry*, const MagneticField* field);
 
   string dumpLayer(const DetLayer* layer) const;
 
@@ -52,7 +52,7 @@ class MuonRecoGeometryAnalyzer : public EDAnalyzer {
 
 
   
-MuonRecoGeometryAnalyzer::MuonRecoGeometryAnalyzer(const ParameterSet& iConfig) 
+MTDRecoGeometryAnalyzer::MTDRecoGeometryAnalyzer(const ParameterSet& iConfig) 
 {
   float theMaxChi2=25.;
   float theNSigma=3.;
@@ -61,11 +61,11 @@ MuonRecoGeometryAnalyzer::MuonRecoGeometryAnalyzer(const ParameterSet& iConfig)
 }
 
 
-void MuonRecoGeometryAnalyzer::analyze( const Event& ev,
+void MTDRecoGeometryAnalyzer::analyze( const Event& ev,
 				       const EventSetup& es ) {
 
-  ESHandle<MuonDetLayerGeometry> geo;
-  es.get<MuonRecoGeometryRecord>().get(geo);
+  ESHandle<MTDDetLayerGeometry> geo;
+  es.get<MTDRecoGeometryRecord>().get(geo);
 
   ESHandle<MagneticField> magfield;
   es.get<IdealMagneticFieldRecord>().get(magfield);
@@ -179,9 +179,9 @@ void MuonRecoGeometryAnalyzer::analyze( const Event& ev,
 }
 
 
-void MuonRecoGeometryAnalyzer::testDTLayers(const MuonDetLayerGeometry* geo,const MagneticField* field) {
+void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo,const MagneticField* field) {
 
-  const vector<const DetLayer*>& layers = geo->allDTLayers();
+  const vector<const DetLayer*>& layers = geo->allBTLLayers();
 
   for (auto ilay = layers.begin(); ilay!=layers.end(); ++ilay) {
     const MuRodBarrelLayer* layer = (const MuRodBarrelLayer*) (*ilay);
@@ -237,7 +237,7 @@ void MuonRecoGeometryAnalyzer::testDTLayers(const MuonDetLayerGeometry* geo,cons
   }
 }
 
-void MuonRecoGeometryAnalyzer::testCSCLayers(const MuonDetLayerGeometry* geo,const MagneticField* field) {
+void MTDRecoGeometryAnalyzer::testETLLayers(const MTDDetLayerGeometry* geo,const MagneticField* field) {
   const vector<const DetLayer*>& layers = geo->allCSCLayers();
 
   for (auto ilay = layers.begin(); ilay!=layers.end(); ++ilay) {
@@ -303,7 +303,7 @@ void MuonRecoGeometryAnalyzer::testCSCLayers(const MuonDetLayerGeometry* geo,con
   }
 }
 
-string MuonRecoGeometryAnalyzer::dumpLayer(const DetLayer* layer) const {
+string MTDRecoGeometryAnalyzer::dumpLayer(const DetLayer* layer) const {
   stringstream output;
   
   const BoundSurface* sur=0;
@@ -322,4 +322,4 @@ string MuonRecoGeometryAnalyzer::dumpLayer(const DetLayer* layer) const {
 
 //define this as a plug-in
 #include <FWCore/Framework/interface/MakerMacros.h>
-DEFINE_FWK_MODULE(MuonRecoGeometryAnalyzer);
+DEFINE_FWK_MODULE(MTDRecoGeometryAnalyzer);
