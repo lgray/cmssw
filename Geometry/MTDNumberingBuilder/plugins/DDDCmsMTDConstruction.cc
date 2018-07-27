@@ -50,17 +50,13 @@ DDDCmsMTDConstruction::construct( const DDCompactView* cpv, std::vector<int> det
   filter.veto("RSide");
   filter.veto("Between");
   filter.veto("SupportPlate");
+  filter.veto("Shield");
   
-
   DDFilteredView fv( *cpv, filter ); 
-  std::cout << fv.logicalPart().name() << std::endl;
-  std::cout << "got as root: " << ExtractStringFromDDD::getString(attribute,&fv) << std::endl;
   auto check_root = theCmsMTDStringToEnum.type( ExtractStringFromDDD::getString(attribute,&fv));
   if( check_root != GeometricTimingDet::MTD )
   {
     fv.firstChild();
-    std::cout << fv.logicalPart().name() << std::endl;
-    std::cout << "got as first child: " << ExtractStringFromDDD::getString(attribute,&fv) << std::endl;
     auto check_child = theCmsMTDStringToEnum.type( ExtractStringFromDDD::getString(attribute,&fv));
     if( check_child != GeometricTimingDet::MTD )
     {  

@@ -13,7 +13,7 @@ void CmsMTDETLRingBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet
 
   CmsMTDConstruction theCmsMTDConstruction;
   theCmsMTDConstruction.buildComponent(fv,g,s);
-
+  
 }
 
 void CmsMTDETLRingBuilder::sortNS(DDFilteredView& fv, GeometricTimingDet* det){

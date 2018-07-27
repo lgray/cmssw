@@ -9,6 +9,10 @@
 
 #include <bitset>
 
+namespace {
+  constexpr std::array<const char*,2> sides{ { "PositiveZ","NegativeZ" } };
+}
+
 CmsMTDSubStrctBuilder::CmsMTDSubStrctBuilder()
 {}
 
@@ -17,24 +21,22 @@ CmsMTDSubStrctBuilder::buildComponent( DDFilteredView& fv, GeometricTimingDet* g
 {
   CmsMTDTrayBuilder theCmsMTDTrayBuilder;
 
-  std::cout << "CmsMTDSubStrctBuilder: " << fv.logicalPart().name() << std::endl;
-  
   GeometricTimingDet * subdet = new GeometricTimingDet( &fv, theCmsMTDStringToEnum.type( fv.logicalPart().name() ));
-
-  std::cout << "CmsMTDSubStrctBuilder: " << fv.logicalPart().name() << std::endl;
-
-  switch( theCmsMTDStringToEnum.type( fv.logicalPart().name() ) )
-  {  
-  case GeometricTimingDet::BTLLayer:
-    theCmsMTDTrayBuilder.build(fv,subdet,s);      
-    break;  
-
-  default:
-    throw cms::Exception("CmsMTDSubStrctBuilder")<<" ERROR - I was expecting a BTLLayer... I got a "<< fv.logicalPart().name();
-  }  
   
-  g->addComponent(subdet);
+  for (const auto& side : sides ) {
 
+    switch( theCmsMTDStringToEnum.type( fv.logicalPart().name() ) )
+      {  
+      case GeometricTimingDet::BTLLayer:
+	theCmsMTDTrayBuilder.build(fv,subdet,side);      
+	break;  
+	
+      default:
+	throw cms::Exception("CmsMTDSubStrctBuilder")<<" ERROR - I was expecting a BTLLayer... I got a "<< fv.logicalPart().name();
+      }  
+  }
+
+  g->addComponent(subdet);
 }
 
 void

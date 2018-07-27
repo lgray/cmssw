@@ -13,7 +13,7 @@ std::string ExtractStringFromDDD::getString(std::string const & s,DDFilteredView
   std::vector<const DDsvalues_type *>::iterator it = result.begin();
   bool foundIt = false;
   for (; it != result.end(); ++it)   {    
-    std::cout << s << " : " << **it << std::endl;
+    //std::cout << s << " : " << **it << std::endl;
     foundIt = DDfetch(*it,val);
     if (foundIt) break;
   }    

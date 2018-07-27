@@ -1,460 +1,144 @@
 #include "Geometry/MTDNumberingBuilder/interface/MTDTopology.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/ForwardDetId/interface/BTLDetId.h"
+#include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
 
-MTDTopology::MTDTopology( const PixelBarrelValues& pxb, const PixelEndcapValues& pxf,
-                                  const TECValues& tecv, const TIBValues& tibv, 
-                                  const TIDValues& tidv, const TOBValues& tobv) 
-    : pbVals_(pxb),
-      pfVals_(pxf),
-      tobVals_(tobv),
-      tibVals_(tibv),
-      tidVals_(tidv),
-      tecVals_(tecv),
+MTDTopology::MTDTopology( const BTLValues& btl, const ETLValues& etl ) 
+    : btlVals_(pxb),
+      etlVals_(pxf),
       bits_per_field{
-        [PBModule] = { pbVals_.moduleStartBit_, pbVals_.moduleMask_, PixelSubdetector::PixelBarrel},
-        [PBLadder] = { pbVals_.ladderStartBit_, pbVals_.ladderMask_, PixelSubdetector::PixelBarrel},
-        [PBLayer]  = { pbVals_.layerStartBit_,  pbVals_.layerMask_,  PixelSubdetector::PixelBarrel},
-        [PFModule] = { pfVals_.moduleStartBit_, pfVals_.moduleMask_, PixelSubdetector::PixelEndcap},
-        [PFPanel]  = { pfVals_.panelStartBit_,  pfVals_.panelMask_,  PixelSubdetector::PixelEndcap},
-        [PFBlade]  = { pfVals_.bladeStartBit_,  pfVals_.bladeMask_,  PixelSubdetector::PixelEndcap},
-        [PFDisk]   = { pfVals_.diskStartBit_,   pfVals_.diskMask_,   PixelSubdetector::PixelEndcap},
-        [PFSide]   = { pfVals_.sideStartBit_,   pfVals_.sideMask_,   PixelSubdetector::PixelEndcap}
-      } 
+  [BTLModule] = { btlVals_.moduleStartBit_, btlVals_.moduleMask_, MTDDetId::BTL},
+  [BTLTray]   = { btlVals_.trayStartBit_, btlVals_.trayMask_, MTDDetId::BTL},
+  [BTLLayer]  = { btlVals_.layerStartBit_,  btlVals_.layerMask_, MTDDetId::BTL},
+  [BTLSide]   = { btlVals_.sideStartBit_,  btlVals_.sideMask_, MTDDetId::BTL},
+  [ETLModule] = { etlVals_.moduleStartBit_, etlVals_.moduleMask_, MTDDetId::ETL},
+  [ETLRing]   = { etlVals_.ringStartBit_,  etlVals_.ringMask_,  MTDDetId::ETL},
+  [ETLLayer]  = { etlVals_.layerStartBit_,  etlVals_.layerMask_,  MTDDetId::ETL},
+  [ETLSide]   = { etlVals_.sideStartBit_,   etlVals_.sideMask_,   MTDDetId::ETL}
+  } 
 {}
 
 
 
 unsigned int MTDTopology::side(const DetId &id) const {
-  uint32_t subdet=id.subdetId();
-  if ( subdet == PixelSubdetector::PixelBarrel )
-    return 0;
-  if ( subdet == PixelSubdetector::PixelEndcap )
-    return pxfSide(id);
-  if ( subdet == StripSubdetector::TIB )
-    return 0;
-  if ( subdet == StripSubdetector::TID )
-    return tidSide(id);
-  if ( subdet == StripSubdetector::TOB )
-    return 0;
-  if ( subdet == StripSubdetector::TEC )
-    return tecSide(id);
-
-  throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::side";
-  return 0;
+  uint32_t subdet=MTDDetId(id).mtdSubDetector();
+  switch( subdet ) {
+  case MTDDetId::BTL:    
+    return btlSide(id);
+  case MTDDetId::ETL:    
+    return etlSide(id);
+  default:
+      throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::side";
+  }
+  return std::numeric_limits<unsigned int>::max();
 }
 
 unsigned int MTDTopology::layer(const DetId &id) const {
-  uint32_t subdet=id.subdetId();
-  if ( subdet == PixelSubdetector::PixelBarrel )
-    return pxbLayer(id);
-  if ( subdet == PixelSubdetector::PixelEndcap )
-    return pxfDisk(id);
-  if ( subdet == StripSubdetector::TIB )
-    return tibLayer(id);
-  if ( subdet == StripSubdetector::TID )
-    return tidWheel(id);
-  if ( subdet == StripSubdetector::TOB )
-    return tobLayer(id);
-  if ( subdet == StripSubdetector::TEC )
-    return tecWheel(id);
-
-  throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::layer";
-  return 0;
+  uint32_t subdet=MTDDetId(id).mtdSubDetector();
+  switch( subdet ) {
+  case MTDDetId::BTL:    
+    return btlLayer(id);
+  case MTDDetId::ETL:    
+    return etlLayer(id);
+  default:
+      throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::layer";
+  }
+  return std::numeric_limits<unsigned int>::max();
 }
 
 unsigned int MTDTopology::module(const DetId &id) const {
-  uint32_t subdet=id.subdetId();
-  if ( subdet == PixelSubdetector::PixelBarrel )
-    return pxbModule(id);
-  if ( subdet == PixelSubdetector::PixelEndcap )
-    return pxfModule(id);
-  if ( subdet == StripSubdetector::TIB )
-    return tibModule(id);
-  if ( subdet == StripSubdetector::TID )
-    return tidModule(id);
-  if ( subdet == StripSubdetector::TOB )
-    return tobModule(id);
-  if ( subdet == StripSubdetector::TEC )
-    return tecModule(id);
-
-  throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::module";
-  return 0;
+  uint32_t subdet=MTDDetId(id).mtdSubDetector();
+  switch( subdet ) {
+  case MTDDetId::BTL:    
+    return btlModule(id);
+  case MTDDetId::ETL:    
+    return etlModule(id);
+  default:
+      throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::module";
+  }
+  return std::numeric_limits<unsigned int>::max();
 }
 
-uint32_t MTDTopology::glued(const DetId &id) const {
-
-    uint32_t subdet=id.subdetId();
-    if ( subdet == PixelSubdetector::PixelBarrel )
-      return 0;
-    if ( subdet == PixelSubdetector::PixelEndcap )
-      return 0;
-    if ( subdet == StripSubdetector::TIB )
-      return tibGlued(id);
-    if ( subdet == StripSubdetector::TID )
-      return tidGlued(id);
-    if ( subdet == StripSubdetector::TOB )
-      return tobGlued(id);
-    if ( subdet == StripSubdetector::TEC )
-      return tecGlued(id);
-
-    throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::glued";
-    return 0;
+unsigned int MTDTopology::tray(const DetId &id) const {
+  uint32_t subdet=MTDDetId(id).mtdSubDetector();
+  switch( subdet ) {
+  case MTDDetId::BTL:    
+    return btlTray(id);
+  case MTDDetId::ETL:    
+    return std::numeric_limits<unsigned int>::max();
+  default:
+      throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::tray";
+  }
+  return std::numeric_limits<unsigned int>::max();
 }
 
-uint32_t MTDTopology::stack(const DetId &id) const {
-
-    uint32_t subdet=id.subdetId();
-    if ( subdet == PixelSubdetector::PixelBarrel )
-      return 0;
-    if ( subdet == PixelSubdetector::PixelEndcap )
-      return 0;
-    if ( subdet == StripSubdetector::TIB )
-      return tibStack(id);
-    if ( subdet == StripSubdetector::TID )
-      return tidStack(id);
-    if ( subdet == StripSubdetector::TOB )
-      return tobStack(id);
-    if ( subdet == StripSubdetector::TEC )
-      return tecStack(id);
-
-    throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::stack";
-}
-
-uint32_t MTDTopology::lower(const DetId &id) const {
-
-    uint32_t subdet=id.subdetId();
-    if ( subdet == PixelSubdetector::PixelBarrel )
-      return 0;
-    if ( subdet == PixelSubdetector::PixelEndcap )
-      return 0;
-    if ( subdet == StripSubdetector::TIB )
-      return tibLower(id);
-    if ( subdet == StripSubdetector::TID )
-      return tidLower(id);
-    if ( subdet == StripSubdetector::TOB )
-      return tobLower(id);
-    if ( subdet == StripSubdetector::TEC )
-      return tecLower(id);
-
-    throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::lower";
-}
-
-uint32_t MTDTopology::upper(const DetId &id) const {
-
-    uint32_t subdet=id.subdetId();
-    if ( subdet == PixelSubdetector::PixelBarrel )
-      return 0;
-    if ( subdet == PixelSubdetector::PixelEndcap )
-      return 0;
-    if ( subdet == StripSubdetector::TIB )
-      return tibUpper(id);
-    if ( subdet == StripSubdetector::TID )
-      return tidUpper(id);
-    if ( subdet == StripSubdetector::TOB )
-      return tobUpper(id);
-    if ( subdet == StripSubdetector::TEC )
-      return tecUpper(id);
-
-    throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::upper";
+unsigned int MTDTopology::ring(const DetId &id) const {
+  uint32_t subdet=MTDDetId(id).mtdSubDetector();
+  switch( subdet ) {
+  case MTDDetId::BTL:    
+    return std::numeric_limits<unsigned int>::max();
+  case MTDDetId::ETL:    
+    return etlModule(id);
+  default:
+      throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::ring";
+  }
+  return std::numeric_limits<unsigned int>::max();
 }
 
 
-bool MTDTopology::isStereo(const DetId &id) const {
-
-    uint32_t subdet=id.subdetId();
-    if ( subdet == PixelSubdetector::PixelBarrel )
-      return false;
-    if ( subdet == PixelSubdetector::PixelEndcap )
-      return false;
-    if ( subdet == StripSubdetector::TIB )
-      return tibStereo(id)!=0;
-    if ( subdet == StripSubdetector::TID )
-      return tidStereo(id)!=0;
-    if ( subdet == StripSubdetector::TOB )
-      return tobStereo(id)!=0;
-    if ( subdet == StripSubdetector::TEC )
-      return tecStereo(id)!=0;
-
-    throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::isStereo";
-    return false;
-}
-
-bool MTDTopology::isRPhi(const DetId &id) const {
-
-    uint32_t subdet=id.subdetId();
-    if ( subdet == PixelSubdetector::PixelBarrel )
-      return false;
-    if ( subdet == PixelSubdetector::PixelEndcap )
-      return false;
-    if ( subdet == StripSubdetector::TIB )
-      return tibRPhi(id)!=0;
-    if ( subdet == StripSubdetector::TID )
-      return tidRPhi(id)!=0;
-    if ( subdet == StripSubdetector::TOB )
-      return tobRPhi(id)!=0;
-    if ( subdet == StripSubdetector::TEC )
-      return tecRPhi(id)!=0;
-
-    throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::isRPhi";
-    return false;
-}
-bool MTDTopology::isLower(const DetId &id) const {
-
-    uint32_t subdet=id.subdetId();
-    if ( subdet == PixelSubdetector::PixelBarrel ) 
-      return false;
-    if ( subdet == PixelSubdetector::PixelEndcap )
-      return false;
-    if ( subdet == StripSubdetector::TIB )
-      return tibLower(id)!=0;
-    if ( subdet == StripSubdetector::TID )
-      return tidLower(id)!=0;
-    if ( subdet == StripSubdetector::TOB )
-      return tobLower(id)!=0;
-    if ( subdet == StripSubdetector::TEC )
-      return tecLower(id)!=0;
-
-    throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::isLower";
-    return false;
-
-}
-
-bool MTDTopology::isUpper(const DetId &id) const {
-
-    uint32_t subdet=id.subdetId();
-    if ( subdet == PixelSubdetector::PixelBarrel ) 
-      return false;
-    if ( subdet == PixelSubdetector::PixelEndcap )
-      return false;
-    if ( subdet == StripSubdetector::TIB )
-      return tibUpper(id)!=0;
-    if ( subdet == StripSubdetector::TID )
-      return tidUpper(id)!=0;
-    if ( subdet == StripSubdetector::TOB )
-      return tobUpper(id)!=0;
-    if ( subdet == StripSubdetector::TEC )
-      return tecUpper(id)!=0;
-
-    throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::isUpper";
-    return false;
-}
-
-DetId MTDTopology::partnerDetId(const DetId &id) const {
-
-    uint32_t subdet=id.subdetId();
-    if ( subdet == PixelSubdetector::PixelBarrel )
-      return 0;
-    if ( subdet == PixelSubdetector::PixelEndcap )
-      return 0;
-    if ( subdet == StripSubdetector::TIB )
-      return tibPartnerDetId(id);
-    if ( subdet == StripSubdetector::TID )
-      return tidPartnerDetId(id);
-    if ( subdet == StripSubdetector::TOB )
-      return tobPartnerDetId(id);
-    if ( subdet == StripSubdetector::TEC )
-      return tecPartnerDetId(id);
-
-    throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::partnerDetId";
-    return 0;
-}
 
 std::string MTDTopology::print(DetId id) const {
-  uint32_t subdet=id.subdetId();
+  uint32_t subdet=MTDDetId(id).mtdSubDetector();
   std::stringstream strstr;
 
-  if ( subdet == PixelSubdetector::PixelBarrel ) {
-    unsigned int theLayer  = pxbLayer(id);
-    unsigned int theLadder = pxbLadder(id);
-    unsigned int theModule = pxbModule(id);
-    strstr << "PixelBarrel" 
-	   << " Layer " << theLayer
-	   << " Ladder " << theLadder
+  if ( subdet == MTDDetId::BTL ) {
+    unsigned int theSide   = btlSide(id);
+    unsigned int theLayer  = btlLayer(id);
+    unsigned int theTray   = btlTray(id);    
+    unsigned int theModule = btlModule(id);
+    std::string side  = (btlSide(id) == 1 ) ? "-" : "+";
+    strstr << "BTL" 
+	   << " Side   " << theSide << side
+	   << " Layer  " << theLayer
+	   << " Tray   " << theTray
            << " Module " << theModule ;
     strstr << " (" << id.rawId() << ")";
     return strstr.str();
   }
 
-  if ( subdet == PixelSubdetector::PixelEndcap ) {
-    unsigned int theSide   = pxfSide(id);
-    unsigned int theDisk   = pxfDisk(id);
-    unsigned int theBlade  = pxfBlade(id);
-    unsigned int thePanel  = pxfPanel(id);
+  if ( subdet == MTDDetId::ETL ) {
+    unsigned int theSide   = etlSide(id);
+    unsigned int theLayer  = etlLayer(id);
+    unsigned int theRing   = etlRing(id);
     unsigned int theModule = pxfModule(id);
-    std::string side  = (pxfSide(id) == 1 ) ? "-" : "+";
-    strstr << "PixelEndcap" 
+    std::string side  = (etlSide(id) == 1 ) ? "-" : "+";
+    strstr << "ETL" 
            << " Side   " << theSide << side
-	   << " Disk   " << theDisk
-	   << " Blade  " << theBlade
-	   << " Panel  " << thePanel
+	   << " Layer  " << theLayer
+	   << " Ring   " << theRing
            << " Module " << theModule ;
     strstr << " (" << id.rawId() << ")";
     return strstr.str();
   }
-
-  if ( subdet == StripSubdetector::TIB ) {
-    unsigned int              theLayer  = tibLayer(id);
-    std::vector<unsigned int> theString = tibStringInfo(id);
-    unsigned int              theModule = tibModule(id);
-    std::string side;
-    std::string part;
-    side = (theString[0] == 1 ) ? "-" : "+";
-    part = (theString[1] == 1 ) ? "int" : "ext";
-    std::string type;
-    type = (isStereo(id)) ? "stereo" : type;
-    type = (isRPhi(id)) ? "r-phi" : type;
-    type = (isStereo(id) || isRPhi(id)) ? type+" glued": "module";
-    std::string typeUpgrade;
-    typeUpgrade = (isLower(id)) ? "lower" : typeUpgrade;
-    typeUpgrade = (isUpper(id)) ? "upper" : typeUpgrade;
-    typeUpgrade = (isUpper(id) || isLower(id)) ? typeUpgrade+" stack": "module";
-    strstr << "TIB" << side
-	   << " Layer " << theLayer << " " << part
-	   << " String " << theString[2];
-    strstr << " Module for phase0 " << theModule << " " << type;
-    strstr << " Module for phase2 " << theModule << " " << typeUpgrade;
-    strstr << " (" << id.rawId() << ")";
-    return strstr.str();
-  }
-
-  if ( subdet == StripSubdetector::TID ) {
-    unsigned int 	 theSide   = tidSide(id);
-    unsigned int         theWheel  = tidWheel(id);
-    unsigned int         theRing   = tidRing(id);
-    std::vector<unsigned int> theModule = tidModuleInfo(id);
-    std::string side;
-    std::string part;
-    side = (tidSide(id) == 1 ) ? "-" : "+";
-    part = (theModule[0] == 1 ) ? "back" : "front";
-    std::string type;
-    type = (isStereo(id)) ? "stereo" : type;
-    type = (isRPhi(id)) ? "r-phi" : type;
-    type = (isStereo(id) || isRPhi(id)) ? type+" glued": "module";
-    std::string typeUpgrade;
-    typeUpgrade = (isLower(id)) ? "lower" : typeUpgrade;
-    typeUpgrade = (isUpper(id)) ? "upper" : typeUpgrade;
-    typeUpgrade = (isUpper(id) || isLower(id)) ? typeUpgrade+" stack": "module";
-    strstr << "TID" 
-           << " Side   " << theSide << side
-	   << " Wheel " << theWheel
-	   << " Ring " << theRing << " " << part;
-    strstr << " Module for phase0 " << theModule[1] << " " << type;
-    strstr << " Module for phase2 " << theModule[1] << " " << typeUpgrade;
-    strstr << " (" << id.rawId() << ")";
-    return strstr.str();
-  }
-
-  if ( subdet == StripSubdetector::TOB ) {
-    unsigned int              theLayer  = tobLayer(id);
-    std::vector<unsigned int> theRod    = tobRodInfo(id);
-    unsigned int              theModule = tobModule(id);
-    std::string side;
-    std::string part;
-    side = (((theRod[0] == 1 ) ? "-" : ((theRod[0] == 2 ) ? "+" : (theRod[0] == 3 ) ? "0" : "")));
-//    side = (theRod[0] == 2 ) ? "+" : "";
-//    side = (theRod[0] == 3 ) ? "0" : "";
-    std::string type;
-    type = (isStereo(id)) ? "stereo" : type;
-    type = (isRPhi(id)) ? "r-phi" : type;
-    type = (isStereo(id) || isRPhi(id)) ? type+" glued": "module";
-    std::string typeUpgrade;
-    typeUpgrade = (isLower(id)) ? "lower" : typeUpgrade;
-    typeUpgrade = (isUpper(id)) ? "upper" : typeUpgrade;
-    typeUpgrade = (isUpper(id) || isLower(id)) ? typeUpgrade+" stack": "module";
-    strstr << "TOB" << side
-	   << " Layer " << theLayer
-	   << " Rod " << theRod[1];
-    strstr << " Module for phase0 " << theModule << " " << type;
-    strstr << " Module for phase2 " << theModule << " " << typeUpgrade;
-    strstr << " (" << id.rawId() << ")";
-    return strstr.str();
-  }
-
-  if ( subdet == StripSubdetector::TEC ) {
-    unsigned int 	      theSide   = tecSide(id);
-    unsigned int              theWheel  = tecWheel(id);
-    unsigned int              theModule = tecModule(id);
-    std::vector<unsigned int> thePetal  = tecPetalInfo(id);
-    unsigned int              theRing   = tecRing(id);
-    std::string side;
-    std::string petal;
-    side  = (tecSide(id) == 1 ) ? "-" : "+";
-    petal = (thePetal[0] == 1 ) ? "back" : "front";
-    std::string type;
-    type = (isStereo(id)) ? "stereo" : type;
-    type = (isRPhi(id)) ? "r-phi" : type;
-    type = (isStereo(id) || isRPhi(id)) ? type+" glued": "module";
-    std::string typeUpgrade;
-    typeUpgrade = (isLower(id)) ? "lower" : typeUpgrade;
-    typeUpgrade = (isUpper(id)) ? "upper" : typeUpgrade;
-    typeUpgrade = (isUpper(id) || isLower(id)) ? typeUpgrade+" stack": "module";
-    strstr << "TEC" 
-           << " Side   " << theSide << side
-	   << " Wheel " << theWheel
-	   << " Petal " << thePetal[1] << " " << petal
-	   << " Ring " << theRing;
-    strstr << " Module for phase0 " << theModule << " " << type;
-    strstr << " Module for phase2 " << theModule << " " << typeUpgrade;
-    strstr << " (" << id.rawId() << ")";
-
-    return strstr.str();
-  }
-
-
-  throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::module";
+  throw cms::Exception("Invalid DetId") << "Unsupported DetId in MTDTopology::print";
   return strstr.str();
 }
 
 
-SiStripDetId::ModuleGeometry MTDTopology::moduleGeometry(const DetId &id) const {
-  switch(id.subdetId()) {
-  case StripSubdetector::TIB: return tibLayer(id)<3? SiStripDetId::IB1 : SiStripDetId::IB2;
-  case StripSubdetector::TOB: return tobLayer(id)<5? SiStripDetId::OB2 : SiStripDetId::OB1;
-  case StripSubdetector::TID: switch (tidRing(id)) {
-    case 1: return SiStripDetId::W1A;
-    case 2: return SiStripDetId::W2A;
-    case 3: return SiStripDetId::W3A;
-    }
-  case StripSubdetector::TEC: switch (tecRing(id)) {
-    case 1: return SiStripDetId::W1B;
-    case 2: return SiStripDetId::W2B;
-    case 3: return SiStripDetId::W3B;
-    case 4: return SiStripDetId::W4;
-  //generic function to return DetIds and boolean factors
-    case 5: return SiStripDetId::W5;
-    case 6: return SiStripDetId::W6;
-    case 7: return SiStripDetId::W7;
-    }
-  }
-  return SiStripDetId::UNKNOWNGEOMETRY;
-}
-int MTDTopology::getOTLayerNumber(const DetId &id) const {
-    int layer = -1;
-    
-    if (id.det() == DetId::Tracker) {
-      if (id.subdetId() == StripSubdetector::TOB) {
-	layer = tobLayer(id);
-      } else if (id.subdetId() == StripSubdetector::TID) {
-	layer = 100 * tidSide(id)  + tidWheel(id);
-      } else {
-	edm::LogInfo("MTDTopology") << ">>> Invalid subdetId()  " ;
-      }
-    }
-    return layer;
-}
 
-int MTDTopology::getITPixelLayerNumber(const DetId &id) const {
+int MTDTopology::getMTDPixelLayerNumber(const DetId &id) const {
     int layer = -1;
-    
-    if (id.det() == DetId::Tracker) {
-      if (id.subdetId() == PixelSubdetector::PixelBarrel) {
-	layer = pxbLayer(id);
-      } else if (id.subdetId() == PixelSubdetector::PixelEndcap) {
-	layer = 100 * pxfSide(id)  + pxfDisk(id);
+    uint32_t subdet=MTDDetId(id).mtdSubDetector();
+
+    if (id.det() == DetId::Forward) {
+      if (id.subdetId() == MTDDetId::BTL) {
+	layer = btlLayer(id);
+      } else if (id.subdetId() == MTDDetId::ETL) {
+	layer = etlLayer(id);
       } else {
 	edm::LogInfo("MTDTopology") << ">>> Invalid subdetId()  " ;
       }

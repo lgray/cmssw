@@ -15,16 +15,18 @@ void
 CmsMTDDiscBuilder::buildComponent( DDFilteredView& fv, GeometricTimingDet* g, std::string s )
 {
   CmsMTDETLRingBuilder theCmsMTDETLRingBuilder;
-  GeometricTimingDet * subdet = new GeometricTimingDet( &fv, theCmsMTDStringToEnum.type( fv.logicalPart().name().fullname().substr(0,8) ));
+  const std::string ringname = fv.logicalPart().name().fullname().substr(0,8);
+  GeometricTimingDet * subdet = new GeometricTimingDet( &fv, theCmsMTDStringToEnum.type( ringname ));
 
-  switch( theCmsMTDStringToEnum.type( fv.logicalPart().name().fullname().substr(0,8) ))
+  switch( theCmsMTDStringToEnum.type( ringname ))
   {
   case GeometricTimingDet::ETLRing:
-    theCmsMTDETLRingBuilder.build( fv, subdet, s );
+    theCmsMTDETLRingBuilder.build( fv, subdet, s );    
     break;
   default:
-    throw cms::Exception( "CmsMTDDiscBuilder" ) << " ERROR - I was expecting a Ring, I got a " <<  fv.logicalPart().name().fullname().substr(0,8);   
+    throw cms::Exception( "CmsMTDDiscBuilder" ) << " ERROR - I was expecting a Ring, I got a " <<  ringname;   
   }  
+  
   g->addComponent( subdet );
 }
 

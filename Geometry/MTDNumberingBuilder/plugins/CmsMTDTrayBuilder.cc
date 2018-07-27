@@ -10,21 +10,20 @@
 
 #include <bitset>
 
-void CmsMTDTrayBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, std::string s){
-
-  LogTrace("DetConstruction") << " CmsMTDTrayBuilder::buildComponent ";
+void CmsMTDTrayBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, std::string side){
+  
   CmsMTDModuleBuilder theCmsMTDModuleBuilder;
   
   GeometricTimingDet * subdet = new GeometricTimingDet(&fv,theCmsMTDStringToEnum.type(fv.logicalPart().name()));
   switch (theCmsMTDStringToEnum.type(fv.logicalPart().name())){
   case GeometricTimingDet::BTLTray:
-    theCmsMTDModuleBuilder.build(fv,subdet,s);      
+    theCmsMTDModuleBuilder.build(fv,subdet,side);      
     break;  
   default:
     throw cms::Exception("CmsMTDTrayBuilder")<<" ERROR - I was expecting a Tray, I got a "<< fv.logicalPart().name();
   }  
+  
   g->addComponent(subdet);
-
 }
 
 void CmsMTDTrayBuilder::sortNS(DDFilteredView& fv, GeometricTimingDet* det){
@@ -59,6 +58,7 @@ void CmsMTDTrayBuilder::sortNS(DDFilteredView& fv, GeometricTimingDet* det){
     }
   }
   
+  det->clearComponents();
   det->addComponents(rods);
 
 }

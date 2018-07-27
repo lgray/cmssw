@@ -16,7 +16,7 @@ void
 CmsMTDEndcapBuilder::buildComponent( DDFilteredView& fv, GeometricTimingDet* g, std::string s )
 {
   CmsMTDDiscBuilder  theCmsMTDDiscBuilder;   
-
+  
   GeometricTimingDet * subdet = new GeometricTimingDet( &fv, theCmsMTDStringToEnum.type( fv.logicalPart().name() ));
   std::string subdet_name = subdet->name();
   switch( theCmsMTDStringToEnum.type( fv.logicalPart().name() ))
@@ -24,7 +24,6 @@ CmsMTDEndcapBuilder::buildComponent( DDFilteredView& fv, GeometricTimingDet* g, 
   case GeometricTimingDet::ETLDisc:    
     theCmsMTDDiscBuilder.build(fv,subdet,s);
     break;
-
   default:
     throw cms::Exception("CmsMTDEndcapBuilder")<<" ERROR - I was expecting a Disk... I got a "<< fv.logicalPart().name();
   }  

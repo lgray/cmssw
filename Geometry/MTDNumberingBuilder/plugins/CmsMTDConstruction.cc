@@ -12,43 +12,66 @@ void CmsMTDConstruction::buildComponent(DDFilteredView& fv,
 
   GeometricTimingDet * det  = new GeometricTimingDet(&fv,theCmsMTDStringToEnum.type(fv.logicalPart().name()));
 
-  std::cout << "CmsMTDConstruction :: " << fv.logicalPart().name().fullname().substr(0,11) << std::endl;
-
-  if ( theCmsMTDStringToEnum.type(fv.logicalPart().name().fullname().substr(0,11)) ==  GeometricTimingDet::BTLModule || 
-       theCmsMTDStringToEnum.type(fv.logicalPart().name().fullname().substr(0,11)) ==  GeometricTimingDet::ETLModule    ) {
+  const std::string part_name = fv.logicalPart().name().fullname().substr(0,11);
   
+  if ( theCmsMTDStringToEnum.type(part_name) ==  GeometricTimingDet::BTLModule ) {
     bool dodets = fv.firstChild(); 
     while (dodets) {
-      buildSmallDetsforStack(fv,det,attribute);
+      buildBTLModule(fv,det,attribute);
+      dodets = fv.nextSibling(); 
+    }
+    fv.parent();
+  } else if ( theCmsMTDStringToEnum.type(part_name) ==  GeometricTimingDet::ETLModule ) {  
+    bool dodets = fv.firstChild(); 
+    while (dodets) {
+      buildETLModule(fv,det,attribute);
       dodets = fv.nextSibling(); 
     }
     fv.parent();
   } else {
-    std::cout << "woops got: " << fv.logicalPart().name().fullname().substr(0,11) << std::endl;
+    throw cms::Exception("MTDConstruction") << "woops got: " << part_name << std::endl;
   }
   
   mother->addComponent(det);
-
 }
 
-void CmsMTDConstruction::buildSmallDetsforStack(DDFilteredView& fv,
-        	                                GeometricTimingDet *mother,
-                	                        const std::string& attribute){
+void CmsMTDConstruction::buildBTLModule(DDFilteredView& fv,
+					GeometricTimingDet *mother,
+					const std::string& attribute){
 
   GeometricTimingDet * det  = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)));
-  static const std::string isLower = "TrackerLowerDetectors";
-  static const std::string isUpper = "TrackerUpperDetectors";
+  
+  const auto& copyNumbers = fv.copyNumbers();
+  auto module_number = copyNumbers[copyNumbers.size()-2];
 
-  std::cout << "CmsMTDConstruction::buildSmallDetsforStack : " << fv.logicalPart().name() << std::endl;
+  constexpr char positive[] = "PositiveZ";
+  constexpr char negative[] = "NegativeZ";
 
-  if (ExtractStringFromDDD::getString(isLower,&fv) == "true"){
-    uint32_t temp = 1;
-    det->setGeographicalID(DetId(temp));
-  } else if (ExtractStringFromDDD::getString(isUpper,&fv) == "true"){
-    uint32_t temp = 2;
-    det->setGeographicalID(DetId(temp));
+  const std::string modname = fv.logicalPart().name().fullname();
+  
+  if( modname.find(positive) != std::string::npos ) {
+    det->setGeographicalID(DetId(1));
+  } else if ( modname.find(negative) != std::string::npos ) {
+    det->setGeographicalID(DetId(2));
   } else {
-    edm::LogError("DetConstruction") << " module defined in a Stack but not upper either lower!? ";
+    throw cms::Exception("CmsMTDConstruction::buildBTLModule") 
+      << "BTL Module " << module_number << " is neither positive nor negative in Z!";
   }
+  
+  mother->addComponent(det);
+}
+
+void CmsMTDConstruction::buildETLModule(DDFilteredView& fv,
+					GeometricTimingDet *mother,
+					const std::string& attribute){
+
+  GeometricTimingDet * det  = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)));
+  
+  const auto& copyNumbers = fv.copyNumbers();
+  auto module_number = copyNumbers[copyNumbers.size()-2];
+  
+  // label geographic detid is front or back (even though it is one module per entry here)
+  det->setGeographicalID(DetId(module_number%2+1)); 
+  
   mother->addComponent(det);
 }

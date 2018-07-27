@@ -18,26 +18,19 @@ CmsMTDBuilder::buildComponent( DDFilteredView& fv, GeometricTimingDet* g, std::s
 {
   CmsMTDSubStrctBuilder theCmsMTDSubStrctBuilder;
   CmsMTDEndcapBuilder theCmsMTDEndcapBuilder;
-
-  std::cout << "CmsMTDBuilder: " << fv.logicalPart().name() << std::endl;
-
+  
   GeometricTimingDet* subdet = new GeometricTimingDet( &fv, theCmsMTDStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )));
-
-  std::cout << "CmsMTDBuilder: " << fv.logicalPart().name() << std::endl;
-
+  
   switch( theCmsMTDStringToEnum.type( fv.logicalPart().name() ) )
   {  
   case GeometricTimingDet::ETL:
     theCmsMTDEndcapBuilder.build( fv, subdet, s );      
     break;  
   case GeometricTimingDet::BTL:
-    std::cout << "CmsMTDBuilderBTL: " << fv.logicalPart().name() << std::endl;
     theCmsMTDSubStrctBuilder.build( fv, subdet, s ); 
-    std::cout << "CmsMTDBuilderBTL: " << fv.logicalPart().name() << std::endl;
     break;  
   default:
-    throw cms::Exception("CmsMTDBuilder") << " ERROR - I was expecting a SubDet, I got a " << fv.logicalPart().name();
-   
+    throw cms::Exception("CmsMTDBuilder") << " ERROR - I was expecting a SubDet, I got a " << fv.logicalPart().name();   
   }
   
   g->addComponent( subdet );

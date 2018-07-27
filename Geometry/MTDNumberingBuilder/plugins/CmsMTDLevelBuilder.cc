@@ -18,7 +18,6 @@ void CmsMTDLevelBuilder::build (
 				   << std::endl;
 
  bool doLayers = fv.firstChild(); // descend to the next Layer  
- std::cout << "CmsMTDLevelBuilder::build : " << fv.logicalPart().name() << std::endl;
 
   while (doLayers) {
     buildComponent(fv,tracker,attribute);      
@@ -28,4 +27,5 @@ void CmsMTDLevelBuilder::build (
   fv.parent();
 
  sortNS(fv,tracker);
+
 }

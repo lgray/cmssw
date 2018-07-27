@@ -7,10 +7,12 @@
 #include "Geometry/MTDNumberingBuilder/plugins/CmsMTDConstruction.h"
 #include <vector>
 
-void CmsMTDModuleBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, std::string s){
+void CmsMTDModuleBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, std::string side){
+
+  if( fv.logicalPart().name().fullname().find(side) == std::string::npos ) return;
 
   CmsMTDConstruction theCmsMTDConstruction;
-  theCmsMTDConstruction.buildComponent(fv,g,s);  
+  theCmsMTDConstruction.buildComponent(fv,g,side);  
 }
 
 void CmsMTDModuleBuilder::sortNS(DDFilteredView& fv, GeometricTimingDet* det){

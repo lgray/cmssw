@@ -11,7 +11,8 @@ class CmsMTDConstruction : public CmsMTDLevelBuilder {
   void  buildComponent(DDFilteredView& , GeometricTimingDet*, std::string) override;
  private:
 
-  void buildSmallDetsforStack(DDFilteredView& , GeometricTimingDet* , const std::string&);
+  void buildBTLModule(DDFilteredView& , GeometricTimingDet* , const std::string&);
+  void buildETLModule(DDFilteredView& , GeometricTimingDet* , const std::string&);
 };
 
 #endif // Geometry_MTDNumberingBuilder_CmsMTDConstruction_H
