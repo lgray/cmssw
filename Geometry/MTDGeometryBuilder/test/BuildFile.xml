@@ -1,0 +1,31 @@
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="Geometry/TrackerNumberingBuilder"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="FWCore/Framework"/>
+<library file="TrackerDigiGeometryAnalyzer.cc" name="MTDDigiGeometryAnalyzer">
+  <use name="CondFormats/Alignment"/>
+  <use name="Geometry/Records"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+<library file="TrackerParametersAnalyzer.cc" name="MTDParametersAnalyzer">
+  <use name="CondFormats/Alignment"/>
+  <use name="CondFormats/GeometryObjects"/>
+  <use name="Geometry/Records"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+<library file="TrackerMapTool.cc" name="MTDMapTool">
+  <use name="CondFormats/Alignment"/>
+  <use name="Geometry/Records"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+<library file="ModuleInfo.cc" name="MTDModuleInfo">
+  <use name="CondFormats/Alignment"/>
+  <use name="Geometry/Records"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+<library file="GeoHierarchyTest.cc" name="MTDGeoHierarchyTest">
+  <use name="Geometry/Records"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<bin file="mtdTopology_t.cpp"/>

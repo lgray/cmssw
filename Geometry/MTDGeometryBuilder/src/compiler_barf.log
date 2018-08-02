@@ -1,0 +1,201 @@
+Reading cached build data
+>> Local Products Rules ..... started
+>> Local Products Rules ..... done
+>> Creating project symlinks
+>> Entering Package Geometry/MTDGeometryBuilder
+>> Compiling  /uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc 
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:42:1: error: 'MTDGeomBuilderFromGeometricTimingDet' has not been declared
+ MTDGeomBuilderFromGeometricTimingDet::build( const GeometricTimingDet* gd, const PMTDParameters& ptp, const MTDTopology* tTopo )
+ ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc: In function 'MTDGeometry* build(const GeometricTimingDet*, const PMTDParameters&, const MTDTopology*)':
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:44:30: error: invalid use of incomplete type 'const class PMTDParameters'
+   int BIG_PIX_PER_ROC_X = ptp.vpars[2];
+                              ^
+In file included from /uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:1:0:
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/interface/MTDGeomBuilderFromGeometricTimingDet.h:15:7: note: forward declaration of 'class PMTDParameters'
+ class PMTDParameters;
+       ^~~~~~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:45:30: error: invalid use of incomplete type 'const class PMTDParameters'
+   int BIG_PIX_PER_ROC_Y = ptp.vpars[3];
+                              ^
+In file included from /uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:1:0:
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/interface/MTDGeomBuilderFromGeometricTimingDet.h:15:7: note: forward declaration of 'class PMTDParameters'
+ class PMTDParameters;
+       ^~~~~~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:47:3: error: 'thePixelDetTypeMap' was not declared in this scope
+   thePixelDetTypeMap.clear();
+   ^~~~~~~~~~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:48:3: error: 'theStripDetTypeMap' was not declared in this scope
+   theStripDetTypeMap.clear();
+   ^~~~~~~~~~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:50:44: error: 'MTDGeometry::MTDGeometry(const GeometricTimingDet*)' is private within this context
+   MTDGeometry* tracker = new MTDGeometry(gd);
+                                            ^
+In file included from /uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:2:0:
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/interface/MTDGeometry.h:16:12: note: declared private here
+   explicit MTDGeometry(GeometricTimingDet const* gd=nullptr);
+            ^~~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:54:14: error: 'theTopo' was not declared in this scope
+   if(tTopo)  theTopo = tTopo;
+              ^~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:58:15: error: 'GDEnumType' is not a member of 'GeometricTimingDet'
+   std::vector<GeometricTimingDet::GDEnumType> gdsubdetmap(2,GeometricTimingDet::unknown); // hardcoded "2" should not be a surprise...
+               ^~~~~~~~~~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:58:45: error: template argument 1 is invalid
+   std::vector<GeometricTimingDet::GDEnumType> gdsubdetmap(2,GeometricTimingDet::unknown); // hardcoded "2" should not be a surprise...
+                                             ^
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:58:45: error: template argument 2 is invalid
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:58:88: error: expression list treated as compound expression in initializer [-fpermissive]
+   std::vector<GeometricTimingDet::GDEnumType> gdsubdetmap(2,GeometricTimingDet::unknown); // hardcoded "2" should not be a surprise...
+                                                                                        ^
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:58:88: error: left operand of comma operator has no effect [-Werror=unused-value]
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:64:59: error: invalid types 'int[int]' for array subscript
+     gdsubdetmap[subdetgd[i]->geographicalId().subdetId()-1]= subdetgd[i]->type();
+                                                           ^
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:83:21: error: invalid types 'int[unsigned int]' for array subscript
+     if(gdsubdetmap[i] == GeometricTimingDet::BTL)
+                     ^
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:87:21: error: 'buildPixel' was not declared in this scope
+    BIG_PIX_PER_ROC_Y);
+                     ^
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:88:21: error: invalid types 'int[unsigned int]' for array subscript
+     if(gdsubdetmap[i] == GeometricTimingDet::ETL)
+                     ^
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:92:21: error: 'buildPixel' was not declared in this scope
+    BIG_PIX_PER_ROC_Y);
+                     ^
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:96:21: error: invalid types 'int[unsigned int]' for array subscript
+     if(gdsubdetmap[i] == GeometricTimingDet::unknown) {
+                     ^
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:98:80: error: 'buildSilicon' was not declared in this scope
+       buildSilicon(dets[i],tracker,GeomDetEnumerators::tkDetEnum[i+1], "barrel"); // "barrel" is used but it is irrelevant
+                                                                                ^
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:101:23: error: 'buildGeomDet' was not declared in this scope
+   buildGeomDet(tracker);//"GeomDet"
+                       ^
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc: At global scope:
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:108:6: error: 'MTDGeomBuilderFromGeometricTimingDet' has not been declared
+ void MTDGeomBuilderFromGeometricTimingDet::buildPixel(std::vector<const GeometricTimingDet*>  const & gdv,
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc: In function 'void buildPixel(const std::vector<const GeometricTimingDet*>&, MTDGeometry*, GeomDetType::SubDetector, bool, int, int)':
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:126:9: error: 'thePixelDetTypeMap' was not declared in this scope
+     if (thePixelDetTypeMap.find(detName) == thePixelDetTypeMap.end()) {
+         ^~~~~~~~~~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:142:5: error: 'PlaneBuilderFromGeometricTimingDet' has not been declared
+     PlaneBuilderFromGeometricTimingDet::ResultType plane = buildPlaneWithMaterial(i);
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:143:50: error: 'plane' was not declared in this scope
+     GeomDetUnit* temp =  new PixelGeomDetUnit(&(*plane),thePixelDetTypeMap[detName],i->geographicalID());
+                                                  ^~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:143:57: error: 'thePixelDetTypeMap' was not declared in this scope
+     GeomDetUnit* temp =  new PixelGeomDetUnit(&(*plane),thePixelDetTypeMap[detName],i->geographicalID());
+                                                         ^~~~~~~~~~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:145:29: error: 'void MTDGeometry::addDetUnit(const GeomDet*)' is private within this context
+     tracker->addDetUnit(temp);
+                             ^
+In file included from /uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:2:0:
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/interface/MTDGeometry.h:21:8: note: declared private here
+   void addDetUnit(GeomDet const * p);
+        ^~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:146:46: error: 'void MTDGeometry::addDetUnitId(DetId)' is private within this context
+     tracker->addDetUnitId(i->geographicalID());
+                                              ^
+In file included from /uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:2:0:
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/interface/MTDGeometry.h:22:8: note: declared private here
+   void addDetUnitId(DetId p);
+        ^~~~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc: At global scope:
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:151:6: error: 'MTDGeomBuilderFromGeometricTimingDet' has not been declared
+ void MTDGeomBuilderFromGeometricTimingDet::buildSilicon(std::vector<const GeometricTimingDet*>  const & gdv,
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc: In function 'void buildSilicon(const std::vector<const GeometricTimingDet*>&, MTDGeometry*, GeomDetType::SubDetector, const string&)':
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:166:9: error: 'theStripDetTypeMap' was not declared in this scope
+     if (theStripDetTypeMap.find(detName) == theStripDetTypeMap.end()) {
+         ^~~~~~~~~~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:177:22: error: 'theTopo' was not declared in this scope
+     double scale  = (theTopo->partnerDetId(i->geographicalID())) ? 0.5 : 1.0 ;
+                      ^~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:179:5: error: 'PlaneBuilderFromGeometricTimingDet' has not been declared
+     PlaneBuilderFromGeometricTimingDet::ResultType plane = buildPlaneWithMaterial(i,scale);
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:180:49: error: 'plane' was not declared in this scope
+     GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), theStripDetTypeMap[detName],i->geographicalID());
+                                                 ^~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:180:57: error: 'theStripDetTypeMap' was not declared in this scope
+     GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), theStripDetTypeMap[detName],i->geographicalID());
+                                                         ^~~~~~~~~~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:182:29: error: 'void MTDGeometry::addDetUnit(const GeomDet*)' is private within this context
+     tracker->addDetUnit(temp);
+                             ^
+In file included from /uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:2:0:
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/interface/MTDGeometry.h:21:8: note: declared private here
+   void addDetUnit(GeomDet const * p);
+        ^~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:183:46: error: 'void MTDGeometry::addDetUnitId(DetId)' is private within this context
+     tracker->addDetUnitId(i->geographicalID());
+                                              ^
+In file included from /uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:2:0:
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/interface/MTDGeometry.h:22:8: note: declared private here
+   void addDetUnitId(DetId p);
+        ^~~~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:177:12: warning: unused variable 'scale' [-Wunused-variable]
+     double scale  = (theTopo->partnerDetId(i->geographicalID())) ? 0.5 : 1.0 ;
+            ^~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc: At global scope:
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:190:6: error: 'MTDGeomBuilderFromGeometricTimingDet' has not been declared
+ void MTDGeomBuilderFromGeometricTimingDet::buildGeomDet(MTDGeometry* tracker){
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc: In function 'void buildGeomDet(MTDGeometry*)':
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:198:27: error: 'void MTDGeometry::addDet(const GeomDet*)' is private within this context
+     tracker->addDet(gdu[i]);
+                           ^
+In file included from /uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:2:0:
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/interface/MTDGeometry.h:23:8: note: declared private here
+   void addDet(GeomDet const * p);
+        ^~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:199:31: error: 'void MTDGeometry::addDetId(DetId)' is private within this context
+     tracker->addDetId(gduId[i]);
+                               ^
+In file included from /uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:2:0:
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/interface/MTDGeometry.h:24:8: note: declared private here
+   void addDetId(DetId p);
+        ^~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:205:10: error: 'theTopo' was not declared in this scope
+         (theTopo->glued(gduId[i])!=0 || theTopo->stack(gduId[i])!=0 )) {
+          ^~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:231:44: error: 'void MTDGeometry::addDet(const GeomDet*)' is private within this context
+         tracker->addDet((GeomDet*) gluedDet);
+                                            ^
+In file included from /uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:2:0:
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/interface/MTDGeometry.h:23:8: note: declared private here
+   void addDet(GeomDet const * p);
+        ^~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:232:40: error: 'void MTDGeometry::addDetId(DetId)' is private within this context
+         tracker->addDetId(composedDetId);
+                                        ^
+In file included from /uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:2:0:
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/interface/MTDGeometry.h:24:8: note: declared private here
+   void addDetId(DetId p);
+        ^~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:240:44: error: 'void MTDGeometry::addDet(const GeomDet*)' is private within this context
+         tracker->addDet((GeomDet*) stackDet);
+                                            ^
+In file included from /uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:2:0:
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/interface/MTDGeometry.h:23:8: note: declared private here
+   void addDet(GeomDet const * p);
+        ^~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:241:40: error: 'void MTDGeometry::addDetId(DetId)' is private within this context
+         tracker->addDetId(composedDetId);
+                                        ^
+In file included from /uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:2:0:
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/interface/MTDGeometry.h:24:8: note: declared private here
+   void addDetId(DetId p);
+        ^~~~~~~~
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc: At global scope:
+/uscms_data/d2/lagray/timing_tkgeometry/CMSSW_10_2_0_pre5/src/Geometry/MTDGeometryBuilder/src/MTDGeomBuilderFromGeometricTimingDet.cc:250:1: error: 'PlaneBuilderFromGeometricTimingDet' does not name a type
+ PlaneBuilderFromGeometricTimingDet::ResultType
+ ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+cc1plus: some warnings being treated as errors
+config/SCRAM/GMake/Makefile.rules:1704: recipe for target 'tmp/slc6_amd64_gcc630/src/Geometry/MTDGeometryBuilder/src/GeometryMTDGeometryBuilder/MTDGeomBuilderFromGeometricTimingDet.cc.o' failed
+gmake: *** [tmp/slc6_amd64_gcc630/src/Geometry/MTDGeometryBuilder/src/GeometryMTDGeometryBuilder/MTDGeomBuilderFromGeometricTimingDet.cc.o] Error 1
+gmake: *** [There are compilation/build errors. Please see the detail log above.] Error 2

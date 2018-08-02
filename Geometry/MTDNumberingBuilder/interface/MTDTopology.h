@@ -152,7 +152,7 @@ class MTDTopology {
   }
 
   std::pair<DetId, SameLayerComparator> etlDetIdDiskComparator(uint32_t side, uint32_t layer) const {
-    return std::make_pair(etlDetId(side, layer, 1,1,1), SameLayerComparator(this));
+    return std::make_pair(etlDetId(side, layer, 1,1), SameLayerComparator(this));
   }
   
   std::string print(DetId detid) const;

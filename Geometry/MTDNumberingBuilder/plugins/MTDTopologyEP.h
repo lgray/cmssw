@@ -26,12 +26,8 @@ public:
 private:
   void fillParameters( const PMTDParameters& );
     
-  MTDTopology::PixelBarrelValues pxbVals_;
-  MTDTopology::PixelEndcapValues pxfVals_;
-  MTDTopology::TECValues tecVals_;
-  MTDTopology::TIBValues tibVals_;
-  MTDTopology::TIDValues tidVals_;
-  MTDTopology::TOBValues tobVals_;
+  MTDTopology::BTLValues btlVals_;
+  MTDTopology::ETLValues etlVals_;
 };
 
 #endif

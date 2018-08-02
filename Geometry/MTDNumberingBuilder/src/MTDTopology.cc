@@ -6,10 +6,11 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
+#include <limits>
 
 MTDTopology::MTDTopology( const BTLValues& btl, const ETLValues& etl ) 
-    : btlVals_(pxb),
-      etlVals_(pxf),
+    : btlVals_(btl),
+      etlVals_(etl),
       bits_per_field{
   [BTLModule] = { btlVals_.moduleStartBit_, btlVals_.moduleMask_, MTDDetId::BTL},
   [BTLTray]   = { btlVals_.trayStartBit_, btlVals_.trayMask_, MTDDetId::BTL},
@@ -114,7 +115,7 @@ std::string MTDTopology::print(DetId id) const {
     unsigned int theSide   = etlSide(id);
     unsigned int theLayer  = etlLayer(id);
     unsigned int theRing   = etlRing(id);
-    unsigned int theModule = pxfModule(id);
+    unsigned int theModule = etlModule(id);
     std::string side  = (etlSide(id) == 1 ) ? "-" : "+";
     strstr << "ETL" 
            << " Side   " << theSide << side
@@ -130,12 +131,12 @@ std::string MTDTopology::print(DetId id) const {
 
 
 
-int MTDTopology::getMTDPixelLayerNumber(const DetId &id) const {
+int MTDTopology::getMTDLayerNumber(const DetId &id) const {
     int layer = -1;
     uint32_t subdet=MTDDetId(id).mtdSubDetector();
 
     if (id.det() == DetId::Forward) {
-      if (id.subdetId() == MTDDetId::BTL) {
+      if (subdet == MTDDetId::BTL) {
 	layer = btlLayer(id);
       } else if (id.subdetId() == MTDDetId::ETL) {
 	layer = etlLayer(id);
