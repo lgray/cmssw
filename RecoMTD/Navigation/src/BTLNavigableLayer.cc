@@ -1,25 +1,20 @@
-/** \class MuonBarrelNavigableLayer
+/** \class BTLNavigableLayer
  *
- *  Navigable layer for Barrel Muon 
+ *  Navigable layer for Barrel Timing Layer
+ *  Adapted from MuonBarrelNavigableLayer
  *
  *
- * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
+ * \author : L. Gray
  *
- * Modification:
- *
- * Chang Liu:
- * compatibleLayers(dir) and compatibleLayers(fts, dir) are added,
- * which returns ALL DetLayers that are compatible with a given DetLayer.
- *  
  */
 
-#include "RecoMuon/Navigation/interface/MuonBarrelNavigableLayer.h"
+#include "RecoMTD/Navigation/interface/BTLNavigableLayer.h"
 
 /* Collaborating Class Header */
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-#include "RecoMuon/Navigation/interface/MuonDetLayerMap.h"
-#include "RecoMuon/Navigation/interface/MuonEtaRange.h"
+#include "RecoMTD/Navigation/interface/MTDDetLayerMap.h"
+#include "RecoMTD/Navigation/interface/MTDEtaRange.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 /* C++ Headers */
@@ -27,7 +22,7 @@
 
 using namespace std;
 std::vector<const DetLayer*> 
-MuonBarrelNavigableLayer::nextLayers(NavigationDirection dir) const {
+BTLNavigableLayer::nextLayers(NavigationDirection dir) const {
   
   std::vector<const DetLayer*> result;
   
@@ -50,7 +45,7 @@ MuonBarrelNavigableLayer::nextLayers(NavigationDirection dir) const {
 
 
 std::vector<const DetLayer*> 
-MuonBarrelNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
+BTLNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
                                      PropagationDirection dir) const {
 
   std::vector<const DetLayer*> result;
@@ -71,7 +66,7 @@ MuonBarrelNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
 }
 
 std::vector<const DetLayer*>
-MuonBarrelNavigableLayer::compatibleLayers(NavigationDirection dir) const {
+BTLNavigableLayer::compatibleLayers(NavigationDirection dir) const {
 
   std::vector<const DetLayer*> result;
 
@@ -92,7 +87,7 @@ MuonBarrelNavigableLayer::compatibleLayers(NavigationDirection dir) const {
 }
 
 std::vector<const DetLayer*>
-MuonBarrelNavigableLayer::compatibleLayers(const FreeTrajectoryState& fts,
+BTLNavigableLayer::compatibleLayers(const FreeTrajectoryState& fts,
                                      PropagationDirection dir) const {
   std::vector<const DetLayer*> result;
 
@@ -113,28 +108,28 @@ MuonBarrelNavigableLayer::compatibleLayers(const FreeTrajectoryState& fts,
 }
 
 
-void MuonBarrelNavigableLayer::pushResult(std::vector<const DetLayer*>& result,
+void BTLNavigableLayer::pushResult(std::vector<const DetLayer*>& result,
                                           const MapB& map) const {
 
   for ( MapBI i = map.begin(); i != map.end(); i++ ) result.push_back((*i).first); 
 
 }
 
-void MuonBarrelNavigableLayer::pushResult(std::vector<const DetLayer*>& result,
+void BTLNavigableLayer::pushResult(std::vector<const DetLayer*>& result,
                                           const MapE& map) const {
 
   for ( MapEI i = map.begin(); i != map.end(); i++ ) result.push_back((*i).first);  
 }
 
 
-void MuonBarrelNavigableLayer::pushResult(std::vector<const DetLayer*>& result,
+void BTLNavigableLayer::pushResult(std::vector<const DetLayer*>& result,
                                           const MapB& map, 
                                           const FreeTrajectoryState& fts) const {
   for ( MapBI i = map.begin(); i != map.end(); i++ ) 
     if ((*i).second.isInside(fts.position().eta())) result.push_back((*i).first); 
 }
 
-void MuonBarrelNavigableLayer::pushResult(std::vector<const DetLayer*>& result,
+void BTLNavigableLayer::pushResult(std::vector<const DetLayer*>& result,
                                           const MapE& map, 
                                           const FreeTrajectoryState& fts) const {
 
@@ -143,37 +138,37 @@ void MuonBarrelNavigableLayer::pushResult(std::vector<const DetLayer*>& result,
 
 }
 
-void MuonBarrelNavigableLayer::pushCompatibleResult(std::vector<const DetLayer*>& result,
+void BTLNavigableLayer::pushCompatibleResult(std::vector<const DetLayer*>& result,
                                           const MapB& map,
                                           const FreeTrajectoryState& fts) const {
-  MuonEtaRange range= trackingRange(fts);
+  MTDEtaRange range= trackingRange(fts);
   for ( MapBI i = map.begin(); i != map.end(); i++ )
     if ((*i).second.isCompatible(range)) result.push_back((*i).first);
 }
 
-void MuonBarrelNavigableLayer::pushCompatibleResult(std::vector<const DetLayer*>& result,
+void BTLNavigableLayer::pushCompatibleResult(std::vector<const DetLayer*>& result,
                                           const MapE& map,
                                           const FreeTrajectoryState& fts) const {
-  MuonEtaRange range= trackingRange(fts);
+  MTDEtaRange range= trackingRange(fts);
   for (MapEI i = map.begin(); i != map.end(); i++)
     if ((*i).second.isCompatible(range)) result.push_back((*i).first);
 
 }
 
-const DetLayer* MuonBarrelNavigableLayer::detLayer() const {
+const DetLayer* BTLNavigableLayer::detLayer() const {
   return theDetLayer;
 }
 
 
-void MuonBarrelNavigableLayer::setDetLayer(const DetLayer* dl) {
-  edm::LogError("MuonBarrelNavigableLayer") << "MuonBarrelNavigableLayer::setDetLayer called!! " << endl;
+void BTLNavigableLayer::setDetLayer(const DetLayer* dl) {
+  edm::LogError("BTLNavigableLayer") << "BTLNavigableLayer::setDetLayer called!! " << endl;
 }
 
 
-void MuonBarrelNavigableLayer::setInwardLinks(const MapB& innerBL) {
+void BTLNavigableLayer::setInwardLinks(const MapB& innerBL) {
   theInnerBarrelLayers = innerBL;
 }
-void MuonBarrelNavigableLayer::setInwardCompatibleLinks(const MapB& innerCBL) {
+void BTLNavigableLayer::setInwardCompatibleLinks(const MapB& innerCBL) {
 
   theAllInnerBarrelLayers = innerCBL;
 

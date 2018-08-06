@@ -1,7 +1,7 @@
 #include <memory>
-/** \file MuonNavigationTest
+/** \file MTDNavigationTest
  *
- *  \author Chang Liu
+ *  \author L. Gray
  */
 
 
@@ -15,20 +15,17 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoMuon/Navigation/interface/MuonNavigationPrinter.h"
-#include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
-//#include "RecoMuon/Navigation/interface/MuonTkNavigationSchool.h"
-#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
-#include "RecoMuon/Navigation/interface/MuonNavigationPrinter.h"
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-//#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-//#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "RecoMTD/Navigation/interface/MTDNavigationPrinter.h"
+#include "RecoMTD/Navigation/interface/MTDNavigationSchool.h"
+#include "RecoMTD/Records/interface/MTDRecoGeometryRecord.h"
+#include "RecoMTD/Navigation/interface/MTDNavigationPrinter.h"
+#include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-class MuonNavigationTest : public edm::EDAnalyzer {
+class MTDNavigationTest : public edm::EDAnalyzer {
    public:
-      explicit MuonNavigationTest( const edm::ParameterSet& );
-      ~MuonNavigationTest();
+      explicit MTDNavigationTest( const edm::ParameterSet& );
+      ~MTDNavigationTest();
 
       virtual void analyze( const edm::Event&, const edm::EventSetup& );
    private:
@@ -36,20 +33,20 @@ class MuonNavigationTest : public edm::EDAnalyzer {
 
 // constructor
 
-MuonNavigationTest::MuonNavigationTest( const edm::ParameterSet& iConfig )
+MTDNavigationTest::MTDNavigationTest( const edm::ParameterSet& iConfig )
 {
       std::cout<<"Muon Navigation Printer Begin:"<<std::endl;
 }
 
 
-MuonNavigationTest::~MuonNavigationTest()
+MTDNavigationTest::~MTDNavigationTest()
 {
        std::cout<<"Muon Navigation Printer End. "<<std::endl;
 }
 
 
 void
-MuonNavigationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+MTDNavigationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
    using namespace edm;
 
@@ -59,13 +56,13 @@ MuonNavigationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
    //
    // get Geometry
    //
-   edm::ESHandle<MuonDetLayerGeometry> muon;
-   iSetup.get<MuonRecoGeometryRecord>().get(muon);     
-   const MuonDetLayerGeometry * mm(&(*muon));
+   edm::ESHandle<MTDDetLayerGeometry> mtd;
+   iSetup.get<MTDRecoGeometryRecord>().get(mtd);     
+   const MTDDetLayerGeometry * mm(&(*mtd));
 
    if ( testMuon ) {
-      MuonNavigationSchool school(mm);
-      MuonNavigationPrinter* printer = new MuonNavigationPrinter(mm, school );
+      MTDNavigationSchool school(mm);
+      MTDNavigationPrinter* printer = new MTDNavigationPrinter(mm, school );
       delete printer;
    }
 /*
@@ -80,12 +77,12 @@ MuonNavigationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
      const MagneticField * field(&(*theMF));
 
      MuonTkNavigationSchool school(mm,tt,field);
-     MuonNavigationPrinter* printer = new MuonNavigationPrinter(mm, tt);
+     MTDNavigationPrinter* printer = new MTDNavigationPrinter(mm, tt);
      delete printer;
   }
 */
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(MuonNavigationTest);
+DEFINE_FWK_MODULE(MTDNavigationTest);
 

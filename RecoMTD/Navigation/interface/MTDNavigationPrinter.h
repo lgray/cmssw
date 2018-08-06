@@ -1,40 +1,29 @@
-#ifndef Navigation_MuonNavigationPrinter_H
-#define Navigation_MuonNavigationPrinter_H
+#ifndef Navigation_MTDNavigationPrinter_H
+#define Navigation_MTDNavigationPrinter_H
 
-/** \class MuonNavigationPrinter
+/** \class MTDNavigationPrinter
  *
  * Description:
- *  class to print the MuonNavigationSchool
+ *  class to print the MTDNavigationSchool
  *
  *
- * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
+ * \author : L. Gray - FNAL
  *
- * Modification:
- *
- * Chang Liu:
- * The class prints nextLayers and compatibleLayers
- * Add new constructor for MuonTkNavigationSchool
- *
- * Cesare Calabria:
- * GEMs implementation.
-
- * David Nash:
- * ME0s implementation
  */
 
 class DetLayer;
-class MuonDetLayerGeometry;
+class MTDDetLayerGeometry;
 class GeometricSearchTracker;
-class MuonNavigationSchool;
+class MTDNavigationSchool;
 
 #include <vector>
 #include <string>
 
-class MuonNavigationPrinter {
+class MTDNavigationPrinter {
   public:
 
-  MuonNavigationPrinter(const MuonDetLayerGeometry *, MuonNavigationSchool const &, bool enableRPC = true, bool enableCSC = true, bool enableGEM = false, bool enableME0 = false );
-  MuonNavigationPrinter(const MuonDetLayerGeometry *,MuonNavigationSchool const &, const GeometricSearchTracker *);
+  MTDNavigationPrinter(const MTDDetLayerGeometry *, MTDNavigationSchool const &, bool enableBTL = true, bool enableETL = true );
+  MTDNavigationPrinter(const MTDDetLayerGeometry *,MTDNavigationSchool const &, const GeometricSearchTracker *);
 
   private:
     void printLayer(const DetLayer*) const;
@@ -45,7 +34,7 @@ class MuonNavigationPrinter {
 //    std::string layerModule(const DetLayer*) const;
 
 
-  MuonNavigationSchool const * school=nullptr;
+  MTDNavigationSchool const * school=nullptr;
 
 };
 #endif

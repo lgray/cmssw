@@ -1,7 +1,7 @@
-/** \class MuonNavigableLayer
+/** \class MTDNavigableLayer
  *
- *  base class for MuonBarrelNavigableLayer and MuonForwardNavigableLayer.
- *  trackingRange defines an MuonEtaRange for an FTS, 
+ *  base class for MTDNavigableLayer and MuonForwardNavigableLayer.
+ *  trackingRange defines an MTDEtaRange for an FTS, 
  *  which is used for searching compatible DetLayers.
  *
  *
@@ -14,13 +14,13 @@
  *
  */
 
-#include "RecoMuon/Navigation/interface/MuonNavigableLayer.h"
+#include "RecoMTD/Navigation/interface/MTDNavigableLayer.h"
 
 /* Collaborating Class Header */
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-#include "RecoMuon/Navigation/interface/MuonDetLayerMap.h"
-#include "RecoMuon/Navigation/interface/MuonEtaRange.h"
+#include "RecoMTD/Navigation/interface/MTDDetLayerMap.h"
+#include "RecoMTD/Navigation/interface/MTDEtaRange.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 /* C++ Headers */
 #include <algorithm>
@@ -34,7 +34,7 @@ extern float calculateEta(float r, float z)  {
 
 }
 
-MuonEtaRange MuonNavigableLayer::trackingRange(const FreeTrajectoryState& fts) const
+MTDEtaRange MTDNavigableLayer::trackingRange(const FreeTrajectoryState& fts) const
 {  
   float z = fts.position().z();
   float r = fts.position().perp();
@@ -58,18 +58,18 @@ MuonEtaRange MuonNavigableLayer::trackingRange(const FreeTrajectoryState& fts) c
 
   spread = std::min(0.07, fabs(eta_max-eta));
 
-  MuonEtaRange range(eta+spread,eta-spread);
+  MTDEtaRange range(eta+spread,eta-spread);
 
   spread = 0.07; 
   // special treatment for special geometry in overlap region
   
-  if ( eta > 1.0 && eta < 1.1 )  range = MuonEtaRange(eta+3.0*spread,eta-spread);
-  if ( eta < -1.0 && eta > -1.1 ) range = MuonEtaRange(eta+spread,eta-3.0*spread);
+  if ( eta > 1.0 && eta < 1.1 )  range = MTDEtaRange(eta+3.0*spread,eta-spread);
+  if ( eta < -1.0 && eta > -1.1 ) range = MTDEtaRange(eta+spread,eta-3.0*spread);
 
   return range;
 }
 
-bool MuonNavigableLayer::isInsideOut(const FreeTrajectoryState& fts) const {
+bool MTDNavigableLayer::isInsideOut(const FreeTrajectoryState& fts) const {
   
   return (fts.position().basicVector().dot(fts.momentum().basicVector())>0);
   

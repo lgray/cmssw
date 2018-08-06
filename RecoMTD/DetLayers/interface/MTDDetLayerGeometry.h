@@ -27,6 +27,18 @@ class MTDDetLayerGeometry : public DetLayerGeometry{
   /// Destructor
   ~MTDDetLayerGeometry() override;
 
+  /// return all barrel layers
+  const std::vector<const DetLayer*>& allBarrelLayers() const;
+
+  /// return all endcap layers
+  const std::vector<const DetLayer*>& allEndcapLayers() const;
+
+  /// return all endcap layers
+  const std::vector<const DetLayer*>& allForwardLayers() const;
+
+  /// return all endcap layers
+  const std::vector<const DetLayer*>& allBackwardLayers() const;
+
   /// return the BTL DetLayers (barrel), inside-out
   const std::vector<const DetLayer*>& allBTLLayers() const;
 

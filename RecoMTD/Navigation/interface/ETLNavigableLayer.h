@@ -1,7 +1,7 @@
-#ifndef Navigation_MuonForwardNavigableLayer_H
-#define Navigation_MuonForwardNavigableLayer_H
+#ifndef Navigation_ETLNavigableLayer_H
+#define Navigation_ETLNavigableLayer_H
 
-/** \class MuonForwardNavigableLayer
+/** \class ETLNavigableLayer
  *
  *  Navigable layer for Forward Muon
  *
@@ -15,32 +15,32 @@
  */
 
 /* Collaborating Class Declarations */
-#include "RecoMuon/Navigation/interface/MuonDetLayerMap.h"
-#include "RecoMuon/Navigation/interface/MuonEtaRange.h"
+#include "RecoMTD/Navigation/interface/MTDDetLayerMap.h"
+#include "RecoMTD/Navigation/interface/MTDEtaRange.h"
 
 class DetLayer;
 class ForwardDetLayer;
 
 /* Base Class Headers */
-#include "RecoMuon/Navigation/interface/MuonNavigableLayer.h"
+#include "RecoMTD/Navigation/interface/MTDNavigableLayer.h"
 
 /* C++ Headers */
 
 /* ====================================================================== */
 
-/* Class MuonForwardNavigableLayer Interface */
+/* Class ETLNavigableLayer Interface */
 
-class MuonForwardNavigableLayer : public MuonNavigableLayer {
+class ETLNavigableLayer : public MTDNavigableLayer {
 
   public:
 
-    MuonForwardNavigableLayer(const ForwardDetLayer* fdl,
-                              const MapB& innerBarrel, 
-                              const MapE& outerEndcap,
-                              const MapE& innerEndcap,
-                              const MapB& allInnerBarrel,
-                              const MapE& allOuterEndcap,
-                              const MapE& allInnerEndcap) :
+    ETLNavigableLayer(const ForwardDetLayer* fdl,
+		      const MapB& innerBarrel, 
+		      const MapE& outerEndcap,
+		      const MapE& innerEndcap,
+		      const MapB& allInnerBarrel,
+		      const MapE& allOuterEndcap,
+		      const MapE& allInnerEndcap) :
       theDetLayer(fdl),
       theInnerBarrelLayers(innerBarrel),
       theOuterEndcapLayers(outerEndcap),
@@ -50,14 +50,14 @@ class MuonForwardNavigableLayer : public MuonNavigableLayer {
       theAllInnerEndcapLayers(allInnerEndcap)  {}
 
     /// Constructor with outer layers only
-    MuonForwardNavigableLayer(const ForwardDetLayer* fdl,
-                              const MapE& outerEndcap) :
+    ETLNavigableLayer(const ForwardDetLayer* fdl,
+		      const MapE& outerEndcap) :
       theDetLayer(fdl),
       theOuterEndcapLayers(outerEndcap) {}
     /// Constructor with all outer layers only
-    MuonForwardNavigableLayer(const ForwardDetLayer* fdl,
-                              const MapE& outerEndcap, 
-                              const MapE& allOuterEndcap) :
+    ETLNavigableLayer(const ForwardDetLayer* fdl,
+		      const MapE& outerEndcap, 
+		      const MapE& allOuterEndcap) :
       theDetLayer(fdl),
       theOuterEndcapLayers(outerEndcap),
       theAllOuterEndcapLayers(allOuterEndcap) {}

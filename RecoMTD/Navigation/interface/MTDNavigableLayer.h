@@ -1,21 +1,21 @@
-#ifndef Navigation_MuonNavigableLayer_H
-#define Navigation_MuonNavigableLayer_H
+#ifndef Navigation_MTDNavigableLayer_H
+#define Navigation_MTDNavigableLayer_H
 
-/** \class MuonNavigableLayer
+/** \class MTDNavigableLayer
  *
- *  base class for MuonBarrelNavigableLayer and MuonForwardNavigable.
- *  trackingRange defines an MuonEtaRange for an FTS, 
+ *  base class for BTLNavigableLayer and ETLNavigableLayer.
+ *  trackingRange defines an MTDEtaRange for an FTS, 
  *  which is used for search compatible DetLayers.
  *
  *
- * \author : Chang Liu - Purdue University <Chang.Liu@cern.ch>
+ * \author : L. Gray - FNAL
  *
  * Modification:
  *
  */
 
-#include "RecoMuon/Navigation/interface/MuonDetLayerMap.h"
-#include "RecoMuon/Navigation/interface/MuonEtaRange.h"
+#include "RecoMTD/Navigation/interface/MTDDetLayerMap.h"
+#include "RecoMTD/Navigation/interface/MTDEtaRange.h"
 
 class DetLayer;
 class BarrelDetLayer;
@@ -23,7 +23,7 @@ class BarrelDetLayer;
 #include "TrackingTools/DetLayers/interface/NavigableLayer.h"
 
 
-class MuonNavigableLayer : public NavigableLayer {
+class MTDNavigableLayer : public NavigableLayer {
 
   public:
 
@@ -46,7 +46,7 @@ class MuonNavigableLayer : public NavigableLayer {
     /// set DetLayer
     void setDetLayer(const DetLayer*) override =0;
 
-    MuonEtaRange trackingRange(const FreeTrajectoryState& fts) const;
+    MTDEtaRange trackingRange(const FreeTrajectoryState& fts) const;
 
     bool isInsideOut(const FreeTrajectoryState& fts) const;
 

@@ -64,6 +64,25 @@ DetId MTDDetLayerGeometry::makeDetLayerId(const DetLayer* detLayer) const{
   else throw cms::Exception("InvalidModuleIdentification"); // << detLayer->module();
 }
 
+const vector<const DetLayer*>& 
+MTDDetLayerGeometry::allBarrelLayers() const {    
+    return allBarrel; 
+}
+
+const vector<const DetLayer*>& 
+MTDDetLayerGeometry::allEndcapLayers() const {    
+    return allEndcap; 
+}
+
+const vector<const DetLayer*>& 
+MTDDetLayerGeometry::allForwardLayers() const {    
+    return allForward; 
+}
+
+const vector<const DetLayer*>& 
+MTDDetLayerGeometry::allBackwardLayers() const {    
+    return allBackward; 
+}
 
 const vector<const DetLayer*>& 
 MTDDetLayerGeometry::allBTLLayers() const {    

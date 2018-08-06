@@ -1,6 +1,6 @@
-#ifndef CosmicMuonProducer_DirectMuonNavigation_H
-#define CosmicMuonProducer_DirectMuonNavigation_H
-/** \file DirectMuonNavigation
+#ifndef Navigation_DirectMTDNavigation_H
+#define Navigation_DirectMTDNavigation_H
+/** \file DirectMTDNavigation
  *
  *  do a straight line extrapolation to
  *  find out compatible DetLayers with a given FTS 
@@ -14,24 +14,24 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
+#include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class DirectMuonNavigation{
+class DirectMTDNavigation{
 
   public:
 
     /* Constructor */ 
-    DirectMuonNavigation(const edm::ESHandle<MuonDetLayerGeometry>&);
+    DirectMTDNavigation(const edm::ESHandle<MTDDetLayerGeometry>&);
 
-    DirectMuonNavigation(const edm::ESHandle<MuonDetLayerGeometry>&, const edm::ParameterSet&);
+    DirectMTDNavigation(const edm::ESHandle<MTDDetLayerGeometry>&, const edm::ParameterSet&);
 
-    DirectMuonNavigation* clone() const {
-      return new DirectMuonNavigation(*this);
+    DirectMTDNavigation* clone() const {
+      return new DirectMTDNavigation(*this);
     }
 
     /* Destructor */ 
-    ~DirectMuonNavigation() {}
+    ~DirectMTDNavigation() {}
 
     std::vector<const DetLayer*> 
       compatibleLayers( const FreeTrajectoryState& fts, 
@@ -57,7 +57,7 @@ class DirectMuonNavigation{
     bool checkCompatible(const FreeTrajectoryState& fts,const ForwardDetLayer*) const;
     bool outward(const FreeTrajectoryState& fts) const;
 
-    edm::ESHandle<MuonDetLayerGeometry> theMuonDetLayerGeometry;
+    edm::ESHandle<MTDDetLayerGeometry> theMTDDetLayerGeometry;
     float epsilon_;
     bool theEndcapFlag;
     bool theBarrelFlag;

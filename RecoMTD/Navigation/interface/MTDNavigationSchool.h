@@ -1,48 +1,41 @@
-#ifndef Navigation_MuonNavigationSchool_H
-#define Navigation_MuonNavigationSchool_H
+#ifndef Navigation_MTDNavigationSchool_H
+#define Navigation_MTDNavigationSchool_H
 
-/** \class MuonNavigationSchool
+/** \class MTDNavigationSchool
  *
  * Description:
- *  Navigation school for the muon system
- *  This class defines which DetLayers are reacheable from each Muon DetLayer
- *  (DT, CSC and RPC). The reacheableness is based on an eta range criteria.
+ *  Navigation school for the MTD system
+ *  This class defines which DetLayers are reacheable from each MTD DetLayer
+ *  ( BTL and ETL ). The reacheableness is based on an eta range criteria.
  *
  *
- * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
+ * \author : L. Gray
  *
  * Modification:
  *
- * Chang Liu:
- * The class links maps for nextLayers and compatibleLayers in the same time.
- *
- * Cesare Calabria:
- * GEMs implementation.
- *
- * David Nash:
- * ME0s implementation.
+ 
  */
 
 
-#include "RecoMuon/Navigation/interface/MuonDetLayerMap.h"
+#include "RecoMTD/Navigation/interface/MTDDetLayerMap.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
+#include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
 #include <vector>
 #include <map>
 
-class MuonBarrelNavigableLayer;
-class MuonForwardNavigableLayer;
-class MuonEtaRange;
+class BTLNavigableLayer;
+class ETLNavigableLayer;
+class MTDEtaRange;
 class BarrelDetLayer;
 class ForwardDetLayer;
 
-class MuonNavigationSchool : public NavigationSchool {
+class MTDNavigationSchool : public NavigationSchool {
 
   public:
     ///Constructor
-    MuonNavigationSchool(const MuonDetLayerGeometry *, bool enableRPC = true, bool enableCSC = true, bool enableGEM = false, bool enableME0 = false);
+    MTDNavigationSchool(const MTDDetLayerGeometry *, bool enableBTL = true, bool enableETL = true);
     /// Destructor
-    ~MuonNavigationSchool() override;
+    ~MTDNavigationSchool() override;
     /// return navigable layers, from base class
     StateType navigableLayers() override;
   private:
@@ -53,7 +46,7 @@ class MuonNavigationSchool : public NavigationSchool {
     /// link barrel layers
     void linkBarrelLayers();
     /// link endcap layers
-    void linkEndcapLayers(const MapE&,std::vector<MuonForwardNavigableLayer*>&);
+    void linkEndcapLayers(const MapE&,std::vector<ETLNavigableLayer*>&);
     /// establish inward links
     void createInverseLinks();
     float calculateEta(const float&, const float& ) const;
@@ -77,11 +70,11 @@ class MuonNavigationSchool : public NavigationSchool {
     MapE theForwardLayers;   /// +z endcap
     MapE theBackwardLayers;  /// -z endcap 
 
-    std::vector<MuonBarrelNavigableLayer*> theBarrelNLC;
-    std::vector<MuonForwardNavigableLayer*> theForwardNLC;
-    std::vector<MuonForwardNavigableLayer*> theBackwardNLC;
+    std::vector<BTLNavigableLayer*> theBarrelNLC;
+    std::vector<ETLNavigableLayer*> theForwardNLC;
+    std::vector<ETLNavigableLayer*> theBackwardNLC;
 
-    const MuonDetLayerGeometry * theMuonDetLayerGeometry; 
+    const MTDDetLayerGeometry * theMTDDetLayerGeometry; 
   
 };
 #endif

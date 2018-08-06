@@ -1,32 +1,32 @@
-#include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
+#include "RecoMTD/Navigation/interface/DirectMTDNavigation.h"
 
-/** \file DirectMuonNavigation
+/** \file DirectMTDNavigation
  *
- *  \author Chang Liu  -  Purdue University
+ *  \author L. Gray - FNAL
  */
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
+#include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include <algorithm>
 
 using namespace std;
 
-DirectMuonNavigation::DirectMuonNavigation(const edm::ESHandle<MuonDetLayerGeometry>& muonLayout) : theMuonDetLayerGeometry(muonLayout), epsilon_(100.), theEndcapFlag(true), theBarrelFlag(true) {
+DirectMTDNavigation::DirectMTDNavigation(const edm::ESHandle<MTDDetLayerGeometry>& mtdLayout) : theMTDDetLayerGeometry(mtdLayout), epsilon_(100.), theEndcapFlag(true), theBarrelFlag(true) {
 }
 
-DirectMuonNavigation::DirectMuonNavigation(const edm::ESHandle<MuonDetLayerGeometry>& muonLayout, const edm::ParameterSet& par) : theMuonDetLayerGeometry(muonLayout), epsilon_(100.), theEndcapFlag(par.getParameter<bool>("Endcap")), theBarrelFlag(par.getParameter<bool>("Barrel")) {
+DirectMTDNavigation::DirectMTDNavigation(const edm::ESHandle<MTDDetLayerGeometry>& mtdLayout, const edm::ParameterSet& par) : theMTDDetLayerGeometry(mtdLayout), epsilon_(100.), theEndcapFlag(par.getParameter<bool>("Endcap")), theBarrelFlag(par.getParameter<bool>("Barrel")) {
 
 }
 
 
 /* return compatible layers for given trajectory state  */ 
 vector<const DetLayer*> 
-DirectMuonNavigation::compatibleLayers( const FreeTrajectoryState& fts,
+DirectMTDNavigation::compatibleLayers( const FreeTrajectoryState& fts,
                                         PropagationDirection dir ) const {
 
   float z0 = fts.position().z();
@@ -78,7 +78,7 @@ return compatible endcap layers on BOTH ends;
 used for beam-halo muons
 */
 vector<const DetLayer*> 
-DirectMuonNavigation::compatibleEndcapLayers( const FreeTrajectoryState& fts,
+DirectMTDNavigation::compatibleEndcapLayers( const FreeTrajectoryState& fts,
                                               PropagationDirection dir ) const {
 
   float zm = fts.momentum().z();
@@ -97,10 +97,10 @@ DirectMuonNavigation::compatibleEndcapLayers( const FreeTrajectoryState& fts,
   return output;
 }
 
-void DirectMuonNavigation::inOutBarrel(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
+void DirectMTDNavigation::inOutBarrel(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
 
   bool cont = false;
-  const vector<const DetLayer*>& barrel = theMuonDetLayerGeometry->allBarrelLayers();
+  const vector<const DetLayer*>& barrel = theMTDDetLayerGeometry->allBarrelLayers();
 
   for (vector<const DetLayer*>::const_iterator iter_B = barrel.begin(); iter_B != barrel.end(); iter_B++){
 
@@ -113,10 +113,10 @@ void DirectMuonNavigation::inOutBarrel(const FreeTrajectoryState& fts, vector<co
 }
 
 
-void DirectMuonNavigation::outInBarrel(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
+void DirectMTDNavigation::outInBarrel(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
 
 // default barrel layers are in out, reverse order 
-  const vector<const DetLayer*>& barrel = theMuonDetLayerGeometry->allBarrelLayers();
+  const vector<const DetLayer*>& barrel = theMTDDetLayerGeometry->allBarrelLayers();
 
   bool cont = false;
   vector<const DetLayer*>::const_iterator rbegin = barrel.end(); 
@@ -133,9 +133,9 @@ void DirectMuonNavigation::outInBarrel(const FreeTrajectoryState& fts, vector<co
   }
 }
 
-void DirectMuonNavigation::inOutForward(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
+void DirectMTDNavigation::inOutForward(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
 
-  const vector<const DetLayer*>& forward = theMuonDetLayerGeometry->allForwardLayers();
+  const vector<const DetLayer*>& forward = theMTDDetLayerGeometry->allForwardLayers();
   bool cont = false;
   for (vector<const DetLayer*>::const_iterator iter_E = forward.begin(); iter_E != forward.end(); 
 	 iter_E++){
@@ -147,11 +147,11 @@ void DirectMuonNavigation::inOutForward(const FreeTrajectoryState& fts, vector<c
     }
 }
 
-void DirectMuonNavigation::outInForward(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
+void DirectMTDNavigation::outInForward(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
 // default forward layers are in out, reverse order
 
   bool cont = false;
-  const vector<const DetLayer*>& forward = theMuonDetLayerGeometry->allForwardLayers();
+  const vector<const DetLayer*>& forward = theMTDDetLayerGeometry->allForwardLayers();
   vector<const DetLayer*>::const_iterator rbegin = forward.end();
   rbegin--;
   vector<const DetLayer*>::const_iterator rend = forward.begin();
@@ -166,9 +166,9 @@ void DirectMuonNavigation::outInForward(const FreeTrajectoryState& fts, vector<c
     }
 }
 
-void DirectMuonNavigation::inOutBackward(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
+void DirectMTDNavigation::inOutBackward(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
   bool cont = false;
-  const vector<const DetLayer*>& backward = theMuonDetLayerGeometry->allBackwardLayers();
+  const vector<const DetLayer*>& backward = theMTDDetLayerGeometry->allBackwardLayers();
 
   for (vector<const DetLayer*>::const_iterator iter_E = backward.begin(); iter_E != backward.end(); 
        iter_E++){
@@ -180,10 +180,10 @@ void DirectMuonNavigation::inOutBackward(const FreeTrajectoryState& fts, vector<
    }
 }
 
-void DirectMuonNavigation::outInBackward(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
+void DirectMTDNavigation::outInBackward(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
 
   bool cont = false;
-  const vector<const DetLayer*>& backward = theMuonDetLayerGeometry->allBackwardLayers();
+  const vector<const DetLayer*>& backward = theMTDDetLayerGeometry->allBackwardLayers();
 
   vector<const DetLayer*>::const_iterator rbegin = backward.end();
   rbegin--;
@@ -201,7 +201,7 @@ void DirectMuonNavigation::outInBackward(const FreeTrajectoryState& fts, vector<
 }
 
 
-bool DirectMuonNavigation::checkCompatible(const FreeTrajectoryState& fts,const BarrelDetLayer* dl) const {
+bool DirectMTDNavigation::checkCompatible(const FreeTrajectoryState& fts,const BarrelDetLayer* dl) const {
 
   float z0 = fts.position().z();
   float r0 = fts.position().perp();
@@ -218,7 +218,7 @@ bool DirectMuonNavigation::checkCompatible(const FreeTrajectoryState& fts,const 
 
 }
 
-bool DirectMuonNavigation::checkCompatible(const FreeTrajectoryState& fts,const ForwardDetLayer* dl) const {
+bool DirectMTDNavigation::checkCompatible(const FreeTrajectoryState& fts,const ForwardDetLayer* dl) const {
 
   float z0 = fts.position().z();
   float r0 = fts.position().perp();
@@ -239,7 +239,7 @@ bool DirectMuonNavigation::checkCompatible(const FreeTrajectoryState& fts,const 
 
 }
 
-bool DirectMuonNavigation::outward(const FreeTrajectoryState& fts) const {
+bool DirectMTDNavigation::outward(const FreeTrajectoryState& fts) const {
  
 //  return (fts.position().basicVector().dot(fts.momentum().basicVector())>0);
 

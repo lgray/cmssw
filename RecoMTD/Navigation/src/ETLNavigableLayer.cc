@@ -1,17 +1,15 @@
-/** \class MuonForwardNavigableLayer
+/** \class ETLNavigableLayer
  *
- *  Navigable layer for Forward Muon
+ *  Navigable layer for ETL
  *
  *
- * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
+ * \author : L. Gray - FNAL
  *
- * Modification:
- * Chang Liu:
- *  compatibleLayers(dir) and compatibleLayers(fts, dir) are added,
- *  which return ALL DetLayers that are compatible with a given DetLayer.
+ *
+ * Adapted from ETLNavigableLayer
  */
 
-#include "RecoMuon/Navigation/interface/MuonForwardNavigableLayer.h"
+#include "RecoMTD/Navigation/interface/ETLNavigableLayer.h"
 
 /* Collaborating Class Header */
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
@@ -23,7 +21,7 @@ using namespace std;
 using namespace edm;
 
 vector<const DetLayer*> 
-MuonForwardNavigableLayer::nextLayers(NavigationDirection dir) const {
+ETLNavigableLayer::nextLayers(NavigationDirection dir) const {
 
   vector<const DetLayer*> result;
   vector<const DetLayer*> barrel;
@@ -46,7 +44,7 @@ MuonForwardNavigableLayer::nextLayers(NavigationDirection dir) const {
 
 
 vector<const DetLayer*> 
-MuonForwardNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
+ETLNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
                                       PropagationDirection dir) const {
 
   vector<const DetLayer*> result;
@@ -69,7 +67,7 @@ MuonForwardNavigableLayer::nextLayers(const FreeTrajectoryState& fts,
 }
 
 vector<const DetLayer*>
-MuonForwardNavigableLayer::compatibleLayers(NavigationDirection dir) const {
+ETLNavigableLayer::compatibleLayers(NavigationDirection dir) const {
 
   vector<const DetLayer*> result;
   vector<const DetLayer*> barrel;
@@ -90,7 +88,7 @@ MuonForwardNavigableLayer::compatibleLayers(NavigationDirection dir) const {
 
 }
 vector<const DetLayer*>
-MuonForwardNavigableLayer::compatibleLayers(const FreeTrajectoryState& fts,
+ETLNavigableLayer::compatibleLayers(const FreeTrajectoryState& fts,
                                       PropagationDirection dir) const {
   vector<const DetLayer*> result;
   vector<const DetLayer*> barrel;
@@ -110,7 +108,7 @@ MuonForwardNavigableLayer::compatibleLayers(const FreeTrajectoryState& fts,
 
 }
 
-void MuonForwardNavigableLayer::pushResult(vector<const DetLayer*>& result,
+void ETLNavigableLayer::pushResult(vector<const DetLayer*>& result,
                                            const MapB& map) const {
 
   for (MapBI i = map.begin(); i != map.end(); i++) result.push_back((*i).first);
@@ -118,7 +116,7 @@ void MuonForwardNavigableLayer::pushResult(vector<const DetLayer*>& result,
 }
 
 
-void MuonForwardNavigableLayer::pushResult(vector<const DetLayer*>& result,
+void ETLNavigableLayer::pushResult(vector<const DetLayer*>& result,
                                            const MapE& map) const {
 
   for (MapEI i = map.begin(); i != map.end(); i++) result.push_back((*i).first);
@@ -126,7 +124,7 @@ void MuonForwardNavigableLayer::pushResult(vector<const DetLayer*>& result,
 }
 
 
-void MuonForwardNavigableLayer::pushResult(vector<const DetLayer*>& result,
+void ETLNavigableLayer::pushResult(vector<const DetLayer*>& result,
                                            const MapE& map,
                                            const FreeTrajectoryState& fts) const {
 
@@ -136,7 +134,7 @@ void MuonForwardNavigableLayer::pushResult(vector<const DetLayer*>& result,
 }
 
 
-void MuonForwardNavigableLayer::pushResult(vector<const DetLayer*>& result,
+void ETLNavigableLayer::pushResult(vector<const DetLayer*>& result,
                                            const MapB& map, 
                                            const FreeTrajectoryState& fts) const {
 
@@ -146,46 +144,46 @@ void MuonForwardNavigableLayer::pushResult(vector<const DetLayer*>& result,
 }
 
 
-void MuonForwardNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& result,
+void ETLNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& result,
                                           const MapB& map,
                                           const FreeTrajectoryState& fts) const {
-  MuonEtaRange range=trackingRange(fts);
+  MTDEtaRange range=trackingRange(fts);
   for ( MapBI i = map.begin(); i != map.end(); i++ )
     if ((*i).second.isCompatible(range)) result.push_back((*i).first);
 }
 
-void MuonForwardNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& result,
+void ETLNavigableLayer::pushCompatibleResult(vector<const DetLayer*>& result,
                                           const MapE& map,
                                           const FreeTrajectoryState& fts) const {
-  MuonEtaRange range=trackingRange(fts);
+  MTDEtaRange range=trackingRange(fts);
   for (MapEI i = map.begin(); i != map.end(); i++)
     if ((*i).second.isCompatible(range)) result.push_back((*i).first);
 
 }
 
 
-const DetLayer* MuonForwardNavigableLayer::detLayer() const {
+const DetLayer* ETLNavigableLayer::detLayer() const {
 
   return theDetLayer;
 
 }
 
 
-void MuonForwardNavigableLayer::setDetLayer(const DetLayer* dl) {
+void ETLNavigableLayer::setDetLayer(const DetLayer* dl) {
 
-  edm::LogError ("MuonForwardNavigablaLayer") << "MuonForwardNavigableLayer::setDetLayer called!! " << endl;
+  edm::LogError ("ETLNavigablaLayer") << "ETLNavigableLayer::setDetLayer called!! " << endl;
 
 }
 
 
-void MuonForwardNavigableLayer::setInwardLinks(const MapB& innerBL,
+void ETLNavigableLayer::setInwardLinks(const MapB& innerBL,
                                                const MapE& innerEL) {
 
   theInnerBarrelLayers = innerBL;
   theInnerEndcapLayers = innerEL;
 
 }
-void MuonForwardNavigableLayer::setInwardCompatibleLinks(const MapB& innerCBL,
+void ETLNavigableLayer::setInwardCompatibleLinks(const MapB& innerCBL,
                                                const MapE& innerCEL) {
 
   theAllInnerBarrelLayers = innerCBL;

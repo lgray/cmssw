@@ -1,70 +1,65 @@
-#ifndef Navigation_MuonBarrelNavigableLayer_H
-#define Navigation_MuonBarrelNavigableLayer_H
+#ifndef Navigation_BTLNavigableLayer_H
+#define Navigation_BTLNavigableLayer_H
 
-/** \class MuonBarrelNavigableLayer
+/** \class BTLNavigableLayer
  *
- *  Navigable layer for Barrel Muon 
+ *  Navigable layer for Barrel Timing Layer. 
+ *  Taken from MuonBarrelNavigableLayer.
  *
  *
- * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
- *
- * Modification:
- *
- * Chang Liu:
- * compatibleLayers(dir) and compatibleLayers(fts, dir) are added,
- * which returns ALL DetLayers that are compatible with a given DetLayer.
- *  
+ * \author : L. Gray - FNAL
+ * 
  */
 
 
 /* Collaborating Class Declarations */
-#include "RecoMuon/Navigation/interface/MuonDetLayerMap.h"
-#include "RecoMuon/Navigation/interface/MuonEtaRange.h"
+#include "RecoMTD/Navigation/interface/MTDDetLayerMap.h"
+#include "RecoMTD/Navigation/interface/MTDEtaRange.h"
 
 class DetLayer;
 class BarrelDetLayer;
 
 /* Base Class Headers */
-#include "RecoMuon/Navigation/interface/MuonNavigableLayer.h"
+#include "RecoMTD/Navigation/interface/MTDNavigableLayer.h"
 /* C++ Headers */
 
 /* ====================================================================== */
 
-/* Class MuonBarrelNavigableLayer Interface */
+/* Class BTLNavigableLayer Interface */
 
-class MuonBarrelNavigableLayer : public MuonNavigableLayer {
+class BTLNavigableLayer : public MTDNavigableLayer {
 
   public:
 
     /// Constructor 
-    MuonBarrelNavigableLayer(BarrelDetLayer* bdl, 
-                             const MapB& outerBarrel, 
-                             const MapB& innerBarrel, 
-                             const MapE& outerBackward,
-                             const MapE& outerForward,
-                             const MapE& innerBackward,
-                             const MapE& innerForward) :
-      theDetLayer(bdl), 
-      theOuterBarrelLayers(outerBarrel),
-      theInnerBarrelLayers(innerBarrel), 
-      theOuterBackwardLayers(outerBackward),
-      theInnerBackwardLayers(innerBackward),
-      theOuterForwardLayers(outerForward),
-      theInnerForwardLayers(innerForward) {}
+    BTLNavigableLayer(BarrelDetLayer* bdl, 
+		      const MapB& outerBarrel, 
+		      const MapB& innerBarrel, 
+		      const MapE& outerBackward,
+		      const MapE& outerForward,
+		      const MapE& innerBackward,
+		      const MapE& innerForward) :
+  theDetLayer(bdl), 
+  theOuterBarrelLayers(outerBarrel),
+  theInnerBarrelLayers(innerBarrel), 
+  theOuterBackwardLayers(outerBackward),
+  theInnerBackwardLayers(innerBackward),
+  theOuterForwardLayers(outerForward),
+  theInnerForwardLayers(innerForward) {}
 
-    MuonBarrelNavigableLayer(BarrelDetLayer* bdl,
-                             const MapB& outerBarrel,
-                             const MapB& innerBarrel,
-                             const MapE& outerBackward,
-                             const MapE& outerForward,
-                             const MapE& innerBackward,
-                             const MapE& innerForward,
-                             const MapB& allOuterBarrel,
-                             const MapB& allInnerBarrel,
-                             const MapE& allOuterBackward,
-                             const MapE& allOuterForward,
-                             const MapE& allInnerBackward,
-                             const MapE& allInnerForward) :
+    BTLNavigableLayer(BarrelDetLayer* bdl,
+		      const MapB& outerBarrel,
+		      const MapB& innerBarrel,
+		      const MapE& outerBackward,
+		      const MapE& outerForward,
+		      const MapE& innerBackward,
+		      const MapE& innerForward,
+		      const MapB& allOuterBarrel,
+		      const MapB& allInnerBarrel,
+		      const MapE& allOuterBackward,
+		      const MapE& allOuterForward,
+		      const MapE& allInnerBackward,
+		      const MapE& allInnerForward) :
       theDetLayer(bdl),
       theOuterBarrelLayers(outerBarrel),
       theInnerBarrelLayers(innerBarrel),
@@ -80,7 +75,7 @@ class MuonBarrelNavigableLayer : public MuonNavigableLayer {
       theAllInnerForwardLayers(allInnerForward) {}
 
     /// Constructor with outer layers only
-    MuonBarrelNavigableLayer(BarrelDetLayer* bdl, 
+    BTLNavigableLayer(BarrelDetLayer* bdl, 
                              const MapB& outerBarrel,
                              const MapE& outerBackward,
                              const MapE& outerForward) :
@@ -89,7 +84,7 @@ class MuonBarrelNavigableLayer : public MuonNavigableLayer {
       theOuterBackwardLayers(outerBackward),
       theOuterForwardLayers(outerForward) { }
 
-    MuonBarrelNavigableLayer(const BarrelDetLayer* bdl,
+    BTLNavigableLayer(const BarrelDetLayer* bdl,
                              const MapB& outerBarrel,
                              const MapE& outerBackward,
                              const MapE& outerForward,
