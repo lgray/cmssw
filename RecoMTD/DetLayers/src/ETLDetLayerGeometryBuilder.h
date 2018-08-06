@@ -8,7 +8,7 @@
  *  \author L. Gray - FNAL
  */
 
-#include <Geometry/MTDGeometry/interface/ETLGeometry.h>
+#include <Geometry/MTDGeometryBuilder/interface/MTDGeometry.h>
 #include <vector>
 
 class DetLayer;
@@ -20,18 +20,18 @@ class ETLDetLayerGeometryBuilder {
 
   /// return.first=forward (+Z), return.second=backward (-Z)
   /// both vectors are sorted inside-out
-  static std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > buildLayers(const ETLGeometry& geo);
+  static std::pair<std::vector<DetLayer*>, std::vector<DetLayer*> > buildLayers(const MTDGeometry& geo);
  private:
   // Disable constructor - only static access is allowed.
   ETLDetLayerGeometryBuilder(){}
 
   static MTDRingForwardDoubleLayer* buildLayer(int endcap,
-                                               int station,
-                                               std::vector<int>& rings,
-                                               const ETLGeometry& geo);
+                                               int layer,
+                                               std::vector<unsigned>& rings,
+                                               const MTDGeometry& geo);
   
   static MTDDetRing * makeDetRing(std::vector<const GeomDet*> & geomDets);
-  static bool isFront(int station, int ring, int chamber);
+  static bool isFront(int layer, int ring, int module);
 };
 #endif
 

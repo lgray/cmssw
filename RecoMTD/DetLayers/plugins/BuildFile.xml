@@ -2,7 +2,7 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/ParameterSet"/>
-  <use   name="Geometry/MTDGeometry"/>
+  <use   name="Geometry/MTDGeometryBuilder"/>
   <use   name="Geometry/Records"/>
   <use   name="RecoMTD/DetLayers"/>
   <use   name="RecoMTD/Records"/>

@@ -8,7 +8,7 @@
  *  \author L. Gray - FNAL
  */
 
-#include <Geometry/MTDGeometry/interface/BTLGeometry.h>
+#include <Geometry/MTDGeometryBuilder/interface/MTDGeometry.h>
 #include <vector>
 
 class DetLayer;
@@ -22,7 +22,7 @@ class BTLDetLayerGeometryBuilder {
         virtual ~BTLDetLayerGeometryBuilder();
   
         /// Operations
-        static std::vector<DetLayer*> buildLayers(const BTLGeometry& geo);
+        static std::vector<DetLayer*> buildLayers(const MTDGeometry& geo);
     private:
     
 };

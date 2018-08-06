@@ -7,8 +7,7 @@
 #include <RecoMTD/DetLayers/plugins/MTDDetLayerGeometryESProducer.h>
 #include <Geometry/Records/interface/MTDGeometryRecord.h>
 
-#include <Geometry/MTDGeometry/interface/BTLGeometry.h>
-#include <Geometry/MTDGeometry/interface/ETLGeometry.h>
+#include <Geometry/MTDGeometryBuilder/interface/MTDGeometry.h>
 
 #include <RecoMTD/DetLayers/src/ETLDetLayerGeometryBuilder.h>
 #include <RecoMTD/DetLayers/src/BTLDetLayerGeometryBuilder.h>
@@ -37,22 +36,15 @@ MTDDetLayerGeometryESProducer::produce(const MTDRecoGeometryRecord & record) {
   const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|MTDDetLayerGeometryESProducer";
   auto mtdDetLayerGeometry = std::make_unique<MTDDetLayerGeometry>();
   
-  // Build DT layers  
-  edm::ESHandle<BTLGeometry> btl;
-  record.getRecord<MTDGeometryRecord>().get(btl);
-  if (btl.isValid()) {
-    mtdDetLayerGeometry->addBTLLayers(BTLDetLayerGeometryBuilder::buildLayers(*btl));
+  edm::ESHandle<MTDGeometry> mtd;
+  record.getRecord<MTDGeometryRecord>().get(mtd);
+  if (mtd.isValid()) {
+    // Build BTL layers  
+    mtdDetLayerGeometry->addBTLLayers(BTLDetLayerGeometryBuilder::buildLayers(*mtd));
+    // Build ETL layers  
+    mtdDetLayerGeometry->addETLLayers(ETLDetLayerGeometryBuilder::buildLayers(*mtd));
   } else {
-    LogInfo(metname) << "No BTL geometry is available."; 
-  }
-
-  // Build CSC layers
-  edm::ESHandle<ETLGeometry> etl;
-  record.getRecord<MTDGeometryRecord>().get(etl);
-  if (etl.isValid()) {
-    mtdDetLayerGeometry->addETLLayers(ETLDetLayerGeometryBuilder::buildLayers(*etl));
-  } else {
-    LogInfo(metname) << "No ETL geometry is available.";
+    LogInfo(metname) << "No MTD geometry is available."; 
   }
   
   // Sort layers properly

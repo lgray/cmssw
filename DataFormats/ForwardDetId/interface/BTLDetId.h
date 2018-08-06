@@ -16,7 +16,7 @@
 
 class BTLDetId : public MTDDetId {
   
- private:
+ public:
   
   static const uint32_t kBTLmoduleOffset           = 10;
   static const uint32_t kBTLmoduleMask             = 0x3F;
@@ -24,8 +24,6 @@ class BTLDetId : public MTDDetId {
   static const uint32_t kBTLmodTypeMask            = 0x3;
   static const uint32_t kBTLCrystalOffset          = 0;
   static const uint32_t kBTLCrystalMask            = 0x3F;
-
- public:
   
   // ---------- Constructors, enumerated types ----------
   

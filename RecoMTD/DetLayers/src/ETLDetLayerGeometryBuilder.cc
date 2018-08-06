@@ -2,7 +2,7 @@
 
 #include <RecoMTD/DetLayers/interface/MTDRingForwardDoubleLayer.h>
 #include <RecoMTD/DetLayers/interface/MTDDetRing.h>
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
+#include <DataFormats/ForwardDetId/interface/ETLDetId.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 
 #include <Utilities/General/interface/precomputed_value_sort.h>
@@ -15,42 +15,19 @@
 using namespace std;
 
 pair<vector<DetLayer*>, vector<DetLayer*> > 
-ETLDetLayerGeometryBuilder::buildLayers(const ETLGeometry& geo) {
+ETLDetLayerGeometryBuilder::buildLayers(const MTDGeometry& geo) {
 
   vector<DetLayer*> result[2]; // one for each endcap
   
-  for(int i=0; i<2; i++) {        
-    
-    int endcap = i+1;
-    
-    // ME/1/1a (= station 1, ring 4) and ME/1/1b (= station 1, ring 1)
-    {
-      vector<int> rings;
-      rings.push_back(4);
-      rings.push_back(1);
-      
-      MTDRingForwardDoubleLayer* layer = buildLayer(endcap, 1, rings, geo);          
-      if (layer) result[i].push_back(layer);  
-    }
-    
-    // ME/1/2 and 1/3 (= station 1, ring 2 and 3)
-    {
-      vector<int> rings;
-      rings.push_back(2);
-      rings.push_back(3);
-      
-      MTDRingForwardDoubleLayer* layer = buildLayer(endcap, 1, rings, geo);          
-      if (layer) result[i].push_back(layer);  
-    }    
-    
-    // Stations 2,3,4
-    for(int station = 2; station <= CSCDetId::maxStationId(); station++) {
-      vector<int> rings;      
-      for(int ring = CSCDetId::minRingId(); ring <= CSCDetId::maxRingId(); ring++) {
+  for(unsigned endcap=0; endcap<2; ++endcap) {    
+    // there is only one layer for ETL right now, maybe more later
+    for(unsigned layer = 0; layer <= 0; ++layer) {
+      vector<unsigned> rings;      
+      for(unsigned ring = 0; ring <= MTDDetId::kRodRingMask; ++ring) {
         rings.push_back(ring);
       }
-      MTDRingForwardDoubleLayer* layer = buildLayer(endcap, station, rings, geo);          
-      if (layer) result[i].push_back(layer);
+      MTDRingForwardDoubleLayer* thelayer = buildLayer(endcap, layer, rings, geo);          
+      if (thelayer) result[endcap].push_back(thelayer);
     }
   }
   pair<vector<DetLayer*>, vector<DetLayer*> > res_pair(result[0], result[1]); 
@@ -58,21 +35,21 @@ ETLDetLayerGeometryBuilder::buildLayers(const ETLGeometry& geo) {
 }
 
 MTDRingForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayer(int endcap,
-                                                                  int station,
-                                                                  vector<int>& rings,
-                                                                  const ETLGeometry& geo) {
+                                                                  int layer,
+                                                                  vector<unsigned>& rings,
+                                                                  const MTDGeometry& geo) {
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|ETLDetLayerGeometryBuilder";
   MTDRingForwardDoubleLayer* result=nullptr;
   
   vector<const ForwardDetRing*> frontRings, backRings;
   
-  for (vector<int>::iterator ring = rings.begin(); ring!=rings.end(); ring++) {    
+  for(unsigned ring : rings ) {
     vector<const GeomDet*> frontGeomDets, backGeomDets;
-    for(int chamber = CSCDetId::minChamberId(); chamber <= CSCDetId::maxChamberId(); chamber++) {
-      CSCDetId detId(endcap, station, (*ring), chamber, 0);
+    for(unsigned module = 0; module <= ETLDetId::kETLmoduleMask; ++module) {
+      ETLDetId detId(endcap, layer, ring, module);
       const GeomDet* geomDet = geo.idToDet(detId);
       // we sometimes loop over more chambers than there are in ring
-      bool isInFront = isFront(station, *ring, chamber);
+      bool isInFront = isFront(layer, ring, module);
       if(geomDet != nullptr)
       {
         if(isInFront)
@@ -83,12 +60,13 @@ MTDRingForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayer(int endcap,
         {
           backGeomDets.push_back(geomDet);
         }
-        LogTrace(metname) << "get CSC chamber "
-                          <<  CSCDetId(endcap, station, (*ring), chamber, 0)
-                          << " at R=" << geomDet->position().perp()
-                          << ", phi=" << geomDet->position().phi()
-                          << ", z= " << geomDet->position().z() 
-                          << " isFront? " << isInFront;
+        //LogTrace(metname) 
+	std::cout << "ETLDetLayerGeometryBuilder " << "get ETL module "
+		  <<  ETLDetId(endcap, layer, ring, module)
+		  << " at R=" << geomDet->position().perp()
+		  << ", phi=" << geomDet->position().phi()
+		  << ", z= " << geomDet->position().z() 
+		  << " isFront? " << isInFront;
       }
     }
 
@@ -119,18 +97,18 @@ MTDRingForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayer(int endcap,
 }
 
 
-bool ETLDetLayerGeometryBuilder::isFront(int station, int ring, int chamber)
+bool ETLDetLayerGeometryBuilder::isFront(int layer, int ring, int module)
 {
   bool result = false;
   
-  bool isOverlapping = !(station == 1 && ring == 3);
+  bool isOverlapping = !(layer == 1 && ring == 3);
   // not overlapping means back
   if(isOverlapping)
   {
-    bool isEven = (chamber%2==0);
+    bool isEven = (module%2==0);
     // odd chambers are bolted to the iron, which faces
     // forward in 1&2, backward in 3&4, so...
-    result = (station<3) ? isEven : !isEven;
+    result = (layer<3) ? isEven : !isEven;
   }
   return result;
 }
@@ -144,10 +122,11 @@ MTDDetRing * ETLDetLayerGeometryBuilder::makeDetRing(vector<const GeomDet*> & ge
 
     precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetPhi());
     MTDDetRing * result = new MTDDetRing(geomDets);
-    LogTrace(metname) << "New MTDDetRing with " << geomDets.size()
-                        << " chambers at z="<< result->position().z()
-                        << " R1: " << result->specificSurface().innerRadius()
-                        << " R2: " << result->specificSurface().outerRadius();
+    //LogTrace(metname) 
+    std::cout << "ETLDetLayerGeometryBuilder "<< "New MTDDetRing with " << geomDets.size()
+	      << " chambers at z="<< result->position().z()
+	      << " R1: " << result->specificSurface().innerRadius()
+	      << " R2: " << result->specificSurface().outerRadius();
     return result;
 }
 

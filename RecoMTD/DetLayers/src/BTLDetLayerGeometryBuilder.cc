@@ -1,6 +1,6 @@
 #include <RecoMTD/DetLayers/src/BTLDetLayerGeometryBuilder.h>
 
-#include <DataFormats/MuonDetId/interface/DTChamberId.h>
+#include <DataFormats/ForwardDetId/interface/BTLDetId.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <RecoMTD/DetLayers/interface/MTDTrayBarrelLayer.h>
 #include <RecoMTD/DetLayers/interface/MTDDetTray.h>
@@ -21,24 +21,24 @@ BTLDetLayerGeometryBuilder::~BTLDetLayerGeometryBuilder() {
 }
 
 vector<DetLayer*> 
-BTLDetLayerGeometryBuilder::buildLayers(const BTLGeometry& geo) {
+BTLDetLayerGeometryBuilder::buildLayers(const MTDGeometry& geo) {
         
   const std::string metname = "MTD|RecoMTD|RecoMTDDetLayers|BTLDetLayerGeometryBuilder";
 
   vector<DetLayer*> detlayers;
   vector<MTDTrayBarrelLayer*> result;
-            
-  for(int station = DTChamberId::minStationId; station <= DTChamberId::maxStationId; station++) {
+  
+  for(unsigned side = 0; side <= 1; ++side) {
     
-    vector<const DetRod*> muDetRods;
-    for(int sector = DTChamberId::minSectorId; sector <= DTChamberId::maxSectorId; sector++) {
+    vector<const DetRod*> btlDetTrays;
+    for(unsigned tray = 0; tray <= 35; ++tray) {
       
       vector<const GeomDet*> geomDets;
-      for(int wheel = DTChamberId::minWheelId; wheel <= DTChamberId::maxWheelId; wheel++) {		  
-        const GeomDet* geomDet = geo.idToDet(DTChamberId(wheel, station, sector));
-        if (geomDet) {
+      for(unsigned module = 0; module <= 63; ++module) {		  
+        const GeomDet* geomDet = geo.idToDet(BTLDetId(side, tray, module, 0, 0));
+        if (geomDet != nullptr) {
           geomDets.push_back(geomDet);
-          LogTrace(metname) << "get DT chamber " <<  DTChamberId(wheel, station, sector)
+          LogTrace(metname) << "get BTL module " <<  BTLDetId(side, tray, module, 0, 0)
                             << " at R=" << geomDet->position().perp()
                             << ", phi=" << geomDet->position().phi() ;
         }
@@ -46,15 +46,15 @@ BTLDetLayerGeometryBuilder::buildLayers(const BTLGeometry& geo) {
       
       if (!geomDets.empty()) {
         precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetZ());
-        muDetRods.push_back(new MTDDetTray(geomDets));
-        LogTrace(metname) << "  New MuDetRod with " << geomDets.size()
-                          << " chambers at R=" << muDetRods.back()->position().perp()
-                          << ", phi=" << muDetRods.back()->position().phi();
+        btlDetTrays.push_back(new MTDDetTray(geomDets));
+        LogTrace(metname) << "  New BTLDetTray with " << geomDets.size()
+                          << " chambers at R=" << btlDetTrays.back()->position().perp()
+                          << ", phi=" << btlDetTrays.back()->position().phi();
       }
     }
-    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractPhi<GeometricSearchDet,float>());
-    result.push_back(new MTDTrayBarrelLayer(muDetRods));  
-    LogDebug(metname) << "    New MuRodBarrelLayer with " << muDetRods.size()
+    precomputed_value_sort(btlDetTrays.begin(), btlDetTrays.end(), geomsort::ExtractPhi<GeometricSearchDet,float>());
+    result.push_back(new MTDTrayBarrelLayer(btlDetTrays));  
+    LogDebug(metname) << "    New MTDTrayBarrelLayer with " << btlDetTrays.size()
                       << " rods, at R " << result.back()->specificSurface().radius();
   }
   
