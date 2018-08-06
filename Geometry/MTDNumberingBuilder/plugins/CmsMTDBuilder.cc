@@ -19,7 +19,7 @@ CmsMTDBuilder::buildComponent( DDFilteredView& fv, GeometricTimingDet* g, std::s
   CmsMTDSubStrctBuilder theCmsMTDSubStrctBuilder;
   CmsMTDEndcapBuilder theCmsMTDEndcapBuilder;
   
-  GeometricTimingDet* subdet = new GeometricTimingDet( &fv, theCmsMTDStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )));
+  GeometricTimingDet* subdet = new GeometricTimingDet( &fv, theCmsMTDStringToEnum.type( fv.logicalPart().name() ) );
   
   switch( theCmsMTDStringToEnum.type( fv.logicalPart().name() ) )
   {  
@@ -36,6 +36,8 @@ CmsMTDBuilder::buildComponent( DDFilteredView& fv, GeometricTimingDet* g, std::s
   g->addComponent( subdet );
 }
 
+#include "DataFormats/ForwardDetId/interface/BTLDetId.h"
+#include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 void
 CmsMTDBuilder::sortNS( DDFilteredView& fv, GeometricTimingDet* det )
 {  
@@ -44,8 +46,16 @@ CmsMTDBuilder::sortNS( DDFilteredView& fv, GeometricTimingDet* det )
   
   for( uint32_t i = 0; i < comp.size(); i++ )
   {
-    uint32_t temp= comp[i]->type();
-    det->component(i)->setGeographicalID(temp);  // it relies on the fact that the GeometricTimingDet::GDEnumType enumerators used to identify the subdetectors in the upgrade geometries are equal to the ones of the present detector + n*100
+    switch( comp[i]->type() ) { 
+    case GeometricTimingDet::BTL:
+      det->component(i)->setGeographicalID(BTLDetId(0,0,0,0,0));  
+      break;
+    case GeometricTimingDet::ETL:
+      det->component(i)->setGeographicalID(ETLDetId(i%2,0,0,0));  
+      break;
+    default:
+      throw cms::Exception("CmsMTDBuilder") << " ERROR - I was expecting a SubDet, I got a " << comp[i]->name(); 
+    }
   }
 }
 

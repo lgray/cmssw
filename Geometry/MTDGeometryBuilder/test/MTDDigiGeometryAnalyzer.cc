@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    TrackerDigiGeometryAnalyzer
-// Class:      TrackerDigiGeometryAnalyzer
+// Package:    MTDDigiGeometryAnalyzer
+// Class:      MTDDigiGeometryAnalyzer
 // 
-/**\class TrackerDigiGeometryAnalyzer TrackerDigiGeometryAnalyzer.cc 
+/**\class MTDDigiGeometryAnalyzer MTDDigiGeometryAnalyzer.cc 
 
  Description: <one line class summary>
 
@@ -30,17 +30,17 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
+#include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
+#include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
+#include "Geometry/MTDGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/MTDGeometryBuilder/interface/StripGeomDetType.h"
 
 
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/MTDGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/MTDGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
@@ -53,13 +53,13 @@
 
 
 // #define PRINT(X) edm::LogInfo(X)
-#define PRINT(X) std::cout << X << ':'
+#define PRINT(X) std::cout << X << ": "
 
-class TrackerDigiGeometryAnalyzer : public edm::one::EDAnalyzer<>
+class MTDDigiGeometryAnalyzer : public edm::one::EDAnalyzer<>
 {
 public:
-      explicit TrackerDigiGeometryAnalyzer( const edm::ParameterSet& );
-      ~TrackerDigiGeometryAnalyzer() override;
+      explicit MTDDigiGeometryAnalyzer( const edm::ParameterSet& );
+      ~MTDDigiGeometryAnalyzer() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -72,37 +72,37 @@ private:
   std::ostream& cylindrical( std::ostream& os, const GlobalPoint& gp) const;
 };
 
-TrackerDigiGeometryAnalyzer::TrackerDigiGeometryAnalyzer( const edm::ParameterSet& iConfig )
+MTDDigiGeometryAnalyzer::MTDDigiGeometryAnalyzer( const edm::ParameterSet& iConfig )
 {}
 
-TrackerDigiGeometryAnalyzer::~TrackerDigiGeometryAnalyzer()
+MTDDigiGeometryAnalyzer::~MTDDigiGeometryAnalyzer()
 {}
 
 // ------------ method called to produce the data  ------------
 void
-TrackerDigiGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+MTDDigiGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
 
-   PRINT("TrackerDigiGeometryAnalyzer")<< "Here I am";
+  PRINT("MTDDigiGeometryAnalyzer")<< "Here I am" << std::endl;
    //
    // get the TrackerGeom
    //
-   edm::ESHandle<TrackerGeometry> pDD;
-   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );     
-   PRINT("TrackerDigiGeometryAnalyzer")<< " Geometry node for TrackerGeom is  "<<&(*pDD) <<'\n';   
-   PRINT("TrackerDigiGeometryAnalyzer")<<" I have "<<pDD->detUnits().size() <<" detectors"<<'\n';
-   PRINT("TrackerDigiGeometryAnalyzer")<<" I have "<<pDD->detTypes().size() <<" types"<<'\n';
+   edm::ESHandle<MTDGeometry> pDD;
+   iSetup.get<MTDDigiGeometryRecord>().get( pDD );     
+   PRINT("MTDDigiGeometryAnalyzer")<< " Geometry node for MTDGeom is  "<<&(*pDD) << std::endl;   
+   PRINT("MTDDigiGeometryAnalyzer")<<" I have "<<pDD->detUnits().size() <<" detectors"<<std::endl;
+   PRINT("MTDDigiGeometryAnalyzer")<<" I have "<<pDD->detTypes().size() <<" types"<<std::endl;
 
    for(auto const & it : pDD->detUnits()){
        if(dynamic_cast<const PixelGeomDetUnit*>((it))!=nullptr){
 	const BoundPlane& p = (dynamic_cast<const PixelGeomDetUnit*>((it)))->specificSurface();
-	PRINT("TrackerDigiGeometryAnalyzer") << it->geographicalId()
+	PRINT("MTDDigiGeometryAnalyzer") << it->geographicalId()
               <<" RadLeng Pixel "<<p.mediumProperties().radLen()<<' ' <<" Xi Pixel "<<p.mediumProperties().xi()<<'\n';
        } 
 
        if(dynamic_cast<const StripGeomDetUnit*>((it))!=nullptr){
 	const BoundPlane& s = (dynamic_cast<const StripGeomDetUnit*>((it)))->specificSurface();
-	PRINT("TrackerDigiGeometryAnalyzer")<< it->geographicalId()
+	PRINT("MTDDigiGeometryAnalyzer")<< it->geographicalId()
              << " RadLeng Strip "<<s.mediumProperties().radLen() <<" Xi Strip "<<s.mediumProperties().xi()<<'\n';
        }
        
@@ -113,16 +113,16 @@ TrackerDigiGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::Event
    for (auto const & it  :pDD->detTypes() ){
      if (dynamic_cast<const PixelGeomDetType*>((it))!=nullptr){
        const PixelTopology& p = (dynamic_cast<const PixelGeomDetType*>((it)))->specificTopology();
-       PRINT("TrackerDigiGeometryAnalyzer")<<" PIXEL Det " // << it->geographicalId()
+       PRINT("MTDDigiGeometryAnalyzer")<<" PIXEL Det " // << it->geographicalId()
                       <<"    Rows    "<<p.nrows() <<"    Columns "<<p.ncolumns()<<'\n';
      }else{
        const StripTopology& p = (dynamic_cast<const StripGeomDetType*>((it)))->specificTopology();
-       PRINT("TrackerDigiGeometryAnalyzer") <<" STRIP Det " // << it->geographicalId()
+       PRINT("MTDDigiGeometryAnalyzer") <<" STRIP Det " // << it->geographicalId()
                                             <<"    Strips    "<<p.nstrips()<<'\n';
      }
    }
 }
-void TrackerDigiGeometryAnalyzer::analyseTrapezoidal( const GeomDetUnit& det)
+void MTDDigiGeometryAnalyzer::analyseTrapezoidal( const GeomDetUnit& det)
 {
 
   // checkRotation( det);
@@ -191,7 +191,7 @@ void TrackerDigiGeometryAnalyzer::analyseTrapezoidal( const GeomDetUnit& det)
 }
 
 
-void TrackerDigiGeometryAnalyzer::checkRotation( const GeomDetUnit& det)
+void MTDDigiGeometryAnalyzer::checkRotation( const GeomDetUnit& det)
 {
 
   const double eps = std::numeric_limits<float>::epsilon();
@@ -226,7 +226,7 @@ void TrackerDigiGeometryAnalyzer::checkRotation( const GeomDetUnit& det)
 
 }
 
-void TrackerDigiGeometryAnalyzer::checkTopology( const GeomDetUnit& det)
+void MTDDigiGeometryAnalyzer::checkTopology( const GeomDetUnit& det)
 {
 
   const StripTopology& topol = dynamic_cast<const StripTopology&>(det.topology());
@@ -269,7 +269,7 @@ void TrackerDigiGeometryAnalyzer::checkTopology( const GeomDetUnit& det)
 
 }
 
-std::ostream& TrackerDigiGeometryAnalyzer::cylindrical( std::ostream& os, 
+std::ostream& MTDDigiGeometryAnalyzer::cylindrical( std::ostream& os, 
 							const GlobalPoint& gp) const
 {
   os << "(" << gp.perp() 
@@ -281,4 +281,4 @@ std::ostream& TrackerDigiGeometryAnalyzer::cylindrical( std::ostream& os,
 
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TrackerDigiGeometryAnalyzer);
+DEFINE_FWK_MODULE(MTDDigiGeometryAnalyzer);

@@ -46,9 +46,11 @@ MTDGeometry::MTDGeometry(GeometricTimingDet const* gd)
   GeometricTimingDet::ConstGeometricTimingDetContainer subdetgd = gd->components();
   
   //LogDebug("BuildingSubDetTypeMap") 
-  std::cout << "BuildingSubDetTypeMap" << "GeometriTimingDet and GeomDetEnumerators enumerator values of the subdetectors" << std::endl;
+  std::cout << "BuildingSubDetTypeMap " << "GeometricTimingDet and GeomDetEnumerators enumerator values of the subdetectors" << std::endl;
   for(unsigned int i=0;i<subdetgd.size();++i) {
+    std::cout << "MTDGeometry processing: " << subdetgd[i]->name() << std::endl;
     MTDDetId mtdid(subdetgd[i]->geographicalId());
+    std::cout << "MTDGeometry mtd subdetector: " << mtdid.mtdSubDetector() << std::endl;
     assert(mtdid.mtdSubDetector()>0 && mtdid.mtdSubDetector()<3);
     theSubDetTypeMap[mtdid.mtdSubDetector()-1] = geometricDetToGeomDet(subdetgd[i]->type());
     theNumberOfLayers[mtdid.mtdSubDetector()-1]= subdetgd[i]->components().size();   
@@ -62,16 +64,16 @@ MTDGeometry::MTDGeometry(GeometricTimingDet const* gd)
 	      << std::endl;
   }
   //LogDebug("SubDetTypeMapContent") 
-  std::cout << "SubDetTypeMapContent" << "Content of theSubDetTypeMap" << std::endl;
-  for(unsigned int i=1;i<=subdetgd.size();++i) {
+  std::cout << "SubDetTypeMapContent " << "Content of theSubDetTypeMap" << std::endl;
+  for(unsigned int i=1;i<=2;++i) {
     //LogTrace("SubDetTypeMapContent") 
-    std::cout << "SubDetTypeMapContent" << " detid subdet "<< i << " Geom Det type " << geomDetSubDetector(i) << std::endl; 
+    std::cout << "SubDetTypeMapContent " << " detid subdet "<< i << " Geom Det type " << geomDetSubDetector(i) << std::endl; 
   }
   //LogDebug("NumberOfLayers") 
-  std::cout << "NumberOfLayers" << "Content of theNumberOfLayers" << std::endl;
-  for(unsigned int i=1;i<=subdetgd.size();++i) {
+  std::cout << "NumberOfLayers " << "Content of theNumberOfLayers" << std::endl;
+  for(unsigned int i=1;i<=2;++i) {
     //LogTrace("NumberOfLayers") 
-    std::cout << "NumberOfLayers" << " detid subdet "<< i << " number of layers " << numberOfLayers(i) << std::endl; 
+    std::cout << "NumberOfLayers " << " detid subdet "<< i << " number of layers " << numberOfLayers(i) << std::endl; 
   }
   std::vector<const GeometricTimingDet*> deepcomp;
   gd->deepComponents(deepcomp);
@@ -79,21 +81,21 @@ MTDGeometry::MTDGeometry(GeometricTimingDet const* gd)
   sort(deepcomp.begin(), deepcomp.end(), DetIdComparator());
 
   //LogDebug("ThicknessAndType") 
-  std::cout << "ThicknessAndType" << " Total Number of Detectors " << deepcomp.size() << std::endl;
+  std::cout << "ThicknessAndType " << " Total Number of Detectors " << deepcomp.size() << std::endl;
   //LogDebug("ThicknessAndType") 
-  std::cout << "ThicknessAndType" << "Dump of sensors names and bounds" << std::endl;
+  std::cout << "ThicknessAndType " << "Dump of sensors names and bounds" << std::endl;
   for(auto det : deepcomp) {
     fillTestMap(det); 
     //LogDebug("ThicknessAndType") 
-    std::cout << "ThicknessAndType" << det->geographicalId().rawId() << " " << det->name().fullname() << " " << det->bounds()->thickness();
+    std::cout << "ThicknessAndType " << det->geographicalId().rawId() << " " << det->name().fullname() << " " << det->bounds()->thickness() << std::endl;
   }
   //LogDebug("DetTypeList") 
-  std::cout << "DetTypeList" << " Content of DetTypetList : size " << theDetTypetList.size();
+  std::cout << "DetTypeList " << " Content of DetTypetList : size " << theDetTypetList.size() << std::endl;
   for (auto iVal : theDetTypetList) {
     //LogDebug("DetTypeList") 
-    std::cout << "DetTypeList" << " DetId " << std::get<0>(iVal).rawId()
+    std::cout << "DetTypeList " << " DetId " << std::get<0>(iVal).rawId()
 	      << " Type " << static_cast<std::underlying_type<MTDGeometry::ModuleType>::type>(std::get<1>(iVal))
-			    << " Thickness " << std::get<2>(iVal);
+	      << " Thickness " << std::get<2>(iVal) << std::endl;
   }  
 }
 

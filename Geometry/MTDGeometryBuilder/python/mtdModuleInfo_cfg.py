@@ -5,13 +5,13 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi")
 
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.load("Geometry.MTDGeometryBuilder.mtdGeometry_cfi")
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
 
 #this is always needed if users want access to the vector<GeometricDetExtra>
-process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",
+process.TrackerGeometricDetExtraESModule = cms.ESProducer( "MTDGeometricDetExtraESModule",
                                                            fromDDD = cms.bool( True )
                                                            )
 

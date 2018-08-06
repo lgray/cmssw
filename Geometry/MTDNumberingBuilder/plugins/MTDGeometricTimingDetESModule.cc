@@ -46,6 +46,7 @@ MTDGeometricTimingDetESModule::produce( const IdealGeometryRecord & iRecord )
 
     DDDCmsMTDConstruction theDDDCmsMTDConstruction;
     return std::unique_ptr<GeometricTimingDet> (const_cast<GeometricTimingDet*>( theDDDCmsMTDConstruction.construct(&(*cpv), dbl_to_int( DDVectorGetter::get( "detIdShifts" )))));
+
   }
   else
   {

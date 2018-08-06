@@ -2,7 +2,9 @@
 <use name="Geometry/TrackerNumberingBuilder"/>
 <use name="Geometry/CommonDetUnit"/>
 <use name="FWCore/Framework"/>
-<library file="TrackerDigiGeometryAnalyzer.cc" name="MTDDigiGeometryAnalyzer">
+<library file="MTDDigiGeometryAnalyzer.cc" name="MTDDigiGeometryAnalyzer">
+  <use name="Geometry/MTDNumberingBuilder"/>
+  <use name="Geometry/MTDGeometryBuilder"/>
   <use name="CondFormats/Alignment"/>
   <use name="Geometry/Records"/>
   <flags EDM_PLUGIN="1"/>
