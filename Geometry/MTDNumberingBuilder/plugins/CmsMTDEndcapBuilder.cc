@@ -27,9 +27,8 @@ CmsMTDEndcapBuilder::buildComponent( DDFilteredView& fv, GeometricTimingDet* g, 
   default:
     throw cms::Exception("CmsMTDEndcapBuilder")<<" ERROR - I was expecting a Disk... I got a "<< fv.logicalPart().name();
   }  
-  
-  g->addComponent(subdet);
 
+  g->addComponent(subdet);
 }
 
 void
@@ -37,7 +36,7 @@ CmsMTDEndcapBuilder::sortNS( DDFilteredView& fv, GeometricTimingDet* det )
 {
   GeometricTimingDet::ConstGeometricTimingDetContainer & comp = det->components();
 
-  std::sort( comp.begin(), comp.end(), LessModZ());
+  std::stable_sort( comp.begin(), comp.end(), LessModZ());
   
   for( uint32_t i = 0; i < comp.size(); i++ )
   {

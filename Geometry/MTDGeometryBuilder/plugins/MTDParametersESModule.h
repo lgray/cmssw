@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDParametersFromDD.h"
 #include <memory>
 
 namespace edm {
@@ -11,6 +12,7 @@ namespace edm {
 }
 class PMTDParameters;
 class PMTDParametersRcd;
+
 
 class  MTDParametersESModule: public edm::ESProducer
 {
@@ -23,6 +25,9 @@ class  MTDParametersESModule: public edm::ESProducer
   static void fillDescriptions( edm::ConfigurationDescriptions & );
   
   ReturnType produce( const PMTDParametersRcd & );
+
+ private:
+  MTDParametersFromDD builder;
 };
 
 #endif

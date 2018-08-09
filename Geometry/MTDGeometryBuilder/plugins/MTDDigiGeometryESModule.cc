@@ -83,9 +83,12 @@ MTDDigiGeometryESModule::produce(const MTDDigiGeometryRecord & iRecord)
   edm::ESHandle<PMTDParameters> ptp;
   iRecord.getRecord<PMTDParametersRcd>().get( ptp );
   
+  std::cout << "MTDParameters: " << ptp.product() << ' ' << ptp->vitems.size() << ' ' << ptp->vpars.size() << std::endl;
+  
   MTDGeomBuilderFromGeometricTimingDet builder;
   _tracker  = std::shared_ptr<MTDGeometry>(builder.build(&(*gD), *ptp, tTopo));
 
+  
   if (applyAlignment_) {
     // Since fake is fully working when checking for 'empty', we should get rid of applyAlignment_!
     edm::ESHandle<Alignments> globalPosition;
@@ -120,6 +123,7 @@ MTDDigiGeometryESModule::produce(const MTDDigiGeometryRecord & iRecord)
       ali.attachSurfaceDeformations<MTDGeometry>(&(*_tracker), &(*surfaceDeformations));
     }
   }
+  
   
   return _tracker;
 }

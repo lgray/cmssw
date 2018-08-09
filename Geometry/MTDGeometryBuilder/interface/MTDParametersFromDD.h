@@ -2,6 +2,8 @@
 #define MTDGeometryBuilder_MTDParametersFromDD_h
 
 #include <vector>
+#include "CondFormats/GeometryObjects/interface/PMTDParameters.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class DDCompactView;
 class PMTDParameters;
@@ -9,12 +11,15 @@ class PMTDParameters;
 class MTDParametersFromDD {
  public:
   MTDParametersFromDD() {}
+  MTDParametersFromDD(const edm::ParameterSet& );
   virtual ~MTDParametersFromDD() {}
 
   bool build( const DDCompactView*,
 	      PMTDParameters& );
  private:
   void putOne( int, std::vector<int> &, PMTDParameters& );
+  std::vector<PMTDParameters::Item> itemsFromPython;
+  std::vector<int> parsFromPython;
 };
 
 #endif

@@ -35,10 +35,11 @@ CmsMTDSubStrctBuilder::buildComponent( DDFilteredView& fv, GeometricTimingDet* g
 	throw cms::Exception("CmsMTDSubStrctBuilder")<<" ERROR - I was expecting a BTLLayer... I got a "<< fv.logicalPart().name();
       }  
   }
-
+  
   g->addComponent(subdet);
 }
 
+#include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 void
 CmsMTDSubStrctBuilder::sortNS( DDFilteredView& fv, GeometricTimingDet* det )
 {

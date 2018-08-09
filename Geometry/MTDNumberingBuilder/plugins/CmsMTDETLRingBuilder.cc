@@ -16,6 +16,8 @@ void CmsMTDETLRingBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet
   
 }
 
+#include "DataFormats/ForwardDetId/interface/ETLDetId.h"
+
 void CmsMTDETLRingBuilder::sortNS(DDFilteredView& fv, GeometricTimingDet* det){
 
   GeometricTimingDet::ConstGeometricTimingDetContainer & comp = det->components();
@@ -23,8 +25,9 @@ void CmsMTDETLRingBuilder::sortNS(DDFilteredView& fv, GeometricTimingDet* det){
   //increasing phi taking into account the sub-modules
   MTDStablePhiSort(comp.begin(), comp.end(), ExtractPhiGluedModule());
 
+  /*
   for(uint32_t i=0; i<comp.size();i++){
-    det->component(i)->setGeographicalID(i+1);
-  } 
- 
+    det->component(i)->setGeographicalID(ETLDetId(0,0,0,i+1));
+  }
+  */
 }

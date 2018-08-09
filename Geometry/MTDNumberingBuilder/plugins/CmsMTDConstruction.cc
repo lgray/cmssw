@@ -2,6 +2,9 @@
 #include "Geometry/MTDNumberingBuilder/plugins/ExtractStringFromDDD.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "DataFormats/ForwardDetId/interface/BTLDetId.h"
+#include "DataFormats/ForwardDetId/interface/ETLDetId.h"
+
 void CmsMTDConstruction::buildComponent(DDFilteredView& fv, 
 					GeometricTimingDet *mother, 
 					std::string attribute){
@@ -50,9 +53,9 @@ void CmsMTDConstruction::buildBTLModule(DDFilteredView& fv,
   const std::string modname = fv.logicalPart().name().fullname();
   
   if( modname.find(positive) != std::string::npos ) {
-    det->setGeographicalID(DetId(1));
+    det->setGeographicalID(BTLDetId(0,0,0,module_number,0));
   } else if ( modname.find(negative) != std::string::npos ) {
-    det->setGeographicalID(DetId(2));
+    det->setGeographicalID(BTLDetId(0,0,0,module_number,0));
   } else {
     throw cms::Exception("CmsMTDConstruction::buildBTLModule") 
       << "BTL Module " << module_number << " is neither positive nor negative in Z!";
@@ -71,7 +74,7 @@ void CmsMTDConstruction::buildETLModule(DDFilteredView& fv,
   auto module_number = copyNumbers[copyNumbers.size()-2];
   
   // label geographic detid is front or back (even though it is one module per entry here)
-  det->setGeographicalID(DetId(module_number%2+1)); 
+  det->setGeographicalID(ETLDetId(0,0,0,module_number+1)); 
   
   mother->addComponent(det);
 }
