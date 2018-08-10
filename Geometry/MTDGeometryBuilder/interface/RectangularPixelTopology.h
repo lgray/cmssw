@@ -1,5 +1,5 @@
-#ifndef Geometry_TrackerGeometryBuilder_RectangularPixelTopology_H
-#define Geometry_TrackerGeometryBuilder_RectangularPixelTopology_H
+#ifndef Geometry_MTDGeometryBuilder_RectangularPixelTopology_H
+#define Geometry_MTDGeometryBuilder_RectangularPixelTopology_H
 
   /**
    * Topology for rectangular pixel detector with BIG pixels.

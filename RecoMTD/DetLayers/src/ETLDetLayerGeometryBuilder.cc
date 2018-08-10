@@ -23,7 +23,7 @@ ETLDetLayerGeometryBuilder::buildLayers(const MTDGeometry& geo) {
     // there is only one layer for ETL right now, maybe more later
     for(unsigned layer = 0; layer <= 0; ++layer) {
       vector<unsigned> rings;      
-      for(unsigned ring = 0; ring <= MTDDetId::kRodRingMask; ++ring) {
+      for(unsigned ring = 1; ring <= 12; ++ring) {
         rings.push_back(ring);
       }
       MTDRingForwardDoubleLayer* thelayer = buildLayer(endcap, layer, rings, geo);          
@@ -45,8 +45,8 @@ MTDRingForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayer(int endcap,
   
   for(unsigned ring : rings ) {
     vector<const GeomDet*> frontGeomDets, backGeomDets;
-    for(unsigned module = 0; module <= ETLDetId::kETLmoduleMask; ++module) {
-      ETLDetId detId(endcap, layer, ring, module);
+    for(unsigned module = 1; module <= ETLDetId::kETLmoduleMask; ++module) {
+      ETLDetId detId(endcap, ring, module,0);
       const GeomDet* geomDet = geo.idToDet(detId);
       // we sometimes loop over more chambers than there are in ring
       bool isInFront = isFront(layer, ring, module);
@@ -62,11 +62,11 @@ MTDRingForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayer(int endcap,
         }
         //LogTrace(metname) 
 	std::cout << "ETLDetLayerGeometryBuilder " << "get ETL module "
-		  <<  ETLDetId(endcap, layer, ring, module)
+		  <<  std::hex << ETLDetId(endcap, layer, ring, module).rawId() << std::dec
 		  << " at R=" << geomDet->position().perp()
 		  << ", phi=" << geomDet->position().phi()
 		  << ", z= " << geomDet->position().z() 
-		  << " isFront? " << isInFront;
+		  << " isFront? " << isInFront << std::endl;
       }
     }
 
@@ -88,29 +88,20 @@ MTDRingForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayer(int endcap,
   // How should they be sorted?
   //    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractZ<GeometricSearchDet,float>());
   result = new MTDRingForwardDoubleLayer(frontRings, backRings);  
-  LogTrace(metname) << "New MTDRingForwardLayer with " << frontRings.size() 
-                    << " and " << backRings.size()
-                    << " rings, at Z " << result->position().z()
-                    << " R1: " << result->specificSurface().innerRadius()
-                    << " R2: " << result->specificSurface().outerRadius(); 
+  //LogTrace(metname) 
+    std::cout << "ETLDetLayerGeometryBuilder: " 
+	      << "New MTDRingForwardLayer with " << frontRings.size() 
+	      << " and " << backRings.size()
+	      << " rings, at Z " << result->position().z()
+	      << " R1: " << result->specificSurface().innerRadius()
+	      << " R2: " << result->specificSurface().outerRadius() << std::endl; 
   return result;
 }
 
 
 bool ETLDetLayerGeometryBuilder::isFront(int layer, int ring, int module)
-{
-  bool result = false;
-  
-  bool isOverlapping = !(layer == 1 && ring == 3);
-  // not overlapping means back
-  if(isOverlapping)
-  {
-    bool isEven = (module%2==0);
-    // odd chambers are bolted to the iron, which faces
-    // forward in 1&2, backward in 3&4, so...
-    result = (layer<3) ? isEven : !isEven;
-  }
-  return result;
+{  
+  return (module+1)%2;
 }
 
 
@@ -126,7 +117,7 @@ MTDDetRing * ETLDetLayerGeometryBuilder::makeDetRing(vector<const GeomDet*> & ge
     std::cout << "ETLDetLayerGeometryBuilder "<< "New MTDDetRing with " << geomDets.size()
 	      << " chambers at z="<< result->position().z()
 	      << " R1: " << result->specificSurface().innerRadius()
-	      << " R2: " << result->specificSurface().outerRadius();
+	      << " R2: " << result->specificSurface().outerRadius() << std::endl;;
     return result;
 }
 

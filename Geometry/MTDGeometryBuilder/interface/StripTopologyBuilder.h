@@ -1,5 +1,5 @@
-#ifndef Geometry_TrackerGeometryBuilder_StripTopologyBuilder_H
-#define Geometry_TrackerGeometryBuilder_StripTopologyBuilder_H
+#ifndef Geometry_MTDGeometryBuilder_StripTopologyBuilder_H
+#define Geometry_MTDGeometryBuilder_StripTopologyBuilder_H
 
 #include <string>
 

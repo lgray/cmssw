@@ -1,4 +1,4 @@
-#include "Geometry/TrackerGeometryBuilder/interface/StripTopologyBuilder.h"
+#include "Geometry/MTDGeometryBuilder/interface/StripTopologyBuilder.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TkRadialStripTopology.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"

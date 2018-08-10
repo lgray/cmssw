@@ -30,6 +30,7 @@ CmsMTDDiscBuilder::buildComponent( DDFilteredView& fv, GeometricTimingDet* g, st
   g->addComponent( subdet );
 }
 
+#include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 void
 CmsMTDDiscBuilder::sortNS( DDFilteredView& fv, GeometricTimingDet* det )
 {
@@ -39,27 +40,20 @@ CmsMTDDiscBuilder::sortNS( DDFilteredView& fv, GeometricTimingDet* det )
 
   switch(det->components().front()->type()){
   case GeometricTimingDet::ETLRing:
-    // nothing to be done because the rings (here named panels) are already sorted ??
+    std::stable_sort(comp.begin(),comp.end(),LessR_module());
     break;
   default:
     edm::LogError("CmsMTDDiscBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type();
   }
   
   GeometricTimingDet::GeometricTimingDetContainer rings;
-  uint32_t  totalrings = comp.size();
+  uint32_t totalrings = comp.size();
 
+  const uint32_t side = det->translation().z() > 0 ? 1 : 0;
 
-  for ( uint32_t rn=0; rn<totalrings; rn++) {
-    rings.emplace_back(det->component(rn));
-    uint32_t blade = rn+1;
-    uint32_t panel = 1;
-    uint32_t temp = (blade<<2) | panel;
-    rings[rn]->setGeographicalID(temp);
-
+  for ( uint32_t rn=0; rn<totalrings; ++rn) {    
+    det->component(rn)->setGeographicalID(ETLDetId(side,rn+1,0,0));
   }
-
-  det->clearComponents();
-  det->addComponents(rings);
 
 }
 

@@ -1,5 +1,5 @@
-#ifndef Geometry_TrackerGeometryBuilder_StackGeomDet_H
-#define Geometry_TrackerGeometryBuilder_StackGeomDet_H
+#ifndef Geometry_MTDGeometryBuilder_StackGeomDet_H
+#define Geometry_MTDGeometryBuilder_StackGeomDet_H
 
 #include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"

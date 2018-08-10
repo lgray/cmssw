@@ -1,5 +1,5 @@
-#ifndef Geometry_TrackerGeometryBuilder_PixelTopologyBuilder_H
-#define Geometry_TrackerGeometryBuilder_PixelTopologyBuilder_H
+#ifndef Geometry_MTDGeometryBuilder_PixelTopologyBuilder_H
+#define Geometry_MTDGeometryBuilder_PixelTopologyBuilder_H
 
 #include <string>
 class PixelTopology;

@@ -1,8 +1,8 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/ProxyPixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/MTDGeometryBuilder/interface/ProxyPixelTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/PixelGeomDetType.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 ProxyPixelTopology::ProxyPixelTopology(PixelGeomDetType const * type, BoundPlane * bp)

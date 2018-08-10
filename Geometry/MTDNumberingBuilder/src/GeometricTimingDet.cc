@@ -277,8 +277,9 @@ GeometricTimingDet::ConstGeometricTimingDetContainer GeometricTimingDet::deepCom
 
 void GeometricTimingDet::deepComponents(ConstGeometricTimingDetContainer & cont) const {
   //std::cout << "const deepComponents2" << std::endl;
-  if (isLeaf())
+  if (isLeaf()) {
     cont.emplace_back(this);
+  }  
   else 
     std::for_each(_container.begin(),_container.end(), 
 		  [&](const GeometricTimingDet* iDet) {

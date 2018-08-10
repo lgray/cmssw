@@ -58,7 +58,7 @@ MTDGeometry::MTDGeometry(GeometricTimingDet const* gd)
     std::cout << "subdet " << i 
 	      << " Geometric Det type " << subdetgd[i]->type()
 	      << " Geom Det type " << theSubDetTypeMap[mtdid.mtdSubDetector()-1]
-	      << " detid " <<  subdetgd[i]->geographicalId().rawId()
+	      << " detid " << std::hex <<  subdetgd[i]->geographicalId().rawId() << std::dec
 	      << " subdetid " <<  mtdid.mtdSubDetector()
 	      << " number of layers " << subdetgd[i]->components().size()
 	      << std::endl;
@@ -86,8 +86,9 @@ MTDGeometry::MTDGeometry(GeometricTimingDet const* gd)
   std::cout << "ThicknessAndType " << "Dump of sensors names and bounds" << std::endl;
   for(auto det : deepcomp) {
     fillTestMap(det); 
-    //LogDebug("ThicknessAndType") 
-    std::cout << "ThicknessAndType " << det->geographicalId().rawId() << " " << det->name().fullname() << " " << det->bounds()->thickness() << std::endl;
+    LogDebug("ThicknessAndType") << std::hex << det->geographicalId().rawId() << std::dec
+				 << " " << det->name().fullname() << " " 
+				 << det->bounds()->thickness();
   }
   //LogDebug("DetTypeList") 
   std::cout << "DetTypeList " << " Content of DetTypetList : size " << theDetTypetList.size() << std::endl;
@@ -121,9 +122,9 @@ void MTDGeometry::addType(GeomDetType const * p) {
 
 void MTDGeometry::addDetUnit(GeomDet const * p) {
   // set index
-  const_cast<GeomDet *>(p)->setIndex(theDetUnits.size());
-  theDetUnits.emplace_back(p);  // add to vector
-  theMapUnit.insert(std::make_pair(p->geographicalId().rawId(),p));
+  const_cast<GeomDet *>(p)->setIndex(theDetUnits.size()); 
+  theDetUnits.emplace_back(p);  // add to vector  
+  theMapUnit.emplace(p->geographicalId().rawId(),p);
 }
 
 void MTDGeometry::addDetUnitId(DetId p){
@@ -144,7 +145,7 @@ void MTDGeometry::addDet(GeomDet const * p) {
     theETLDets.emplace_back(p);
     break;  
   default:
-    edm::LogError("MTDGeometry")<<"ERROR - I was expecting a MTD Subdetector, I got a "<<id.subdetId();
+    edm::LogError("MTDGeometry")<<"ERROR - I was expecting a MTD Subdetector, I got a "<<id.mtdSubDetector();
   }
 }
 
@@ -171,10 +172,11 @@ MTDGeometry::idToDetUnit(DetId s)const
   mapIdToDetUnit::const_iterator p=theMapUnit.find(s.rawId());
   if (p != theMapUnit.end()) {
     return static_cast<const MTDGeomDet *>(p->second);
-  } else {
+  } /*else {
     throw cms::Exception("WrongTrackerSubDet") << "Invalid DetID: no GeomDetUnit associated with raw ID "
 					       << s.rawId() << " of subdet ID " << s.subdetId();
-  }
+					       }*/
+  return nullptr;
 }
 
 const MTDGeomDet* 
@@ -183,10 +185,11 @@ MTDGeometry::idToDet(DetId s)const
   mapIdToDet::const_iterator p=theMap.find(s.rawId());
   if (p != theMap.end()) {
     return static_cast<const MTDGeomDet *>(p->second);
-  } else {
+  } /*else {
     throw cms::Exception("WrongTrackerSubDet") << "Invalid DetID: no GeomDetUnit associated with raw ID "
 					       << s.rawId() << " of subdet ID " << s.subdetId();
-  }
+					       }*/
+  return nullptr;
 }
 
 const GeomDetEnumerators::SubDetector 
@@ -209,7 +212,7 @@ MTDGeometry::numberOfLayers(int subdet) const {
 
 bool
 MTDGeometry::isThere(GeomDetEnumerators::SubDetector subdet) const {
-  for(unsigned int i=1;i<3;++i) {
+  for(unsigned int i=1;i<=2;++i) {
     if(subdet == geomDetSubDetector(i)) return true;
   }
   return false;

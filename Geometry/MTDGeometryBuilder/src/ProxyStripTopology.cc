@@ -1,8 +1,8 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/ProxyStripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
+#include "Geometry/MTDGeometryBuilder/interface/ProxyStripTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/StripGeomDetType.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 ProxyStripTopology::ProxyStripTopology(StripGeomDetType const * type, BoundPlane * bp)

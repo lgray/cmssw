@@ -31,6 +31,8 @@ CmsMTDEndcapBuilder::buildComponent( DDFilteredView& fv, GeometricTimingDet* g, 
   g->addComponent(subdet);
 }
 
+
+#include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 void
 CmsMTDEndcapBuilder::sortNS( DDFilteredView& fv, GeometricTimingDet* det )
 {
@@ -40,7 +42,8 @@ CmsMTDEndcapBuilder::sortNS( DDFilteredView& fv, GeometricTimingDet* det )
   
   for( uint32_t i = 0; i < comp.size(); i++ )
   {
-    det->component(i)->setGeographicalID(i+1); // Every subdetector: Inner pixel first, OT later, then sort by disk number
+    const uint32_t side = det->component(i)->translation().z() > 0 ? 1 : 0;
+    det->component(i)->setGeographicalID(ETLDetId(side,0,0,0)); 
   }
 }
 

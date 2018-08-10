@@ -6,7 +6,7 @@
 
 MTDParametersFromDD::MTDParametersFromDD(const edm::ParameterSet& pset) {
   const edm::VParameterSet& items = 
-    pset.getParameter<edm::VParameterSet>("vitems");
+    pset.getParameterSetVector("vitems");
   parsFromPython = pset.getParameter<std::vector<int32_t> >("vpars");
 
   itemsFromPython.resize(items.size());

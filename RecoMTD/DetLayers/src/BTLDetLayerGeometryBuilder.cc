@@ -31,16 +31,18 @@ BTLDetLayerGeometryBuilder::buildLayers(const MTDGeometry& geo) {
   for(unsigned side = 0; side <= 1; ++side) {
     
     vector<const DetRod*> btlDetTrays;
-    for(unsigned tray = 0; tray <= 35; ++tray) {
+    for(unsigned tray = 1; tray <= 36; ++tray) {
       
       vector<const GeomDet*> geomDets;
-      for(unsigned module = 0; module <= 63; ++module) {		  
-        const GeomDet* geomDet = geo.idToDet(BTLDetId(side, tray, module, 0, 0));
+      for(unsigned module = 1; module <= 64; ++module) {		  
+        const GeomDet* geomDet = geo.idToDet(BTLDetId(side, tray, module, 0, 1));
         if (geomDet != nullptr) {
           geomDets.push_back(geomDet);
-          LogTrace(metname) << "get BTL module " <<  BTLDetId(side, tray, module, 0, 0)
-                            << " at R=" << geomDet->position().perp()
-                            << ", phi=" << geomDet->position().phi() ;
+          //LogTrace(metname) 
+	  std::cout << "BTLLayers: "<< "get BTL module " 
+		    << std::hex <<  BTLDetId(side, tray, module, 0, 1) << std::dec 
+		    << " at R=" << geomDet->position().perp()
+		    << ", phi=" << geomDet->position().phi() ;
         }
       }
       

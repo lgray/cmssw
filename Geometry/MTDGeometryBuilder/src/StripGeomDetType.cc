@@ -1,4 +1,4 @@
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
+#include "Geometry/MTDGeometryBuilder/interface/StripGeomDetType.h"
 
 
 void StripGeomDetType::setTopology( TopologyType* topol) 

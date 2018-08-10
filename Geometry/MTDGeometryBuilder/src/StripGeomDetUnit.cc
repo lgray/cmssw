@@ -1,5 +1,5 @@
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
+#include "Geometry/MTDGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/MTDGeometryBuilder/interface/StripGeomDetType.h"
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 

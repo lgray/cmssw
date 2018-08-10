@@ -59,7 +59,7 @@ inline int module() const { return (id_>>kBTLmoduleOffset)&kBTLmoduleMask; }
 inline int modType() const { return (id_>>kBTLmodTypeOffset)&kBTLmodTypeMask; }
 
 /** Returns BTL crystal number. */
- inline int crystal() const { return ((id_>>kBTLCrystalOffset)&kBTLCrystalMask) + 1; }
+ inline int crystal() const { return ((id_>>kBTLCrystalOffset)&kBTLCrystalMask)+1; }
 
 };
 

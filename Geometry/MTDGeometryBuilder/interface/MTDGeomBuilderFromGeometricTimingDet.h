@@ -25,9 +25,7 @@ private:
 
   void buildPixel(std::vector<const GeometricTimingDet*> const &,
 		  MTDGeometry*,GeomDetType::SubDetector det,
-		  bool upgradeGeometry,
-		  int BIG_PIX_PER_ROC_X,
-		  int BIG_PIX_PER_ROC_Y);
+		  const PMTDParameters& ptp );
   void buildSilicon(std::vector<const GeometricTimingDet*> const &,
 		    MTDGeometry*,GeomDetType::SubDetector det, const std::string& part);
   void buildGeomDet(MTDGeometry* );

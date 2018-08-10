@@ -46,12 +46,13 @@ CmsMTDBuilder::sortNS( DDFilteredView& fv, GeometricTimingDet* det )
   
   for( uint32_t i = 0; i < comp.size(); i++ )
   {
+    const uint32_t side = det->component(i)->translation().z() > 0 ? 1 : 0;
     switch( comp[i]->type() ) { 
     case GeometricTimingDet::BTL:
       det->component(i)->setGeographicalID(BTLDetId(0,0,0,0,0));  
       break;
-    case GeometricTimingDet::ETL:
-      det->component(i)->setGeographicalID(ETLDetId(i%2,0,0,0));  
+    case GeometricTimingDet::ETL:      
+      det->component(i)->setGeographicalID(ETLDetId(side,0,0,0));  
       break;
     default:
       throw cms::Exception("CmsMTDBuilder") << " ERROR - I was expecting a SubDet, I got a " << comp[i]->name(); 

@@ -1,9 +1,9 @@
-#ifndef Geometry_TrackerGeometryBuilder_PixelGeomDetUnit_H
-#define Geometry_TrackerGeometryBuilder_PixelGeomDetUnit_H
+#ifndef Geometry_MTDGeometryBuilder_PixelGeomDetUnit_H
+#define Geometry_MTDGeometryBuilder_PixelGeomDetUnit_H
 
 #include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/TrackerGeometryBuilder/interface/ProxyPixelTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/ProxyPixelTopology.h"
 
 class PixelGeomDetType;
 class PixelTopology;

@@ -14,7 +14,7 @@ class GeometricTimingDet;
 class MTDGeometry final : public TrackingGeometry {
 
   explicit MTDGeometry(GeometricTimingDet const* gd=nullptr);  
-
+  
   friend class MTDGeomBuilderFromGeometricTimingDet;
 
   void addType(GeomDetType const * p);
@@ -47,11 +47,11 @@ public:
   unsigned int numberOfLayers(int subdet) const;
   bool isThere(GeomDetEnumerators::SubDetector subdet) const;
 
-  unsigned int offsetDU(SubDetector sid) const { return theOffsetDU[sid];}
-  unsigned int endsetDU(SubDetector sid) const { return theEndsetDU[sid];}
+  unsigned int offsetDU(unsigned sid) const { return theOffsetDU[sid];}
+  unsigned int endsetDU(unsigned sid) const { return theEndsetDU[sid];}
   // Magic : better be called at the right moment...
-  void setOffsetDU(SubDetector sid) { theOffsetDU[sid]=detUnits().size();}
-  void setEndsetDU(SubDetector sid) { theEndsetDU[sid]=detUnits().size();}
+  void setOffsetDU(unsigned sid) { theOffsetDU[sid]=detUnits().size();}
+  void setEndsetDU(unsigned sid) { theEndsetDU[sid]=detUnits().size();}
   void fillTestMap(const GeometricTimingDet* gd);
 
   ModuleType moduleType(const std::string& name) const;

@@ -1,4 +1,4 @@
-// #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+// #include "Geometry/MTDGeometryBuilder/interface/PixelGeomDetType.h"
 
 
 // void PixelGeomDetType::setTopology( TopologyType* topol) 

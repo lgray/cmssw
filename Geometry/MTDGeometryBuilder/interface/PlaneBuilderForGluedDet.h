@@ -1,5 +1,5 @@
-#ifndef Geometry_TrackerGeometryBuilder_PlaneBuilderForGluedDet_H
-#define Geometry_TrackerGeometryBuilder_PlaneBuilderForGluedDet_H
+#ifndef Geometry_MTDGeometryBuilder_PlaneBuilderForGluedDet_H
+#define Geometry_MTDGeometryBuilder_PlaneBuilderForGluedDet_H
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"

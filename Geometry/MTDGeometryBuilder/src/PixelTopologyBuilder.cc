@@ -1,6 +1,6 @@
 // Make the change for "big" pixels. 3/06 d.k.
-#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/PixelTopologyBuilder.h"
+#include "Geometry/MTDGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 
 PixelTopologyBuilder::PixelTopologyBuilder( void )
@@ -27,7 +27,7 @@ PixelTopologyBuilder::build( const Bounds* bs,
   float pitchX = width /(nrows+pixelROCsInX*BIG_PIX_PER_ROC_X); 
   // 2 big pixels per ROC
   float pitchY = length/(ncols+pixelROCsInY*BIG_PIX_PER_ROC_Y);
-
+  
   return ( new RectangularPixelTopology( nrows, ncols, pitchX, pitchY,
 					 upgradeGeometry,
 					 pixelROCRows, // (int)rocRow
