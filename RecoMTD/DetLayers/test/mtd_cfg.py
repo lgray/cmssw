@@ -14,16 +14,12 @@ process.load("Geometry.MTDGeometryBuilder.mtdGeometry_cfi")
 process.load("Geometry.MTDGeometryBuilder.mtdParameters_cfi")
 process.mtdGeometry.applyAlignment = cms.bool(False)
 
+process.load("MagneticField.Engine.volumeBasedMagneticField_160812_cfi")
 process.load("RecoMTD.DetLayers.mtdDetLayerGeometry_cfi")
 
 process.Timing = cms.Service("Timing")
 
-process.source = cms.Source("EmptyIOVSource",
-                            lastValue = cms.uint64(1),
-                            timetype = cms.string('runnumber'),
-                            firstValue = cms.uint64(1),
-                            interval = cms.uint64(1)
-                            )
+process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
