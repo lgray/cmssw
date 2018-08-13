@@ -60,13 +60,13 @@ MTDRingForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayer(int endcap,
         {
           backGeomDets.push_back(geomDet);
         }
-        //LogTrace(metname) 
-	std::cout << "ETLDetLayerGeometryBuilder " << "get ETL module "
-		  <<  std::hex << ETLDetId(endcap, layer, ring, module).rawId() << std::dec
-		  << " at R=" << geomDet->position().perp()
-		  << ", phi=" << geomDet->position().phi()
-		  << ", z= " << geomDet->position().z() 
-		  << " isFront? " << isInFront << std::endl;
+        LogTrace(metname) 
+	  << "get ETL module "
+	  <<  std::hex << ETLDetId(endcap, layer, ring, module).rawId() << std::dec
+	  << " at R=" << geomDet->position().perp()
+	  << ", phi=" << geomDet->position().phi()
+	  << ", z= " << geomDet->position().z() 
+	  << " isFront? " << isInFront << std::endl;
       }
     }
 
@@ -88,13 +88,12 @@ MTDRingForwardDoubleLayer* ETLDetLayerGeometryBuilder::buildLayer(int endcap,
   // How should they be sorted?
   //    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractZ<GeometricSearchDet,float>());
   result = new MTDRingForwardDoubleLayer(frontRings, backRings);  
-  //LogTrace(metname) 
-    std::cout << "ETLDetLayerGeometryBuilder: " 
-	      << "New MTDRingForwardLayer with " << frontRings.size() 
-	      << " and " << backRings.size()
-	      << " rings, at Z " << result->position().z()
-	      << " R1: " << result->specificSurface().innerRadius()
-	      << " R2: " << result->specificSurface().outerRadius() << std::endl; 
+  LogTrace(metname) 
+    << "New MTDRingForwardLayer with " << frontRings.size() 
+    << " and " << backRings.size()
+    << " rings, at Z " << result->position().z()
+    << " R1: " << result->specificSurface().innerRadius()
+    << " R2: " << result->specificSurface().outerRadius() << std::endl; 
   return result;
 }
 
@@ -113,11 +112,11 @@ MTDDetRing * ETLDetLayerGeometryBuilder::makeDetRing(vector<const GeomDet*> & ge
 
     precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetPhi());
     MTDDetRing * result = new MTDDetRing(geomDets);
-    //LogTrace(metname) 
-    std::cout << "ETLDetLayerGeometryBuilder "<< "New MTDDetRing with " << geomDets.size()
-	      << " chambers at z="<< result->position().z()
-	      << " R1: " << result->specificSurface().innerRadius()
-	      << " R2: " << result->specificSurface().outerRadius() << std::endl;;
+    LogTrace(metname) 
+      << "New MTDDetRing with " << geomDets.size()
+      << " chambers at z="<< result->position().z()
+      << " R1: " << result->specificSurface().innerRadius()
+      << " R2: " << result->specificSurface().outerRadius() << std::endl;;
     return result;
 }
 

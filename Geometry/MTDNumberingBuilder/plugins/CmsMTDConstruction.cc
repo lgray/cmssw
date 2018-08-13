@@ -42,7 +42,7 @@ void CmsMTDConstruction::buildBTLModule(DDFilteredView& fv,
 					GeometricTimingDet *mother,
 					const std::string& attribute){
 
-  GeometricTimingDet * det  = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)));
+  GeometricTimingDet * det  = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type( fv.logicalPart().name() ));
   
   const auto& copyNumbers = fv.copyNumbers();
   auto module_number = copyNumbers[copyNumbers.size()-2];

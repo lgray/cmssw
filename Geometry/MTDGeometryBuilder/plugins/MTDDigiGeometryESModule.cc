@@ -83,8 +83,6 @@ MTDDigiGeometryESModule::produce(const MTDDigiGeometryRecord & iRecord)
   edm::ESHandle<PMTDParameters> ptp;
   iRecord.getRecord<PMTDParametersRcd>().get( ptp );
   
-  std::cout << "MTDParameters: " << ptp.product() << ' ' << ptp->vitems.size() << ' ' << ptp->vpars.size() << std::endl;
-  
   MTDGeomBuilderFromGeometricTimingDet builder;
   _tracker  = std::shared_ptr<MTDGeometry>(builder.build(&(*gD), *ptp, tTopo));
 

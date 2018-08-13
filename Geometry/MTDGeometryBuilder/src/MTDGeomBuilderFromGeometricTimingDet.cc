@@ -47,9 +47,7 @@ MTDGeomBuilderFromGeometricTimingDet::build( const GeometricTimingDet* gd, const
   MTDGeometry* tracker = new MTDGeometry(gd);
   std::vector<const GeometricTimingDet*> comp;
   gd->deepComponents(comp);
- 
-  std::cout << "MTDGeomBuidlerFromGeometricTimingDet: " << comp.size() << std::endl;
-
+  
   if(tTopo)  theTopo = tTopo;
 
   //define a vector which associate to the detid subdetector index -1 (from 0 to 5) the GeometridDet enumerator to be able to know which type of subdetector it is
@@ -57,21 +55,18 @@ MTDGeomBuilderFromGeometricTimingDet::build( const GeometricTimingDet* gd, const
   std::vector<GeometricTimingDet::GTDEnumType> gdsubdetmap(2,GeometricTimingDet::unknown); // hardcoded "2" should not be a surprise... 
   GeometricTimingDet::ConstGeometricTimingDetContainer subdetgd = gd->components();
   
-  //LogDebug("SubDetectorGeometricTimingDetType") 
-  std::cout << "MTDGeomBuidlerFromGeometricTimingDet: " << "GeometricTimingDet enumerator values of the subdetectors" << std::endl;
+  LogDebug("SubDetectorGeometricTimingDetType") 
+    << "GeometricTimingDet enumerator values of the subdetectors" << std::endl;
   for(unsigned int i=0;i<subdetgd.size();++i) {
     MTDDetId mtdid(subdetgd[i]->geographicalId());
     assert(mtdid.mtdSubDetector()>0 && mtdid.mtdSubDetector()<3);
     gdsubdetmap[mtdid.mtdSubDetector()-1]= subdetgd[i]->type();
-    //LogTrace("SubDetectorGeometricTimingDetType") 
-    std::cout << "SubDetectorGeometricTimingDetType " << "subdet " << i 
-	      << " type " << subdetgd[i]->type()
-	      << " detid " << std::hex <<  subdetgd[i]->geographicalId().rawId() << std::dec
-	      << " subdetid " <<  subdetgd[i]->geographicalId().subdetId() << std::endl;
+    LogTrace("SubDetectorGeometricTimingDetType") 
+      << "subdet " << i 
+      << " type " << subdetgd[i]->type()
+      << " detid " << std::hex <<  subdetgd[i]->geographicalId().rawId() << std::dec
+      << " subdetid " <<  subdetgd[i]->geographicalId().subdetId() << std::endl;
   }
-
-  std::cout << "MTDGeomBuidlerFromGeometricTimingDet: " << "GeometricTimingDet done building MTDGeometry" << std::endl;
-  std::cout << "MTDGeomBuidlerFromGeometricTimingDet: " << "Comp size: " << comp.size() << std::endl;
   
   std::vector<const GeometricTimingDet*> dets[2];
   std::vector<const GeometricTimingDet*> & btl = dets[0]; btl.reserve(comp.size());
@@ -82,8 +77,6 @@ MTDGeomBuilderFromGeometricTimingDet::build( const GeometricTimingDet* gd, const
     dets[mtdid.mtdSubDetector()-1].emplace_back(i);
   }
   
-  std::cout << "MTDGeomBuidlerFromGeometricTimingDet: " << "GeometricTimingDet done building dets list" << std::endl;
-
   //loop on all the six elements of dets and firstly check if they are from pixel-like detector and call buildPixel, then loop again and check if they are strip and call buildSilicon. "unknown" can be filled either way but the vector of GeometricTimingDet must be empty !!
   // this order is VERY IMPORTANT!!!!! For the moment I (AndreaV) understand that some pieces of code rely on pixel-like being before strip-like 
   
@@ -98,9 +91,7 @@ MTDGeomBuilderFromGeometricTimingDet::build( const GeometricTimingDet* gd, const
 		 GeomDetEnumerators::SubDetector::TimingEndcap,
 		 ptp);    
   }  
-
-  std::cout << "MTDGeomBuidlerFromGeometricTimingDet: " << "GeometricTimingDet done building pixels" << std::endl;
-
+  
   // and finally the "empty" subdetectors (maybe it is not needed)
   for(unsigned int i=0;i<2;++i) {
     if(gdsubdetmap[i] == GeometricTimingDet::unknown) {
@@ -109,17 +100,10 @@ MTDGeomBuilderFromGeometricTimingDet::build( const GeometricTimingDet* gd, const
     }
   }
 
-  std::cout << "MTDGeomBuidlerFromGeometricTimingDet: " << "GeometricTimingDet done building silicon" << std::endl;
-
   buildGeomDet(tracker);//"GeomDet"
 
-  std::cout << "MTDGeomBuidlerFromGeometricTimingDet: " << "GeometricTimingDet done building GeomDet" << std::endl;
-
   verifyDUinTG(*tracker);
-
-  std::cout << "MTDGeomBuidlerFromGeometricTimingDet: " << "GeometricTimingDet done verifying" << std::endl;
-
-
+  
   return tracker;
 }
 
@@ -128,13 +112,12 @@ void MTDGeomBuilderFromGeometricTimingDet::buildPixel(std::vector<const Geometri
 						      GeomDetType::SubDetector det,
 						      const PMTDParameters& ptp) // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
 {
-  //LogDebug("BuildingGeomDetUnits") 
-  std::cout << "BuildingGeomDetUnits: " 
-	    << " Pixel type. Size of vector: " << gdv.size() 
-	    << " GeomDetType subdetector: " << det 
-	    << " logical subdetector: " << GeomDetEnumerators::subDetGeom[det]
-	    << " big pix per ROC x: " << 0<< " y: " << 0
-	    << " is upgrade: " << true << std::endl;
+  LogDebug("BuildingGeomDetUnits") 
+    << " Pixel type. Size of vector: " << gdv.size() 
+    << " GeomDetType subdetector: " << det 
+    << " logical subdetector: " << GeomDetEnumerators::subDetGeom[det]
+    << " big pix per ROC x: " << 0<< " y: " << 0
+    << " is upgrade: " << true << std::endl;
   
   // this is a hack while we put things into the DDD
   int ROCrows(0),ROCcols(0),ROCSx(0),ROCSy(0);

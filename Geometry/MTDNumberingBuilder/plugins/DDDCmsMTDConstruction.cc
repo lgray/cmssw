@@ -69,8 +69,6 @@ DDDCmsMTDConstruction::construct( const DDCompactView* cpv, std::vector<int> det
   GeometricTimingDet* mtd = new GeometricTimingDet( &fv, GeometricTimingDet::MTD );
   CmsMTDBuilder theCmsMTDBuilder;
   theCmsMTDBuilder.build( fv, mtd, attribute );
-
-  std::cout << "DDDCmsMTDConstruction: " << mtd->name() << ' ' << mtd->components().size() << std::endl;
   
   return mtd;
 }

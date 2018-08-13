@@ -42,9 +42,7 @@ MTDParametersESModule::produce( const PMTDParametersRcd& iRecord )
     
   PMTDParameters* ptp = new PMTDParameters();
   builder.build( &(*cpv), *ptp );
-
-  std::cout << "built the thing" << std::endl;
-
+  
   return ReturnType( ptp ) ;
 }
 

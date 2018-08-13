@@ -24,8 +24,10 @@
 #include "RecoMTD/DetLayers/interface/MTDRingForwardDoubleLayer.h"
 #include "RecoMTD/DetLayers/interface/MTDDetRing.h"
 
-#include <DataFormats/MuonDetId/interface/DTWireId.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
+
+#include <DataFormats/ForwardDetId/interface/BTLDetId.h>
+#include <DataFormats/ForwardDetId/interface/ETLDetId.h>
 
 #include <sstream>
 
@@ -125,7 +127,7 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo,const
 
     GlobalTrajectoryParameters gtp(gp,gv,charge,field);
     TrajectoryStateOnSurface tsos(gtp, cyl);
-    cout << "testDTLayers: at " << tsos.globalPosition()
+    cout << "testBTLLayers: at " << tsos.globalPosition()
 	 << " R=" << tsos.globalPosition().perp()
 	 << " phi=" << tsos.globalPosition().phi()
 	 << " Z=" << tsos.globalPosition().z()
@@ -148,7 +150,7 @@ void MTDRecoGeometryAnalyzer::testBTLLayers(const MTDDetLayerGeometry* geo,const
 
 	   << "  final state pos: " << compDets.front().second.globalPosition() << endl 
 	   << "  det         pos: " << compDets.front().first->position()
-	   << " id: " << DTWireId(compDets.front().first->geographicalId().rawId()) << endl 
+	   << " id: " << std::hex << BTLDetId(compDets.front().first->geographicalId().rawId()).rawId() << std::dec<< endl 
 	   << "  distance " << (tsos.globalPosition()-compDets.front().first->position()).mag()
 
 	   << endl
@@ -180,7 +182,7 @@ void MTDRecoGeometryAnalyzer::testETLLayers(const MTDDetLayerGeometry* geo,const
 
     GlobalTrajectoryParameters gtp(gp,gv,charge,field);
     TrajectoryStateOnSurface tsos(gtp, disk);
-    cout << "testCSCLayers: at " << tsos.globalPosition()
+    cout << "testETLLayers: at " << tsos.globalPosition()
 	 << " R=" << tsos.globalPosition().perp()
 	 << " phi=" << tsos.globalPosition().phi()
 	 << " Z=" << tsos.globalPosition().z()
@@ -203,7 +205,7 @@ void MTDRecoGeometryAnalyzer::testETLLayers(const MTDDetLayerGeometry* geo,const
 
 	   << "  final state pos: " << compDets.front().second.globalPosition() << endl 
 	   << "  det         pos: " << compDets.front().first->position()
-	   << " id: " << CSCDetId(compDets.front().first->geographicalId().rawId()) << endl 
+	   << " id: " << std::hex << ETLDetId(compDets.front().first->geographicalId().rawId()).rawId() << std::dec << endl 
 	   << "  distance " << (tsos.globalPosition()-compDets.front().first->position()).mag()
 
 	   << endl

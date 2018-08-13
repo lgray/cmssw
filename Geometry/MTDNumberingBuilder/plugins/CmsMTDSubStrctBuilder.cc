@@ -17,24 +17,20 @@ CmsMTDSubStrctBuilder::CmsMTDSubStrctBuilder()
 {}
 
 void
-CmsMTDSubStrctBuilder::buildComponent( DDFilteredView& fv, GeometricTimingDet* g, std::string s )
+CmsMTDSubStrctBuilder::buildComponent( DDFilteredView& fv, GeometricTimingDet* g, std::string side )
 {
   CmsMTDTrayBuilder theCmsMTDTrayBuilder;
 
   GeometricTimingDet * subdet = new GeometricTimingDet( &fv, theCmsMTDStringToEnum.type( fv.logicalPart().name() ));
   
-  for (const auto& side : sides ) {
-
-    switch( theCmsMTDStringToEnum.type( fv.logicalPart().name() ) )
-      {  
-      case GeometricTimingDet::BTLLayer:
-	theCmsMTDTrayBuilder.build(fv,subdet,side);      
-	break;  
-	
-      default:
-	throw cms::Exception("CmsMTDSubStrctBuilder")<<" ERROR - I was expecting a BTLLayer... I got a "<< fv.logicalPart().name();
-      }  
-  }
+  switch( theCmsMTDStringToEnum.type( fv.logicalPart().name() ) ) {  
+  case GeometricTimingDet::BTLLayer:
+    theCmsMTDTrayBuilder.build(fv,subdet,side);      
+    break;  
+    
+  default:
+    throw cms::Exception("CmsMTDSubStrctBuilder")<<" ERROR - I was expecting a BTLLayer... I got a "<< fv.logicalPart().name();
+  }  
   
   g->addComponent(subdet);
 }

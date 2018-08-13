@@ -9,7 +9,7 @@
 
 void CmsMTDModuleBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, std::string side){
 
-  if( fv.logicalPart().name().fullname().find(side) == std::string::npos ) return;
+  //if( fv.logicalPart().name().fullname().find(side) == std::string::npos ) return;
 
   CmsMTDConstruction theCmsMTDConstruction;
   theCmsMTDConstruction.buildComponent(fv,g,side);  
