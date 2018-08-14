@@ -42,7 +42,6 @@ GlobalTrackingGeometry* GlobalTrackingGeometryBuilder::build(const TrackerGeomet
     tkGeometries.emplace_back(gem);
     tkGeometries.emplace_back(me0);
     
-    
     return new GlobalTrackingGeometry(tkGeometries);
 }
 

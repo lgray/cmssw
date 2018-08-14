@@ -669,7 +669,9 @@ timingDict = {
         "reco" :[
             'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
             'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
             'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
             'mtdGeometry.applyAlignment = cms.bool(False)'
         ],
@@ -693,7 +695,9 @@ timingDict = {
         "reco" :[
             'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
             'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
             'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
             'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
             'mtdGeometry.applyAlignment = cms.bool(False)'
         ],
