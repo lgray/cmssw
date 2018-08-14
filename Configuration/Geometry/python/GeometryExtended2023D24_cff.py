@@ -5,6 +5,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Geometry.CMSCommonData.cmsExtendedGeometry2023D24XML_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
+from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *
 from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT6_cff import *
 from Geometry.HcalCommonData.hcalParameters_cfi      import *
 from Geometry.HcalCommonData.hcalDDDSimConstants_cfi import *

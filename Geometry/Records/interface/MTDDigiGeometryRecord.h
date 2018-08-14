@@ -1,5 +1,5 @@
-#ifndef RECORDS_TRACKERDIGIGEOMETRYRECORD_H
-#define RECORDS_TRACKERDIGIGEOMETRYRECORD_H
+#ifndef RECORDS_MTDDIGIGEOMETRYRECORD_H
+#define RECORDS_MTDDIGIGEOMETRYRECORD_H
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
