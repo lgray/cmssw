@@ -5,12 +5,12 @@ import Geometry.MTDGeometryBuilder.mtdGeometry_cfi
 # This cff provides a TrackerGeometry with the label 'idealForDigi' that is for sure matching
 # the ideal one and thus should be used in the digitisers.
 #
-idealForDigiTrackerGeometry = Geometry.MTDGeometryBuilder.mtdGeometry_cfi.mtdGeometry.clone()
+idealForDigiMTDGeometry = Geometry.MTDGeometryBuilder.mtdGeometry_cfi.mtdGeometry.clone()
 # The es_module providing fake (i.e. empty) alignment constants:
 from Alignment.CommonAlignmentProducer.fakeForIdealAlignmentProducer_cfi import *
 # need to set to False, see below:
-idealForDigiTrackerGeometry.applyAlignment = False
+idealForDigiMTDGeometry.applyAlignment = False
 # Label of the produced TrackerGeometry:
-idealForDigiTrackerGeometry.appendToDataLabel = 'idealForDigi'
+idealForDigiMTDGeometry.appendToDataLabel = 'idealForDigi'
 # Alignments are looked for with this label:
-idealForDigiTrackerGeometry.alignmentsLabel = 'fakeForIdeal'
+idealForDigiMTDGeometry.alignmentsLabel = 'fakeForIdeal'

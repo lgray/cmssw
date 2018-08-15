@@ -56,3 +56,4 @@ from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *
 from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *
 from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *
 mtdGeometry.applyAlignment = cms.bool(False)
+
