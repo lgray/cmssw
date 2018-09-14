@@ -313,16 +313,8 @@ void TimingSD::EndOfEvent(G4HCofThisEvent* ) {
   for (int j=0; j<nhits; ++j) {
 
     BscG4Hit* aHit = (*theHC)[j];
-    
     Local3DPoint locEntryPoint= ConvertToLocal3DPoint(aHit->getEntryLocalP());
-    Local3DPoint locExitPoint = ConvertToLocal3DPoint(aHit->getEntry());
-    //aHit->getExitLocalP());
-    std::cout << std::hex << aHit->getUnitID() << std::dec
-	      << " global entry: " << aHit->getEntry() << std::endl;
-    std::cout << std::hex << aHit->getUnitID() << std::dec 
-	      << " local entry: "<< aHit->getEntryLocalP() << std::endl;
-    std::cout << std::hex << aHit->getUnitID() << std::dec 
-	      << " local entry xform: " << locEntryPoint << std::endl;
+    Local3DPoint locExitPoint = ConvertToLocal3DPoint(aHit->getExitLocalP());
 
     slave->processHits(PSimHit(locEntryPoint,locExitPoint,
 			       aHit->getPabs(),
