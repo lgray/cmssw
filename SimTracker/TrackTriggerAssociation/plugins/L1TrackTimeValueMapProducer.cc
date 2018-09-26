@@ -185,7 +185,8 @@ void L1TrackTimeValueMapProducer::produce(edm::StreamID sid, edm::Event& evt, co
 
     for( unsigned i = 0; i < TrackCollection.size(); ++i ) {
       const auto& tk = TrackCollection[i];
-      const auto mom = tk.getMomentum();
+      const unsigned nPars = ( tk.getRInv(5) == 0.0 ? 4 : 5 );
+      const auto mom = tk.getMomentum(nPars);
       const float absEta = std::abs(mom.eta());
       bool inAcceptance = absEta < etaMax_ && absEta >= etaMin_ && mom.mag()>pMin_ && (absEta>etaMaxForPtThreshold_ || mom.perp()>ptMin_);
       if (inAcceptance) {
