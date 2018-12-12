@@ -28,8 +28,6 @@ class MTDChannelIdentifier{
   public:
     
     // Constructor: pre-computes masks and shifts from field widths
-    // gcc4.8: sorry, unimplemented: use of the value of the object being constructed in a constant expression
-    // no constexpr yet....
     Packing(unsigned int row_w, unsigned int column_w,
 	    unsigned int time_w, unsigned int adc_w) :
       row_width(row_w), column_width(column_w), adc_width(adc_w)
@@ -63,22 +61,16 @@ class MTDChannelIdentifier{
     PackedDigiType rowcol_mask;
     
     
-    int max_row;
-    int max_column;
-    int max_adc;
+    const int max_row;
+    const int max_column;
+    const int max_adc;
   };
   
  public:
-  //#ifndef CMS_NOCXX11
   static Packing packing() { return Packing(6, 5, 12, 9);}
 
   static const Packing thePacking;
 
-  //#else
-  //static constexpr Packing packing() { return Packing(8, 9, 4, 11);}
-
-  //static constexpr Packing thePacking = packing();
-  //#endif
 };  
 
 
